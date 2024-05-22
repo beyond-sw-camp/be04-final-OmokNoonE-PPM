@@ -1,25 +1,30 @@
 <template>
   <div id="example">
     <Handsontable :settings="hotSettings"></Handsontable>
+    <!-- @open-modal 이벤트 핸들러 추가 -->
+    <MaterialSchedule :isOpen="modalOpen" :modalUrl="modalUrl" @close="modalOpen = false"></MaterialSchedule>
   </div>
 </template>
 
-<script lang="ts">
+
+<script>
 import { defineComponent, ref } from 'vue';
 import HandsontableComponent from '../components/Handsontable.vue';
+import MaterialSchedule from '@/components/MaterialSchedule.vue';
 import 'handsontable/dist/handsontable.full.css';
 
 export default defineComponent({
   name: 'DataGrid',
   components: {
     Handsontable: HandsontableComponent,
+    MaterialSchedule
   },
   setup() {
     // 더미 데이터
     const dummyData = [
-      ['Project A', '2024-05-01', '2024-06-30', 10, 0.8, '진행', 20, '<a href="http://www.naver.com">네이버</a>'],
-      ['Project B', '2024-05-15', '2024-07-15', 8, 0.6, '준비', 15, '<a href="google.co.kr">구글</a>'],
-      ['Project C', '2024-06-01', '2024-08-15', 12, 0.9, '완료', 25, '<a href="daum.net">다음</a>'],
+      ['Project A', '2024-05-01', '2024-06-30', 10, 0.8, '진행', 20, 'test-com'],
+      ['Project B', '2024-05-15', '2024-07-15', 8, 0.6, '준비', 15, 'dashboard'],
+      ['Project C', '2024-06-01', '2024-08-15', 12, 0.9, '완료', 25, ''],
     ];
 
     const hotSettings = ref({
@@ -51,7 +56,23 @@ export default defineComponent({
           source: ['준비', '진행', '완료'] // 상태
         },
         { data: 6, type: 'numeric' }, // 공수
-        { data: 7, type: 'text', renderer: 'html' }, // 상세 링크
+        { data: 7, type: 'text', renderer(instance, td, row, col, prop, value) {
+              const button = document.createElement('button');
+
+              button.innerText = value;
+              button.style = 'background-color: #4CAF50; color: white; border: none; padding: 10px 24px; cursor: pointer;';
+              button.addEventListener('mousedown', () => {
+                openModal(value);
+                // console.log("됐냐?!?!!");
+              });
+
+              td.innerText = '';
+              td.appendChild(button);
+
+              return td;
+
+            }
+          }, // 상세 링크
       ],
       licenseKey: 'non-commercial-and-evaluation',
       rowHeaders: true,
@@ -62,11 +83,22 @@ export default defineComponent({
       contextMenu: true,
       multiColumnSorting: true,
       filters: true,
-      colWidths: [200, 150, 150, 100, 100, 100, 100, 200], // 열 너비
+      colWidths: [200, 150, 150, 100, 100, 100, 100, 100], // 열 너비
     });
+
+    const modalOpen = ref(false);
+    const modalUrl = ref('');
+
+    const openModal = (url) => {
+      modalUrl.value = url;
+      modalOpen.value = true;
+    };
 
     return {
       hotSettings,
+      modalOpen,
+      modalUrl,
+      openModal
     };
   },
 });
