@@ -1,12 +1,93 @@
 <template>
   <div>
-    <!-- 버튼 추가 -->
-    <button @click="openModal">모달 열기</button>
-
     <div class="modal" v-if="isOpen">
+      <div class="modal-overlay" @click="closeModal"></div>
       <div class="modal-content">
         <span class="close" @click="closeModal">&times;</span>
-        <iframe :src="modalUrl" class="modal-frame"></iframe>
+
+        <!-- 제목 -->
+        <h2 class="modal-title">{{ schedule.title }}</h2>
+
+        <!-- 프로젝트 이름 -->
+        <p class="modal-project-name">{{ schedule.projectName }}</p>
+
+        <!-- 가로선 -->
+        <hr class="modal-divider">
+
+        <!-- 시작일 ~ 종료일, 가중치, 진행률, 상태, 생성일시, 작성자 -->
+        <div class="modal-info">
+          <div class="modal-info-item">
+            <span class="modal-info-label">시작일:</span>
+            <span class="modal-info-value">{{ schedule.startDate }}</span>
+          </div>
+          <div class="modal-info-item">
+            <span class="modal-info-label">종료일:</span>
+            <span class="modal-info-value">{{ schedule.endDate }}</span>
+          </div>
+          <div class="modal-info-item">
+            <span class="modal-info-label">가중치:</span>
+            <span class="modal-info-value">{{ schedule.weight }}</span>
+          </div>
+          <div class="modal-info-item">
+            <span class="modal-info-label">진행률:</span>
+            <span class="modal-info-value">{{ schedule.progress }}%</span>
+          </div>
+          <div class="modal-info-item">
+            <span class="modal-info-label">상태:</span>
+            <span class="modal-info-value">{{ schedule.status }}</span>
+          </div>
+          <div class="modal-info-item">
+            <span class="modal-info-label">생성일시:</span>
+            <span class="modal-info-value">{{ schedule.createdAt }}</span>
+          </div>
+          <div class="modal-info-item">
+            <span class="modal-info-label">작성자:</span>
+            <span class="modal-info-value">{{ schedule.creator.name }}</span>
+          </div>
+        </div>
+
+        <!-- 내용 -->
+        <p class="modal-description">{{ schedule.description }}</p>
+
+        <!-- 담당자 -->
+        <!-- 담당자 -->
+        <p class="modal-responsible">담당자:
+          <template v-for="(responsible, index) in schedule.responsibles" :key="index">
+            {{ responsible.name }} ({{ responsible.id }})
+            <span v-if="index !== schedule.responsibles.length - 1">,</span>
+          </template>
+        </p>
+
+
+        <!-- 둥근 모서리 직사각형 -->
+        <div class="modal-tasks-container">
+          <h4 class="modal-tasks-title">업무 목록</h4>
+          <table class="modal-tasks">
+            <thead>
+            <tr>
+              <th>업무 제목</th>
+              <th>수행 여부</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="task in schedule.tasks" :key="task.id">
+              <td>{{ task.title }}</td>
+              <td>
+                <input type="checkbox" :checked="task.completed" disabled>
+                <label>{{ task.completed ? '완료' : '미완료' }}</label>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+
+
+        <!-- 수정 내역, 수정, 권한 -->
+        <div class="modal-actions">
+          <button class="modal-action-button" @click="openEditModal">수정</button>
+          <button class="modal-action-button" @click="openHistoryModal">수정 내역</button>
+          <button class="modal-action-button" @click="openPermissionModal">권한 확인</button>
+        </div>
       </div>
     </div>
   </div>
@@ -15,13 +96,48 @@
 <script>
 export default {
   props: ['isOpen', 'modalUrl'],
+  data() {
+    return {
+      schedule: {
+        title: 'Project A Schedule',
+        description: 'This is a detailed description of the schedule.',
+        startDate: '2024-05-01',
+        endDate: '2024-06-30',
+        weight: 10,
+        progress: 80,
+        status: '진행',
+        createdAt: '2024-04-01 10:00',
+        creator: {name: '홍길동'},
+        projectName: 'Project A',
+        responsibles: [
+          {name: '조자룡', id: 'EP001'},
+          {name: '유비', id: 'EP002'}
+        ],
+        tasks: [
+          {id: 'task1', title: 'Task 1', completed: true},
+          {id: 'task2', title: 'Task 2', completed: false}
+        ]
+      }
+    };
+  },
   methods: {
-    openModal() {
-      // @open-modal 이벤트 대신 openModal 메서드 호출
-      this.$emit('open-modal');
-    },
     closeModal() {
       this.$emit('close');
+    },
+    showParentTitle() {
+      // 부모 일정ID의 제목을 표시하는 로직 구현
+    },
+    showPrecedingTitle() {
+      // 선행 일정ID의 제목을 표시하는 로직 구현
+    },
+    openHistoryModal() {
+      // 수정 내역 팝업창을 여는 로직 구현
+    },
+    openEditModal() {
+      // 일정 수정 모달창을 여는 로직 구현
+    },
+    openPermissionModal() {
+      // 권한 확인 모달창을 여는 로직 구현
     }
   }
 };
@@ -30,44 +146,134 @@ export default {
 <style scoped>
 /* 모달 스타일 */
 .modal {
-  display: none; /* 기본적으로 숨겨진 상태 */
+  display: block; /* 기본적으로 숨겨진 상태에서 display를 block으로 변경 */
   position: fixed; /* 고정 위치 */
-  z-index: 1; /* 다른 요소 위에 배치 */
+  z-index: 1000; /* 다른 요소 위에 배치 */
   left: 0;
   top: 0;
   width: 100%;
   height: 100%;
-  overflow: auto; /* 스크롤이 필요한 경우 스크롤 */
-  background-color: rgba(0,0,0,0.4); /* 반투명 배경 */
+  overflow: hidden; /* 스크롤을 방지 */
+  backdrop-filter: blur(5px); /* 배경 흐림 효과 */
 }
 
-/* 모달 내용 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4); /* 반투명 배경 */
+  z-index: 999;
+}
+
 .modal-content {
   background-color: #fefefe;
-  margin: 15% auto; /* 모달이 화면 중앙에 위치하도록 함 */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   padding: 20px;
-  border: 1px solid #888;
+  border-radius: 10px; /* 둥근 모서리 직사각형 */
   width: 80%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  z-index: 1000;
 }
 
-/* 모달 닫기 버튼 스타일 */
 .close {
   color: #aaa;
-  float: right;
+  position: absolute;
+  top: 10px;
+  right: 10px;
   font-size: 28px;
   font-weight: bold;
-}
-
-.close:hover,
-.close:focus {
-  color: black;
-  text-decoration: none;
   cursor: pointer;
 }
 
-/* 모달 내용 스타일 */
-.modal-frame {
-  width: 100%;
-  height: 80vh; /* 모달 내부 내용의 높이를 조절할 수 있습니다. */
+.modal-divider {
+  margin-top: 20px;
+  margin-bottom: 20px;
 }
+
+.modal-info {
+  margin-bottom: 20px;
+}
+
+.modal-info-item {
+  display: inline-block;
+  margin-right: 20px;
+}
+
+.modal-info-label {
+  font-weight: bold;
+  color: #666;
+}
+
+.modal-description {
+  margin-bottom: 20px;
+}
+
+.modal-responsible {
+  margin-bottom: 20px;
+}
+
+.modal-tasks-container {
+  border-radius: 10px;
+  background-color: #f5f5f5;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.modal-tasks-title {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+/* 수정된 부분 */
+.modal-tasks th,
+.modal-tasks td {
+  padding: 10px 20px; /* 가로 간격만 조정 */
+}
+
+.modal-tasks th:first-child,
+.modal-tasks td:first-child {
+  padding-left: 0; /* 첫 번째 열의 왼쪽 간격 제거 */
+}
+
+.modal-tasks th:last-child,
+.modal-tasks td:last-child {
+  padding-right: 0; /* 마지막 열의 오른쪽 간격 제거 */
+}
+
+.modal-tasks li {
+  margin-bottom: 10px;
+}
+
+.modal-actions {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+}
+
+.modal-action-button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin-right: 10px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.modal-action-button:hover {
+  background-color: #45a049;
+}
+
 </style>
