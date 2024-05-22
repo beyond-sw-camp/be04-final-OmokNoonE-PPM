@@ -1,5 +1,5 @@
 <template>
-  <div ref="chartRef"></div>
+  <div ref="lineRef"></div>
 </template>
 
 <script>
@@ -7,15 +7,13 @@ import Chart from '@toast-ui/chart';
 import { ref, onMounted } from 'vue';
 
 export default {
-
-  // line graph
   setup() {
-    const chartRef = ref(null);
+    const lineRef = ref(null);
     const categories = ref([]); // categories를 반응형 변수로 선언
     const expectProgress = ref([]);
     const progress = ref([]);
 
-    const data = {
+    const linedata = {
       categories: categories.value, // categories 변수를 사용
       series: [
         {
@@ -30,7 +28,7 @@ export default {
     };
 
     const options = {
-      chart: {width: 700, height: 400},
+      chart: {width: 500, height: 300},
     };
 
     const fetchData = async () => {
@@ -43,15 +41,15 @@ export default {
         categories.value = result.categories;
 
         // data 객체 업데이트
-        data.categories = categories.value;
+        linedata.categories = categories.value;
 
         // 예상 진행률 및 실제 진행률 데이터 업데이트
         const expectedSeries = result.series.find(series => series.name === '예상진행률');
         const actualSeries = result.series.find(series => series.name === '실제진행률');
 
         // data.series의 데이터 업데이트
-        data.series.find(series => series.name === '예상진행률').data = expectedSeries.data;
-        data.series.find(series => series.name === '실제진행률').data = actualSeries.data;
+        linedata.series.find(series => series.name === '예상진행률').data = expectedSeries.data;
+        linedata.series.find(series => series.name === '실제진행률').data = actualSeries.data;
 
         expectProgress.value = expectedSeries.data;
         progress.value = actualSeries.data;
@@ -62,29 +60,16 @@ export default {
 
     onMounted(async () => {
       await fetchData(); // 데이터를 먼저 fetch
-      if (chartRef.value) {
-        const el = chartRef.value;
-        const chart = Chart.lineChart({el, data, options});
+      if (lineRef.value) {
+        const el = lineRef.value;
+        const chart = Chart.lineChart({el, data: linedata, options});
         console.log(chart);
       }
     });
 
     return {
-      chartRef
+      lineRef
     };
   },
-
-
-
-
-
-
-
-
-
-
-
-
-
 };
 </script>
