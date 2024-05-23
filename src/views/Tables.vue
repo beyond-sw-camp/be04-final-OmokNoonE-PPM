@@ -5,7 +5,7 @@
         <div class="card my-4">
           <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
             <div class="bg-gradient-success shadow-success border-radius-lg pt-4 pb-3">
-              <h6 class="text-white text-capitalize ps-3">팀 멤버</h6>
+              <h6 class="text-white text-capitalize ps-3">프로젝트 구성원</h6>
             </div>
           </div>
           <div class="card-body px-0 pb-2" style="max-height: 300px; overflow-y: auto;">
@@ -13,10 +13,10 @@
               <table class="table align-items-center mb-0">
                 <thead>
                 <tr>
-                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-left">이름</th>
-                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-left ps-2">직책</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-left ps-3">이름</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-left ps-1">직책</th>
                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center ps-2">연락처</th>
-                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-left ps-2">착수일</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-left ps-4">등록일</th>
                   <th class="text-secondary opacity-7"></th>
                 </tr>
                 </thead>
@@ -32,7 +32,7 @@
                   <td class="text-left">
                     <p class="text-xs font-weight-bold mb-0">-</p>
                   </td>
-                  <td class="align-middle text-left text-sm">
+                  <td class="align-middle text-center text-sm">
                     <span class="text-secondary text-xs font-weight-bold text-center d-block">-</span>
                   </td>
                   <td class="align-middle text-left text-sm">
@@ -51,8 +51,8 @@
                   <td class="text-left">
                     <p class="text-xs font-weight-bold mb-0">{{ teamMember.role === 'Manager' ? 'PM' : teamMember.role === 'Programator' ? 'PA' : teamMember.role }}</p>
                   </td>
-                  <td class="align-middle text-left text-sm">
-                    <span class="text-secondary text-xs font-weight-bold text-center d-block">{{ teamMember.email }}<br>{{ teamMember.phone }}</span>
+                  <td class="align-middle text-center text-sm">
+                    <span class="text-secondary text-xs font-weight-bold text-left d-inline-block">E-mail. {{ teamMember.email }}<br><span class="ps-1">Phone. {{ teamMember.phone }}</span></span>
                   </td>
                   <td class="align-middle text-left text-sm">
                     <span class="text-secondary text-xs font-weight-bold">{{ teamMember.startDate }}</span>
@@ -76,32 +76,33 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 
+// 팀 멤버 데이터를 저장하는 ref
 const teamMembers = ref([]);
 
+// 새로운 팀 멤버를 추가하는 함수
 const createTeamMember = (member) => {
   teamMembers.value.push(member);
 };
 
+// 초기 팀 멤버 데이터를 로드하는 함수
 const viewTeamMembers = () => {
   const initialMembers = [
     {
       id: 1,
       name: '김철수',
-      email: 'chulsoo@creative-tim.com',
+      email: 'chulsoo@ppmtest.com',
       phone: '010-1234-5678',
       role: 'Manager',
-      status: 'Online',
-      startDate: '23/04/18',
+      startDate: '2024-05-23',
       deleted: false
     },
     {
       id: 2,
       name: '이영희',
-      email: 'younghee@creative-tim.com',
+      email: 'younghee@ppmtest.com',
       phone: '010-9876-5432',
       role: 'Programator',
-      status: 'Offline',
-      startDate: '11/01/19',
+      startDate: '2024-05-23',
       deleted: false
     },
     // 추가 사용자 데이터
@@ -110,6 +111,7 @@ const viewTeamMembers = () => {
   initialMembers.forEach(member => createTeamMember(member));
 };
 
+// 팀 멤버를 제거하기 전에 확인 메시지를 표시하는 함수
 const confirmRemoveTeamMember = (teamMemberId) => {
   const confirmDelete = window.confirm('팀에서 제외 시키겠습니까?');
   if (confirmDelete) {
@@ -117,6 +119,7 @@ const confirmRemoveTeamMember = (teamMemberId) => {
   }
 };
 
+// 팀 멤버를 soft delete 하는 함수
 const removeTeamMember = (teamMemberId) => {
   const teamMember = teamMembers.value.find(member => member.id === teamMemberId);
   if (teamMember) {
@@ -124,10 +127,12 @@ const removeTeamMember = (teamMemberId) => {
   }
 };
 
+// soft delete가 되지 않은 팀 멤버만 필터링하는 computed property
 const filteredTeamMembers = computed(() => {
   return teamMembers.value.filter(member => !member.deleted);
 });
 
+// 컴포넌트가 마운트될 때 초기 팀 멤버 데이터를 로드
 onMounted(() => {
   viewTeamMembers();
 });
@@ -141,7 +146,8 @@ onMounted(() => {
   vertical-align: middle;
 }
 
-.table th.text-center {
+.table th.text-center,
+.table td.text-center {
   text-align: center;
 }
 
