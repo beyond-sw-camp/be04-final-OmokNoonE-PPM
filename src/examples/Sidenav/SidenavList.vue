@@ -124,15 +124,17 @@
         <a
           class="btn mt-4 w-100"
           :class="`bg-gradient-${this.$store.state.color}`"
-          href="https://www.creative-tim.com/product/vue-material-dashboard-2-pro"
-          >Upgrade to pro</a
+          @click="openCreateProjectModal"
+          >프로젝트 생성하기</a
         >
       </div>
     </div>
+    <sidenav-create-project-modal ref="createProjectModal" />
   </div>
 </template>
 <script>
 import SidenavCollapse from "./SidenavCollapse.vue";
+import SidenavCreateProjectModal from "./SidenavCreateProjectModal.vue";
 
 export default {
   name: "SidenavList",
@@ -148,6 +150,12 @@ export default {
   },
   components: {
     SidenavCollapse,
+    SidenavCreateProjectModal,
+  },
+  methods: {
+    openCreateProjectModal() {
+      this.$refs.createProjectModal.open();
+    },
   },
 };
 </script>
