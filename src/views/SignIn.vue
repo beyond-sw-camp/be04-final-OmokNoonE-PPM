@@ -125,7 +125,7 @@ import Navbar from "@/examples/PageLayout/Navbar.vue";
 import MaterialInput from "@/components/MaterialInput.vue";
 import MaterialButton from "@/components/MaterialButton.vue";
 import { useStore } from "vuex";
-import { login } from '../services/auth.js';
+import { login } from '@/services/auth';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
