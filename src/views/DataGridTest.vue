@@ -1,31 +1,42 @@
 <template>
   <div id="example">
-    <button @click="toggleEditMode">{{ editMode ? '수정 완료' : '수정' }}</button>
-    <Handsontable v-if="editMode" :settings="hotSettings"></Handsontable>
-    <Handsontable v-else :settings="readOnlyHotSettings"></Handsontable>
+    <div class="content-container">
+      <Handsontable :settings="editMode ? hotSettings : readOnlyHotSettings"></Handsontable>
+      <div class="edit-button-container">
+        <button class="edit-button" @click="toggleEditMode">{{ editMode ? '수정 완료' : '수정' }}</button>
+      </div>
+    </div>
     <MaterialSchedule :isOpen="modalOpen" :modalUrl="modalUrl" @close="modalOpen = false"></MaterialSchedule>
+    <StakeholderModal
+        :isOpen="stakeholderModalOpen"
+        :selectedStakeholders="selectedStakeholders"
+        @close="closeStakeholderModal"
+        @select="updateStakeholder"
+    ></StakeholderModal>
   </div>
 </template>
 
 <script>
-import { defineComponent, ref } from 'vue';
+import {defineComponent, ref} from 'vue';
 import HandsontableComponent from '../components/Handsontable.vue';
 import MaterialSchedule from '@/components/MaterialSchedule.vue';
+import StakeholderModal from '@/components/StakeholderModal.vue';
 import 'handsontable/dist/handsontable.full.css';
 
 export default defineComponent({
   name: 'DataGrid',
   components: {
     Handsontable: HandsontableComponent,
-    MaterialSchedule
+    MaterialSchedule,
+    StakeholderModal,
   },
-  setup() {
-    const dummyData = [
-      ['', 'Project A', '2024-05-01', '2024-06-30', 10, 80, '진행', 20, '조조', '1'],
-      ['1', 'Sub Project A1', '2024-05-01', '2024-06-30', 10, 80, '진행', 20, '조조, 유비', '2'],
-      ['1', 'Sub Project A2', '2024-05-01', '2024-06-30', 10, 80, '진행', 20, '관우, 장비', '3'],
-      // 추가 데이터 생략
-    ];
+  setup: function () {
+    const stakeholders = ['조조', '유비', '관우', '장비', '손권'];
+
+    const dummyData = ref(Array.from({ length: 20 }, (_, i) => {
+      const stakeholder = stakeholders[Math.floor(Math.random() * stakeholders.length)];
+      return [`${i}`, `Project ${i+1}`, '2024-05-01', '2024-06-30', 10, 80, '진행', 20, stakeholder, `${i+1}`];
+    }));
 
     const hotSettings = ref({
       data: dummyData,
@@ -40,14 +51,31 @@ export default defineComponent({
             return td;
           }
         },
-        { data: 1, type: 'text' },
-        { data: 2, type: 'date' },
-        { data: 3, type: 'date' },
-        { data: 4, type: 'numeric', validator: 'numeric' },
-        { data: 5, type: 'numeric', format: 'd%' },
-        { data: 6, type: 'dropdown', source: ['준비', '진행', '완료'] },
-        { data: 7, type: 'numeric' },
-        { data: 8, type: 'text' },
+        {
+          data: 1, type: 'text', renderer(instance, td, row, col, prop, value) {
+            td.title = value;
+            td.innerText = value;
+            return td;
+          }
+        },
+        {data: 2, type: 'date'},
+        {data: 3, type: 'date'},
+        {data: 4, type: 'numeric', validator: 'numeric'},
+        {data: 5, type: 'numeric', format: 'd%'},
+        {data: 6, type: 'dropdown', source: ['준비', '진행', '완료']},
+        {data: 7, type: 'numeric'},
+        {
+          data: 8, type: 'text', renderer(instance, td, row, col, prop, value) {
+            const button = document.createElement('button');
+            button.innerText = value;
+            button.style.cssText = 'background-color: #4CAF50; color: white; border: none; padding: 8px 22px; cursor: pointer;';
+            button.addEventListener('click', () => openStakeholderModal(row, value));
+            td.innerHTML = '';
+            td.appendChild(button);
+
+            return td;
+          }
+        },
         {
           data: 9, renderer(instance, td, row, col, prop, value) {
             const button = document.createElement('button');
@@ -64,19 +92,19 @@ export default defineComponent({
       licenseKey: 'non-commercial-and-evaluation',
       rowHeaders: true,
       dropdownMenu: true,
-      hiddenColumns: { indicators: true },
+      hiddenColumns: {indicators: true},
       contextMenu: {
         items: {
-          row_above: { name: 'Insert row above' },
-          row_below: { name: 'Insert row below' },
-          remove_row: { name: 'Remove row' },
-          cut: { name: 'Cut' },
-          copy: { name: 'Copy' },
-          paste: { name: 'Paste' },
-          alignment: { name: 'Alignment' }
+          row_above: {name: 'Insert row above'},
+          row_below: {name: 'Insert row below'},
+          remove_row: {name: 'Remove row'},
+          cut: {name: 'Cut'},
+          copy: {name: 'Copy'},
+          paste: {name: 'Paste'},
+          alignment: {name: 'Alignment'}
         }
       },
-      filters: { readOnly: false },
+      filters: {readOnly: false},
       search: true,
       multiColumnSorting: true,
       readOnly: false,
@@ -92,13 +120,40 @@ export default defineComponent({
       readOnly: true
     });
 
+    const selectedRow = ref(null);
     const modalOpen = ref(false);
     const modalUrl = ref('');
     const editMode = ref(false);
+    const stakeholderModalOpen = ref(false);
+    const selectedStakeholders = ref([]);
 
     const openModal = (url) => {
       modalUrl.value = url;
       modalOpen.value = true;
+    };
+
+    const openStakeholderModal = (rowIndex, value) => {
+      if (editMode.value) {
+        stakeholderModalOpen.value = true;
+        selectedStakeholders.value = value.split(',').map(str => str.trim());
+        selectedRow.value = rowIndex;
+      }
+    };
+
+    const closeStakeholderModal = () => {
+      stakeholderModalOpen.value = false;
+    };
+
+    const updateStakeholder = (stakeholders) => {
+      selectedStakeholders.value = stakeholders;
+      closeStakeholderModal();
+
+      dummyData.value = dummyData.value.map((row, i) => {
+        if (i === selectedRow.value) {
+          return [...row.slice(0, 8), stakeholders.join(', '), ...row.slice(9)];
+        }
+        return row;
+      });
     };
 
     const toggleEditMode = () => {
@@ -107,15 +162,22 @@ export default defineComponent({
 
     return {
       hotSettings,
-      readOnlyHotSettings,
       modalOpen,
       modalUrl,
       openModal,
       editMode,
-      toggleEditMode
+      toggleEditMode,
+      stakeholderModalOpen,
+      closeStakeholderModal,
+      selectedStakeholders,
+      updateStakeholder,
+      readOnlyHotSettings,
+      selectedRow,
+      openStakeholderModal,
     };
   },
 });
+
 </script>
 
 <style lang="scss">
@@ -127,11 +189,38 @@ table.htCore {
 
 .handsontable {
   font-size: 13px;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Helvetica Neue', Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  'Ubuntu', 'Helvetica Neue', Arial, sans-serif;
   font-weight: 400;
 
   .htCenter td {
-    text-align: center;
+    text-align: center; // 모든 열을 가운데 정렬
+  }
+}
+
+.content-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.edit-button-container {
+  position: fixed;
+  bottom: 30px;
+  right: 120px;
+}
+
+.edit-button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 20px;
+  background-color: #4CAF50;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: #45a049;
   }
 }
 </style>
