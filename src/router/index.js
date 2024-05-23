@@ -8,6 +8,7 @@ import Profile from "../views/Profile.vue";
 import SignIn from "../views/SignIn.vue";
 import SignUp from "../views/SignUp.vue";
 import MaterialSchedule from "@/components/MaterialSchedule.vue";
+import EditSchedule from "@/components/EditSchedule.vue";
 
 const routes = [
   {
@@ -60,6 +61,11 @@ const routes = [
     name: "SchedulesDetails",
     component: MaterialSchedule,
   },
+  {
+    path: '/schedule/edit/:id',
+    component: EditSchedule,
+    name: 'EditSchedule' },
+
 ];
 
 const router = createRouter({

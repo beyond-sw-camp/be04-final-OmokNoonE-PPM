@@ -162,7 +162,7 @@ export default {
       console.log('Open history modal');
     },
     openEditModal() {
-      console.log('Open edit modal');
+      this.$router.push({ name: 'EditSchedule', params: { id: this.schedule.id } });
     },
     openPermissionModal() {
       console.log('Open permission modal');
