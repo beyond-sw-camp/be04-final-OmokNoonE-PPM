@@ -46,7 +46,7 @@
                     variant="gradient"
                     color="success"
                     fullWidth
-                    @click.prevent="loginSubmit"
+                    @click="loginSubmit"
                     >로그인</material-button
                   >
                 </div>
@@ -119,40 +119,16 @@
   </div>
 </template>
 
-<!--<script>
-import Navbar from "@/examples/PageLayout/Navbar.vue";
-import MaterialInput from "@/components/MaterialInput.vue";
-import MaterialButton from "@/components/MaterialButton.vue";
-import { mapMutations } from "vuex";
-
-export default {
-  name: "sign-in",
-  components: {
-    Navbar,
-    MaterialInput,
-    MaterialButton,
-  },
-  beforeMount() {
-    this.toggleEveryDisplay();
-    this.toggleHideConfig();
-  },
-  beforeUnmount() {
-    this.toggleEveryDisplay();
-    this.toggleHideConfig();
-  },
-  methods: {
-    ...mapMutations(["toggleEveryDisplay", "toggleHideConfig"]),
-  },
-};
-</script>-->
-
 <script setup>
 import { ref, onBeforeMount, onBeforeUnmount } from "vue";
 import Navbar from "@/examples/PageLayout/Navbar.vue";
 import MaterialInput from "@/components/MaterialInput.vue";
 import MaterialButton from "@/components/MaterialButton.vue";
 import { useStore } from "vuex";
-import axios from "axios";
+import { login } from '../services/auth.js';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 const store = useStore();
 
@@ -161,21 +137,14 @@ const password = ref('');
 
 const loginSubmit = async () => {
   try {
-    console.log(employeeId.value);
-    console.log(password.value);
-    const response = await axios.post('http://localhost:8888/login', {
-      employeeId: employeeId.value,
-      employeePassword: password.value
-    })
-    // 로그인 성공 시 처리
-    console.log(response.headers)
+    await login(employeeId.value, password.value);
+    await router.push('/dashboard');
   } catch (error) {
     // 로그인 실패 시 처리
-    console.error(error)
+    alert('로그인 실패: ' + error.message);
+    // console.error(error)
   }
 }
-
-console.log(loginSubmit)
 
 const toggleEveryDisplay = () => store.commit("toggleEveryDisplay");
 const toggleHideConfig = () => store.commit("toggleHideConfig");
