@@ -1,16 +1,19 @@
 <template>
 <div>
-  <DataGrid/>
+<!--  <DataGrid/>-->
+  <DataGridTest/>
 </div>
 </template>
 
 <script>
-import DataGrid from "@/views/DataGrid.vue";
+// import DataGrid from "@/views/DataGrid.vue";
+import DataGridTest from "@/views/DataGridTest.vue";
 
 export default {
   name: "Billing",
   components: {
-    DataGrid
+    // DataGrid,
+    DataGridTest
   },
 };
 </script>

@@ -37,8 +37,26 @@
             <span class="modal-info-value">{{ schedule.status }}</span>
           </div>
           <div class="modal-info-item">
-            <span class="modal-info-label">생성일시:</span>
+            <span class="modal-info-label">공수:</span>
+            <span class="modal-info-value">{{ schedule.workLoad }}</span>
+          </div>
+          <div class="modal-info-item">
+            <span class="modal-info-label">생성 일시:</span>
             <span class="modal-info-value">{{ schedule.createdAt }}</span>
+          </div>
+          <div class="modal-info-item">
+            <span class="modal-info-label">수정 일시:</span>
+            <span class="modal-info-value">{{ schedule.updatedAt }}</span>
+          </div>
+          <div class="modal-info-item" @mouseover="showParentTitle" @mouseleave="hideParentTitle">
+            <span class="modal-info-label">부모 일정:</span>
+            <span class="modal-info-value">{{ schedule.parentId }}</span>
+            <span v-if="hoveredParentTitle" class="info-tooltip">{{ schedule.parentId }}의 일정 제목</span>
+          </div>
+          <div class="modal-info-item" @mouseover="showPrecedingTitle" @mouseleave="hidePrecedingTitle">
+            <span class="modal-info-label">선행 일정:</span>
+            <span class="modal-info-value">{{ schedule.precedingId }}</span>
+            <span v-if="hoveredPrecedingTitle" class="info-tooltip">{{ schedule.precedingId }}의 일정 제목</span>
           </div>
           <div class="modal-info-item">
             <span class="modal-info-label">작성자:</span>
@@ -50,14 +68,12 @@
         <p class="modal-description">{{ schedule.description }}</p>
 
         <!-- 담당자 -->
-        <!-- 담당자 -->
         <p class="modal-responsible">담당자:
           <template v-for="(responsible, index) in schedule.responsibles" :key="index">
             {{ responsible.name }} ({{ responsible.id }})
             <span v-if="index !== schedule.responsibles.length - 1">,</span>
           </template>
         </p>
-
 
         <!-- 둥근 모서리 직사각형 -->
         <div class="modal-tasks-container">
@@ -81,7 +97,6 @@
           </table>
         </div>
 
-
         <!-- 수정 내역, 수정, 권한 -->
         <div class="modal-actions">
           <button class="modal-action-button" @click="openEditModal">수정</button>
@@ -99,6 +114,7 @@ export default {
   data() {
     return {
       schedule: {
+        id: 1,
         title: 'Project A Schedule',
         description: 'This is a detailed description of the schedule.',
         startDate: '2024-05-01',
@@ -106,7 +122,11 @@ export default {
         weight: 10,
         progress: 80,
         status: '진행',
+        workLoad: 20,
+        parentId: '1',
+        precedingId: '2',
         createdAt: '2024-04-01 10:00',
+        updatedAt: '2024-05-15 15:00',
         creator: {name: '홍길동'},
         projectName: 'Project A',
         responsibles: [
@@ -117,7 +137,9 @@ export default {
           {id: 'task1', title: 'Task 1', completed: true},
           {id: 'task2', title: 'Task 2', completed: false}
         ]
-      }
+      },
+      hoveredParentTitle: false,
+      hoveredPrecedingTitle: false
     };
   },
   methods: {
@@ -125,19 +147,25 @@ export default {
       this.$emit('close');
     },
     showParentTitle() {
-      // 부모 일정ID의 제목을 표시하는 로직 구현
+      this.hoveredParentTitle = true;
+    },
+    hideParentTitle() {
+      this.hoveredParentTitle = false;
     },
     showPrecedingTitle() {
-      // 선행 일정ID의 제목을 표시하는 로직 구현
+      this.hoveredPrecedingTitle = true;
+    },
+    hidePrecedingTitle() {
+      this.hoveredPrecedingTitle = false;
     },
     openHistoryModal() {
-      // 수정 내역 팝업창을 여는 로직 구현
+      console.log('Open history modal');
     },
     openEditModal() {
-      // 일정 수정 모달창을 여는 로직 구현
+      console.log('Open edit modal');
     },
     openPermissionModal() {
-      // 권한 확인 모달창을 여는 로직 구현
+      console.log('Open permission modal');
     }
   }
 };
@@ -198,12 +226,15 @@ export default {
 }
 
 .modal-info {
+  display: flex;
+  flex-wrap: wrap;
   margin-bottom: 20px;
 }
 
 .modal-info-item {
-  display: inline-block;
-  margin-right: 20px;
+  flex: 1 1 20%; /* 각 항목이 동일한 너비를 가지도록 설정 */
+  margin-right: 10px;
+  position: relative; /* Tooltip을 포함한 요소의 위치 */
 }
 
 .modal-info-label {
@@ -231,7 +262,6 @@ export default {
   margin-bottom: 10px;
 }
 
-/* 수정된 부분 */
 .modal-tasks th,
 .modal-tasks td {
   padding: 10px 20px; /* 가로 간격만 조정 */
@@ -276,4 +306,16 @@ export default {
   background-color: #45a049;
 }
 
+.info-tooltip {
+  position: absolute;
+  background-color: #333;
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 12px;
+  top: calc(100% + 5px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 999;
+}
 </style>
