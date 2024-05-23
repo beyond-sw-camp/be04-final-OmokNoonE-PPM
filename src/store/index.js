@@ -57,8 +57,8 @@ export default createStore({
     color(state, payload) {
       state.color = payload;
     },
-    needLogin(state) {
-      state.needLogin = !state.needLogin;
+    needLogin(state, data) {
+      state.needLogin = data;
     },
     employeeId(state, data) {
       state.employeeId = data;

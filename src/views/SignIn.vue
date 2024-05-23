@@ -46,7 +46,7 @@
                     variant="gradient"
                     color="success"
                     fullWidth
-                    @click="loginSubmit"
+                    @click.prevent="loginSubmit"
                     >로그인</material-button
                   >
                 </div>
@@ -141,8 +141,7 @@ const loginSubmit = async () => {
     await router.push('/dashboard');
   } catch (error) {
     // 로그인 실패 시 처리
-    alert('로그인 실패: ' + error.message);
-    // console.error(error)
+    console.error("로그인 실패", error);
   }
 }
 

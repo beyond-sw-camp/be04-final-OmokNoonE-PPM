@@ -11,7 +11,7 @@ export async function login(employeeId, password) {
     });
 
     if (response.status === 200) {  // 로그인 성공 시 처리
-        store.commit("needLogin");                                      // 로그인 필요 여부 변경
+        store.commit("needLogin", true);                         // 로그인 필요 여부 변경
         store.commit('accessToken', response.headers["accesstoken"]);   // accessToken 저장
         store.commit("employeeId", response.headers["employeeId"]);     // 사원번호 저장
     }
@@ -27,7 +27,7 @@ export async function logout() {
     // 로그아웃 처리
     localStorage.removeItem('accessToken');
     cookies.remove('refreshTokenId');
-    store.commit('needLogin');
+    store.commit('needLogin', false);
     store.commit('employeeId', '');
 }
 
