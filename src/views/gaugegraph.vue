@@ -29,7 +29,7 @@ export default {
         visible : false
       },
       exportMenu: {
-        visible: true
+        visible: false
       },
       series: {
         pin: {
