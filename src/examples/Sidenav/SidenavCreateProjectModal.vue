@@ -1,19 +1,29 @@
 <template>
-  <div class="project_modal">
+  <div class="project_modal" v-if="isActive">
     <div class="py-4 container-fluid">
       <div class="modal-container">
+        <!-- 헤더 추가 -->
+        <h2 class="card-header">프로젝트 목록</h2>
         <!-- 프로젝트 목록 -->
         <table class="table">
           <thead>
           <tr>
             <th>ID</th>
-            <th>Project Name</th>
+            <th>제목</th>
+            <th>시작일</th>
+            <th>마감일</th>
+            <th>상태</th>
+            <th>마지막 수정 날짜</th>
           </tr>
           </thead>
           <tbody>
-          <tr v-for="project in projects" :key="project.id">
-            <td>{{ project.id }}</td>
-            <td>{{ project.name }}</td>
+          <tr v-for="project in projects" :key="project.projectId">
+            <td>{{ project.projectId }}</td>
+            <td>{{ project.projectTitle }}</td>
+            <td>{{ project.projectStartDate }}</td>
+            <td>{{ project.projectEndDate }}</td>
+            <td>{{ project.projectStatus }}</td>
+            <td>{{ project.projectModifiedDate }}</td>
           </tr>
           </tbody>
         </table>
@@ -28,32 +38,36 @@
         <button
             class="btn mt-4 w-25"
             @click="close"
-            :class="`bg-gradient-${this.$store.state.color}`"
+
         >취소
         </button>
       </div>
     </div>
   </div>
-  <div class="modal" :class="{ 'is-active': isActive }">
+  <div class="modal" :class="{ 'is-active': isActive }" v-if="isActive">
   </div>
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
   data() {
     return {
       isActive: false,
-      projects: [
-        { id: 1, name: 'Project 1' },
-        { id: 2, name: 'Project 2' },
-        { id: 3, name: 'Project 3' },
-      ],
+      projects: [],
     };
   },
   methods: {
-    open() {
+    async open() {
       this.isActive = true;
-      console.log('open');
+      try {
+        let employeeId = "EP001";
+        const response = await axios.get(`http://localhost:8888/projects/list/${employeeId}`);
+        this.projects = response.data.result.viewProjectList;
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+      }
     },
     close() {
       this.isActive = false;
@@ -118,5 +132,12 @@ export default {
 .btn.mt-4:nth-child(2) {
   left: 75%;
   transform: translate(-75%, -50%);
+  background-color: gray;
+  color: white;
+}
+
+tr,
+td {
+  text-align: center;
 }
 </style>

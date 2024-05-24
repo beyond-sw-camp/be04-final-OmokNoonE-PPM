@@ -125,7 +125,7 @@
           class="btn mt-4 w-100"
           :class="`bg-gradient-${this.$store.state.color}`"
           @click="openCreateProjectModal"
-          >프로젝트 생성하기</a
+          >프로젝트 목록</a
         >
       </div>
     </div>
