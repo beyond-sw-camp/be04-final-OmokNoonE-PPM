@@ -18,7 +18,7 @@ export default {
 
     const data = {
 
-      categories: ['Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+      categories: categories.value,
 
       series: [
         {
@@ -37,7 +37,18 @@ export default {
     }
 
     const options = {
-      chart: {width: 500, height: 300},
+      chart: {width: 900, height: 500},
+      exportMenu :{
+        visible: false
+      },
+      theme: {
+        series: {
+          colors: [
+            '#ffba26', '#24a8ef', '#61cc39'
+          ],
+        }
+      }
+
     };
 
     const fetchData = async () => {

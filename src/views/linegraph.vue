@@ -28,7 +28,18 @@ export default {
     };
 
     const options = {
-      chart: {width: 500, height: 300},
+      chart: {width: 900, height: 500},
+      exportMenu :{
+        visible: false
+      },
+      theme: {
+        series: {
+          lineWidth: 3,
+          colors: [
+            '#ccd1d2', '#49be1b'
+          ],
+        }
+      }
     };
 
     const fetchData = async () => {

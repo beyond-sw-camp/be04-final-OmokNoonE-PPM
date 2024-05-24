@@ -4,7 +4,7 @@
 
 <script>
 import Chart from '@toast-ui/chart';
-import { ref, onMounted } from 'vue';
+import {ref, onMounted} from 'vue';
 
 export default {
   setup() {
@@ -33,7 +33,32 @@ export default {
     }
 
     const options = {
-      chart: {width: 500, height: 300},
+      chart: {width: 600, height: 500},
+      exportMenu: {
+        visible: false
+      },
+      series: {
+        dataLabels: {
+          visible: true,
+          pieSeriesName: {
+            visible: true,
+            anchor: 'outer'
+          }
+        },
+      },
+      theme: {
+        series: {
+          colors: [
+            '#ffba26', '#24a8ef', '#61cc39'
+          ],
+          dataLabels: {
+            color: '#3d3d3d',
+            pieSeriesName: {
+              fontSize: 20
+            }
+          },
+        },
+      },
     };
 
     const fetchData = async () => {

@@ -4,7 +4,7 @@
 
 <script>
 import Chart from '@toast-ui/chart';
-import { ref, onMounted } from 'vue';
+import {ref, onMounted} from 'vue';
 
 export default {
 
@@ -24,33 +24,51 @@ export default {
     };
 
     const options = {
-      chart: {width: 500, height: 300},
-      series: {
-        dataLabels : {visible:true},
-        solid: true
+      chart: {width: 600, height: 500},
+      circularAxis: {
+        visible : false
       },
-      circularAxis : {
-        scale: {
-          min: 0,
-          max: 90
-        }
+      exportMenu: {
+        visible: true
+      },
+      series: {
+        pin: {
+          visible: false,
+        },
+        dataLabels: {visible: true,
+        formatter : data => `${data}%`},
+        solid: true,
+        clockHand : false
       },
       theme: {
-        series : {
-          solid: {
-            barWidth: 10,
-            strokeStyle : 'red',
-          },
+        circularAxis: {
+          title: { fontWeight: 500, fontSize: 30, color: 'white' },
+          label: { color: 'white', fontSize: 15, textBubble:{visible: false} },
+          tick: { strokeStyle: 'white' },
+          strokeStyle: 'white',
+        },
+        series: {
           pin : {
-            radius : 555
+            visible : false
           },
+          clockHand: {
+            visible : false
+          },
+          colors: ['#61cc39'],
           dataLabels: {
-            useSeriesColor : true,
-            fontSize: 30,
-            textBubble : {
-              visible: false
+            visible: true,
+            fontSize: 50,
+            // offsetX: -20, // X축 방향으로 dataLabels를 이동
+            // offsetY: -10, // Y축 방향으로 dataLabels를 이동
+            color: '#61cc39',
+
+            textBubble: {
+              visible: false,
             }
-          }
+          },
+          solid: {
+            barWidth: 20,
+          },
         }
       }
     };

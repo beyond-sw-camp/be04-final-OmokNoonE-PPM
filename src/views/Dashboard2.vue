@@ -1,7 +1,7 @@
 <template>
   <div class="grid-container">
-    <PieGraph />
     <ColumnGraph />
+    <PieGraph />
     <LineGraph />
     <Gaugegraph/>
   </div>
@@ -15,10 +15,10 @@ import Gaugegraph from "@/views/gaugegraph.vue";
 
 export default {
   components: {
-    Gaugegraph,
-    PieGraph,
     ColumnGraph,
-    LineGraph
+    PieGraph,
+    LineGraph,
+    Gaugegraph
   }
 }
 </script>
