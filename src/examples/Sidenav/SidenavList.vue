@@ -127,23 +127,22 @@
         <a
           class="btn mt-4 w-100"
           :class="`bg-gradient-${this.$store.state.color}`"
-          href="https://www.creative-tim.com/product/vue-material-dashboard-2-pro"
-          >Upgrade to pro</a
+          @click="openCreateProjectModal"
+          >프로젝트 목록</a
         >
       </div>
     </div>
+    <sidenav-create-project-modal ref="createProjectModal" />
   </div>
 </template>
 <script>
 import SidenavCollapse from "./SidenavCollapse.vue";
+import SidenavCreateProjectModal from "./SidenavCreateProjectModal.vue";
 import {logout} from "@/services/auth";
 import {mapState} from "vuex";
 
 export default {
   name: "SidenavList",
-  methods: {
-    logout
-  },
   computed: {
     ...mapState(["needLogin"]),
   },
@@ -159,6 +158,13 @@ export default {
   },
   components: {
     SidenavCollapse,
+    SidenavCreateProjectModal,
+  },
+  methods: {
+    logout,
+    openCreateProjectModal() {
+      this.$refs.createProjectModal.open();
+    },
   },
 };
 </script>
