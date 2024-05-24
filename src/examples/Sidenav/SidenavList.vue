@@ -125,7 +125,7 @@
     <div class="sidenav-footer position-absolute w-100 bottom-0">
       <div class="mx-3">
         <a
-          class="btn mt-4 w-100"
+          class="btn w-100 "
           :class="`bg-gradient-${this.$store.state.color}`"
           @click="openCreateProjectModal"
           >프로젝트 목록</a

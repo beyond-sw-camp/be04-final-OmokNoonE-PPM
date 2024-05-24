@@ -19,9 +19,36 @@
           <tbody>
           <tr v-for="project in projects" :key="project.projectId">
             <td>{{ project.projectId }}</td>
-            <td>{{ project.projectTitle }}</td>
-            <td>{{ project.projectStartDate }}</td>
-            <td>{{ project.projectEndDate }}</td>
+            <td>
+              <material-input
+                  v-if="project.isNew"
+                  v-model="project.projectTitle"
+                  class="w-90"
+                  label="제목"
+                  required
+              ></material-input>
+              <span v-else>{{ project.projectTitle }}</span>
+            </td>
+            <td>
+              <material-input
+                  v-if="project.isNew"
+                  v-model="project.projectStartDate"
+                  class="w-90"
+                  type="date"
+                  required
+              ></material-input>
+              <span v-else>{{ project.projectStartDate }}</span>
+            </td>
+            <td>
+              <material-input
+                  v-if="project.isNew"
+                  v-model="project.projectEndDate"
+                  class="w-90"
+                  type="date"
+                  required
+              ></material-input>
+              <span v-else>{{ project.projectEndDate }}</span>
+            </td>
             <td>{{ project.projectStatus }}</td>
             <td>{{ project.projectModifiedDate }}</td>
           </tr>
@@ -29,18 +56,28 @@
         </table>
       </div>
       <div class="mx-3">
-        <button
-            class="btn mt-4 w-25"
-            @click="create"
-            :class="`bg-gradient-${this.$store.state.color}`"
-        >생성
-        </button>
-        <button
-            class="btn mt-4 w-25"
+        <div v-if="isEditing">
+          <material-button
+              class="mt-4 w-25"
+              @click="saveProject"
+              :class="`bg-gradient-${this.$store.state.color}`"
+          >저장
+          </material-button>
+        </div>
+        <div v-else>
+          <material-button
+              class="mt-4 w-25"
+              @click="create"
+              :class="`bg-gradient-${this.$store.state.color}`"
+          >추가
+          </material-button>
+        </div>
+        <material-button
+            class="mt-4 w-25"
+            color="cancel"
             @click="close"
-
-        >취소
-        </button>
+        >닫기
+        </material-button>
       </div>
     </div>
   </div>
@@ -49,13 +86,18 @@
 </template>
 
 <script>
-import axios from "axios";
+import {authInstance} from "@/axios/axios-instance";
+import MaterialButton from "@/components/MaterialButton.vue";
+import MaterialInput from "@/components/MaterialInput.vue";
+// import router from "@/router";
 
 export default {
+  components: {MaterialButton, MaterialInput},
   data() {
     return {
       isActive: false,
       projects: [],
+      isEditing: false,
     };
   },
   methods: {
@@ -63,7 +105,7 @@ export default {
       this.isActive = true;
       try {
         let employeeId = "EP001";
-        const response = await axios.get(`http://localhost:8888/projects/list/${employeeId}`);
+        const response = await authInstance.get(`projects/list/${employeeId}`);
         this.projects = response.data.result.viewProjectList;
       } catch (error) {
         console.error('Error fetching projects:', error);
@@ -71,10 +113,26 @@ export default {
     },
     close() {
       this.isActive = false;
+      this.isEditing = false;
+    },
+    selectProject(project) {
+      console.log(`Selected project ID: ㅊ${project.projectId}`);
     },
     create() {
-      // 프로젝트 생성 로직을 추가하세요.
-      this.close();
+      this.isEditing = true;
+      this.projects.unshift({
+        projectId: '',
+        projectTitle: '',
+        projectStartDate: '',
+        projectEndDate: '',
+        isNew: true,
+      });
+    },
+    saveProject() {
+      // 여기에 프로젝트 저장 로직을 추가하세요.
+      console.log(`Saving project: ${this.projects[0].projectTitle}`);
+      this.projects[0].isNew = false;
+      this.isEditing = false;
     },
   },
 };
@@ -125,13 +183,11 @@ export default {
 }
 
 .btn.mt-4:nth-child(1) {
-  left: 25%;
-  transform: translate(-25%, -50%);
+  left: 20%;
 }
 
 .btn.mt-4:nth-child(2) {
-  left: 75%;
-  transform: translate(-75%, -50%);
+  left: 55%;
   background-color: gray;
   color: white;
 }
@@ -139,5 +195,6 @@ export default {
 tr,
 td {
   text-align: center;
+  vertical-align: middle;
 }
 </style>
