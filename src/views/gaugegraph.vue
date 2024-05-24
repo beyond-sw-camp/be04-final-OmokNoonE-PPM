@@ -26,7 +26,12 @@ export default {
     const options = {
       chart: {width: 600, height: 500},
       circularAxis: {
-        visible : false
+        visible : false,
+        scale: {
+          min: 0,
+          max: 90
+        }
+
       },
       exportMenu: {
         visible: false
