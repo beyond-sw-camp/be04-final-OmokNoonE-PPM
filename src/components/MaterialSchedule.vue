@@ -15,185 +15,30 @@
         <!-- 프로젝트 이름 -->
         <p class="modal-project-name">{{ schedule.projectName }}</p>
 
+        <!-- 탭 버튼 -->
+        <div>
+          <button @click="changeTab('details')">세부사항</button>
+          <button @click="changeTab('history')">수정 내역</button>
+          <button @click="changeTab('permissions')">권한 확인</button>
+        </div>
+
         <!-- 가로선 -->
         <hr class="modal-divider">
 
-        <!-- 시작일 ~ 종료일, 가중치, 진행률, 상태, 생성일시, 작성자 -->
-        <div class="modal-info">
-          <div class="modal-info-item">
-            <span class="modal-info-label">시작일:</span>
-            <div v-if="isEditing">
-              <input id="startDate" type="date" v-model="schedule.startDate">
-            </div>
-            <span v-else class="modal-info-value">{{ schedule.startDate }}</span>
-          </div>
-          <div class="modal-info-item">
-            <span class="modal-info-label">종료일:</span>
-            <div v-if="isEditing">
-              <input id="endDate" type="date" v-model="schedule.endDate">
-            </div>
-            <span v-else class="modal-info-value">{{ schedule.endDate }}</span>
-          </div>
-          <div class="modal-info-item">
-            <div v-if="isEditing">
-              <span class="modal-info-label">총 소요일:</span>
-              <span class="modal-info-value">
-                {{
-                  Math.ceil(
-                      (new Date(schedule.endDate) - new Date(schedule.startDate)) /
-                      (1000 * 60 * 60 * 24)
-                  )
-                }}
-              </span>
-            </div>
-            <div v-else>
-              <span class="modal-info-label">공수:</span>
-              <span class="modal-info-value">{{ schedule.workLoad }}</span>
-            </div>
-          </div>
+        <div v-show="currentTab === 'details'">
+          <MaterialScheduleDetail :schedule="schedule" :isEditing="isEditing"/>
         </div>
 
-        <div class="modal-info">
-          <div class="modal-info-item">
-            <span class="modal-info-label">가중치:</span>
-            <div v-if="isEditing">
-              <input id="weight" type="number" v-model="schedule.weight">
-            </div>
-            <span v-else class="modal-info-value">{{ schedule.weight }}</span>
-          </div>
-          <div class="modal-info-item">
-            <span class="modal-info-label">진행률:</span>
-            <!--            향후 조건문에 하위 업무가 없을 때를 추가해야함 -->
-            <div v-if="isEditing">
-              <input id="progress" type="number" v-model="schedule.progress">
-            </div>
-            <span v-else class="modal-info-value">{{ schedule.progress }}%</span>
-          </div>
-          <div class="modal-info-item">
-            <span class="modal-info-label">상태:</span>
-            <div v-if="isEditing">
-              <select id="status" v-model="schedule.status">
-                <option v-for="status in statusItems" :key="status" :value="status">{{ status }}</option>
-              </select>
-            </div>
-            <span v-else class="modal-info-value">{{ schedule.status }}</span>
-          </div>
+        <div v-show="currentTab === 'history'">
+          <!-- 수정 내역 탭 내용 -->
         </div>
 
-        <div class="modal-info">
-          <div class="modal-info-item">
-            <span class="modal-info-label">부모 일정:</span>
-            <div v-if="isEditing">
-              <input id="parentSchedule" v-model="schedule.parentId">
-            </div>
-            <span v-else class="modal-info-value" @mouseover="showParentTitle"
-                  @mouseleave="hideParentTitle">{{ schedule.parentId }}</span>
-            <span v-if="hoveredParentTitle" class="info-tooltip">{{ schedule.parentId }}의 일정 제목</span>
-          </div>
-          <div class="modal-info-item">
-            <span class="modal-info-label">선행 일정:</span>
-            <div v-if="isEditing">
-              <input id="precedingSchedule" v-model="schedule.precedingId">
-            </div>
-            <span v-else class="modal-info-value" @mouseover="showPrecedingTitle"
-                  @mouseleave="hidePrecedingTitle">{{ schedule.precedingId }}</span>
-            <span v-if="hoveredPrecedingTitle" class="info-tooltip">{{ schedule.precedingId }}의 일정 제목</span>
-          </div>
-          <div class="modal-info-item">
-            <span class="modal-info-label">작성자:</span>
-            <span class="modal-info-value">{{ schedule.creator.name }}</span>
-          </div>
+        <div v-show="currentTab === 'permissions'">
+          <!-- 권한 확인 탭 내용 -->
         </div>
 
-        <div class="modal-description-container">
-          <!-- 내용 -->
-          <p class="modal-description">{{ schedule.description }}</p>
-
-          <!-- 둥근 모서리 직사각형 -->
-          <div class="modal-tasks-container">
-            <h5 class="modal-tasks-title">업무 목록</h5>
-            <table class="modal-tasks">
-              <thead>
-              <tr>
-                <th>업무 제목</th>
-                <th>수행 여부</th>
-              </tr>
-              </thead>
-              <tbody v-if="isEditing">
-              <tr v-for="(task, index) in schedule.tasks" :key="task.id">
-                <td>
-                  <input type="text" v-model="task.title">
-                </td>
-                <td>
-                  <input type="checkbox" v-model="task.completed">
-                  <label>{{ task.completed ? '완료' : '미완료' }}</label>
-                </td>
-                <td>
-                  <button @click="deleteTask(index)">삭제</button>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <input type="text" v-model="newTaskTitle" placeholder="업무 추가">
-                </td>
-                <td>
-                  <button @click="addTask">추가</button>
-                </td>
-              </tr>
-              </tbody>
-              <tbody v-else-if="!isEditing&schedule.tasks.length > 0">
-              <tr v-for="task in schedule.tasks" :key="task.id">
-                <td>{{ task.title }}</td>
-                <td>
-                  <input type="checkbox" :checked="task.completed" disabled>
-                  <label>{{ task.completed ? '완료' : '미완료' }}</label>
-                </td>
-              </tr>
-              </tbody>
-              <tbody v-else>
-              <tr>
-                <td colspan="2">등록된 업무가 없습니다.</td>
-              </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div class="modal-info">
-          <div class="modal-info-item">
-            <span class="modal-info-label">생성 일시:</span>
-            <span class="modal-info-value">{{ schedule.createdAt }}</span>
-          </div>
-          <div class="modal-info-item">
-            <span class="modal-info-label">수정 일시:</span>
-            <span class="modal-info-value">{{ schedule.updatedAt }}</span>
-          </div>
-        </div>
-
-        <!-- 담당자 -->
-        <div class="modal-info">
-          <div class="modal-info-item">
-            <p class="modal-info-label">담당자:</p>
-            <div v-if="isEditing">
-              <input id="responsible" v-model="schedule.responsibles">
-            </div>
-            <div v-else class="modal-info-value">
-              <p class="modal-responsible">
-                <template v-for="(responsible, index) in schedule.responsibles" :key="index">
-                  {{ responsible.name }} ({{ responsible.id }})
-                  <span v-if="index !== schedule.responsibles.length - 1">,</span>
-                </template>
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <!-- 수정 내역, 수정, 권한 -->
         <div class="modal-actions">
-          <!--          <button class="modal-action-button" @click="openEditModal">수정</button>-->
           <button class="modal-action-button" @click="toggleEdit">수정</button>
-          <button class="modal-action-button" @click="openHistoryModal">수정 내역</button>
-          <button class="modal-action-button" @click="openPermissionModal">권한 확인</button>
         </div>
       </div>
     </div>
@@ -201,7 +46,12 @@
 </template>
 
 <script>
+import MaterialScheduleDetail from '@/components/MaterialScheduleDetail.vue';
+
 export default {
+  components: {
+    MaterialScheduleDetail
+  },
   props: ['isOpen', 'modalUrl'],
   data() {
     return {
@@ -228,18 +78,23 @@ export default {
         tasks: [
           {id: 'task1', title: 'Task 1', completed: true},
           {id: 'task2', title: 'Task 2', completed: false}
-        ]
+        ],
+        historyReason: '',
       },
       statusItems: ['준비', '진행', '완료'],
       hoveredParentTitle: false,
       hoveredPrecedingTitle: false,
       isEditing: false,
       newTaskTitle: '',
+      currentTab: 'details',  // 기본 탭을 'details'로 설정
     };
   },
   methods: {
     closeModal() {
       this.$emit('close');
+    },
+    changeTab(tab) {
+      this.currentTab = tab;
     },
     showParentTitle() {
       this.hoveredParentTitle = true;
