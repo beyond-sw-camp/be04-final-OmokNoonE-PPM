@@ -92,8 +92,11 @@
           </template>
         </sidenav-collapse>
       </li>
+
+      <!-- 로그인 상태에 따라 Sign-In과 Logout이 보인다. -->
       <li class="nav-item">
         <sidenav-collapse
+          v-if="needLogin"
           url="#"
           :aria-controls="''"
           v-bind:collapse="false"
@@ -104,17 +107,17 @@
             <i class="material-icons-round opacity-10 fs-5">login</i>
           </template>
         </sidenav-collapse>
-      </li>
-      <li class="nav-item">
         <sidenav-collapse
+          v-else
           url="#"
           :aria-controls="''"
           v-bind:collapse="false"
-          collapseRef="sign-up"
-          navText="SignUp"
+          collapseRef="logout"
+          navText="Logout"
+          @click="logout"
         >
           <template v-slot:icon>
-            <i class="material-icons-round opacity-10 fs-5">assignment</i>
+            <i class="material-icons-round opacity-10 fs-5">logout</i>
           </template>
         </sidenav-collapse>
       </li>
@@ -135,9 +138,14 @@
 <script>
 import SidenavCollapse from "./SidenavCollapse.vue";
 import SidenavCreateProjectModal from "./SidenavCreateProjectModal.vue";
+import {logout} from "@/services/auth";
+import {mapState} from "vuex";
 
 export default {
   name: "SidenavList",
+  computed: {
+    ...mapState(["needLogin"]),
+  },
   props: {
     cardBg: String,
   },
@@ -153,6 +161,7 @@ export default {
     SidenavCreateProjectModal,
   },
   methods: {
+    logout,
     openCreateProjectModal() {
       this.$refs.createProjectModal.open();
     },
