@@ -5,8 +5,12 @@
       <div class="modal-content">
         <span class="close" @click="closeModal">&times;</span>
 
-        <!-- 제목 -->
-        <h2 class="modal-title">{{ schedule.title }}</h2>
+        <div v-if="isEditing">
+          <input id="title" v-model="schedule.title"/>
+        </div>
+        <h2 v-else>
+          {{ schedule.title }}
+        </h2>
 
         <!-- 프로젝트 이름 -->
         <p class="modal-project-name">{{ schedule.projectName }}</p>
@@ -18,44 +22,81 @@
         <div class="modal-info">
           <div class="modal-info-item">
             <span class="modal-info-label">시작일:</span>
-            <span class="modal-info-value">{{ schedule.startDate }}</span>
+            <div v-if="isEditing">
+              <input id="startDate" type="date" v-model="schedule.startDate">
+            </div>
+            <span v-else class="modal-info-value">{{ schedule.startDate }}</span>
           </div>
           <div class="modal-info-item">
             <span class="modal-info-label">종료일:</span>
-            <span class="modal-info-value">{{ schedule.endDate }}</span>
+            <div v-if="isEditing">
+              <input id="endDate" type="date" v-model="schedule.endDate">
+            </div>
+            <span v-else class="modal-info-value">{{ schedule.endDate }}</span>
           </div>
           <div class="modal-info-item">
+            <div v-if="isEditing">
+              <span class="modal-info-label">총 소요일:</span>
+              <span class="modal-info-value">
+                {{
+                  Math.ceil(
+                      (new Date(schedule.endDate) - new Date(schedule.startDate)) /
+                      (1000 * 60 * 60 * 24)
+                  )
+                }}
+              </span>
+            </div>
+            <div v-else>
+              <span class="modal-info-label">공수:</span>
+              <span class="modal-info-value">{{ schedule.workLoad }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-info">
+          <div class="modal-info-item">
             <span class="modal-info-label">가중치:</span>
-            <span class="modal-info-value">{{ schedule.weight }}</span>
+            <div v-if="isEditing">
+              <input id="weight" type="number" v-model="schedule.weight">
+            </div>
+            <span v-else class="modal-info-value">{{ schedule.weight }}</span>
           </div>
           <div class="modal-info-item">
             <span class="modal-info-label">진행률:</span>
-            <span class="modal-info-value">{{ schedule.progress }}%</span>
+            <!--            향후 조건문에 하위 업무가 없을 때를 추가해야함 -->
+            <div v-if="isEditing">
+              <input id="progress" type="number" v-model="schedule.progress">
+            </div>
+            <span v-else class="modal-info-value">{{ schedule.progress }}%</span>
           </div>
           <div class="modal-info-item">
             <span class="modal-info-label">상태:</span>
-            <span class="modal-info-value">{{ schedule.status }}</span>
+            <div v-if="isEditing">
+              <select id="status" v-model="schedule.status">
+                <option v-for="status in statusItems" :key="status" :value="status">{{ status }}</option>
+              </select>
+            </div>
+            <span v-else class="modal-info-value">{{ schedule.status }}</span>
           </div>
+        </div>
+
+        <div class="modal-info">
           <div class="modal-info-item">
-            <span class="modal-info-label">공수:</span>
-            <span class="modal-info-value">{{ schedule.workLoad }}</span>
-          </div>
-          <div class="modal-info-item">
-            <span class="modal-info-label">생성 일시:</span>
-            <span class="modal-info-value">{{ schedule.createdAt }}</span>
-          </div>
-          <div class="modal-info-item">
-            <span class="modal-info-label">수정 일시:</span>
-            <span class="modal-info-value">{{ schedule.updatedAt }}</span>
-          </div>
-          <div class="modal-info-item" @mouseover="showParentTitle" @mouseleave="hideParentTitle">
             <span class="modal-info-label">부모 일정:</span>
-            <span class="modal-info-value">{{ schedule.parentId }}</span>
+            <div v-if="isEditing">
+              <input id="parentSchedule" v-model="schedule.parentId">
+            </div>
+            <span v-else class="modal-info-value" @mouseover="showParentTitle"
+                  @mouseleave="hideParentTitle">{{ schedule.parentId }}</span>
             <span v-if="hoveredParentTitle" class="info-tooltip">{{ schedule.parentId }}의 일정 제목</span>
           </div>
-          <div class="modal-info-item" @mouseover="showPrecedingTitle" @mouseleave="hidePrecedingTitle">
+          <div class="modal-info-item">
             <span class="modal-info-label">선행 일정:</span>
-            <span class="modal-info-value">{{ schedule.precedingId }}</span>
+            <div v-if="isEditing">
+              <input id="precedingSchedule" v-model="schedule.precedingId">
+            </div>
+            <span v-else class="modal-info-value" @mouseover="showPrecedingTitle"
+                  @mouseleave="hidePrecedingTitle">{{ schedule.precedingId }}</span>
             <span v-if="hoveredPrecedingTitle" class="info-tooltip">{{ schedule.precedingId }}의 일정 제목</span>
           </div>
           <div class="modal-info-item">
@@ -64,42 +105,93 @@
           </div>
         </div>
 
-        <!-- 내용 -->
-        <p class="modal-description">{{ schedule.description }}</p>
+        <div class="modal-description-container">
+          <!-- 내용 -->
+          <p class="modal-description">{{ schedule.description }}</p>
+
+          <!-- 둥근 모서리 직사각형 -->
+          <div class="modal-tasks-container">
+            <h5 class="modal-tasks-title">업무 목록</h5>
+            <table class="modal-tasks">
+              <thead>
+              <tr>
+                <th>업무 제목</th>
+                <th>수행 여부</th>
+              </tr>
+              </thead>
+              <tbody v-if="isEditing">
+              <tr v-for="(task, index) in schedule.tasks" :key="task.id">
+                <td>
+                  <input type="text" v-model="task.title">
+                </td>
+                <td>
+                  <input type="checkbox" v-model="task.completed">
+                  <label>{{ task.completed ? '완료' : '미완료' }}</label>
+                </td>
+                <td>
+                  <button @click="deleteTask(index)">삭제</button>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <input type="text" v-model="newTaskTitle" placeholder="업무 추가">
+                </td>
+                <td>
+                  <button @click="addTask">추가</button>
+                </td>
+              </tr>
+              </tbody>
+              <tbody v-else-if="!isEditing&schedule.tasks.length > 0">
+              <tr v-for="task in schedule.tasks" :key="task.id">
+                <td>{{ task.title }}</td>
+                <td>
+                  <input type="checkbox" :checked="task.completed" disabled>
+                  <label>{{ task.completed ? '완료' : '미완료' }}</label>
+                </td>
+              </tr>
+              </tbody>
+              <tbody v-else>
+              <tr>
+                <td colspan="2">등록된 업무가 없습니다.</td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="modal-info">
+          <div class="modal-info-item">
+            <span class="modal-info-label">생성 일시:</span>
+            <span class="modal-info-value">{{ schedule.createdAt }}</span>
+          </div>
+          <div class="modal-info-item">
+            <span class="modal-info-label">수정 일시:</span>
+            <span class="modal-info-value">{{ schedule.updatedAt }}</span>
+          </div>
+        </div>
 
         <!-- 담당자 -->
-        <p class="modal-responsible">담당자:
-          <template v-for="(responsible, index) in schedule.responsibles" :key="index">
-            {{ responsible.name }} ({{ responsible.id }})
-            <span v-if="index !== schedule.responsibles.length - 1">,</span>
-          </template>
-        </p>
-
-        <!-- 둥근 모서리 직사각형 -->
-        <div class="modal-tasks-container">
-          <h4 class="modal-tasks-title">업무 목록</h4>
-          <table class="modal-tasks">
-            <thead>
-            <tr>
-              <th>업무 제목</th>
-              <th>수행 여부</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr v-for="task in schedule.tasks" :key="task.id">
-              <td>{{ task.title }}</td>
-              <td>
-                <input type="checkbox" :checked="task.completed" disabled>
-                <label>{{ task.completed ? '완료' : '미완료' }}</label>
-              </td>
-            </tr>
-            </tbody>
-          </table>
+        <div class="modal-info">
+          <div class="modal-info-item">
+            <p class="modal-info-label">담당자:</p>
+            <div v-if="isEditing">
+              <input id="responsible" v-model="schedule.responsibles">
+            </div>
+            <div v-else class="modal-info-value">
+              <p class="modal-responsible">
+                <template v-for="(responsible, index) in schedule.responsibles" :key="index">
+                  {{ responsible.name }} ({{ responsible.id }})
+                  <span v-if="index !== schedule.responsibles.length - 1">,</span>
+                </template>
+              </p>
+            </div>
+          </div>
         </div>
 
         <!-- 수정 내역, 수정, 권한 -->
         <div class="modal-actions">
-          <button class="modal-action-button" @click="openEditModal">수정</button>
+          <!--          <button class="modal-action-button" @click="openEditModal">수정</button>-->
+          <button class="modal-action-button" @click="toggleEdit">수정</button>
           <button class="modal-action-button" @click="openHistoryModal">수정 내역</button>
           <button class="modal-action-button" @click="openPermissionModal">권한 확인</button>
         </div>
@@ -138,8 +230,11 @@ export default {
           {id: 'task2', title: 'Task 2', completed: false}
         ]
       },
+      statusItems: ['준비', '진행', '완료'],
       hoveredParentTitle: false,
-      hoveredPrecedingTitle: false
+      hoveredPrecedingTitle: false,
+      isEditing: false,
+      newTaskTitle: '',
     };
   },
   methods: {
@@ -158,15 +253,27 @@ export default {
     hidePrecedingTitle() {
       this.hoveredPrecedingTitle = false;
     },
+    addTask() {
+      if (this.newTaskTitle) {
+        this.schedule.tasks.push({title: this.newTaskTitle, completed: false});
+        this.newTaskTitle = '';
+      }
+    },
+    deleteTask(index) {
+      this.schedule.tasks.splice(index, 1);
+    },
     openHistoryModal() {
       console.log('Open history modal');
     },
     openEditModal() {
-      this.$router.push({ name: 'EditSchedule', params: { id: this.schedule.id } });
+      this.$router.push({name: 'EditSchedule', params: {id: this.schedule.id}});
     },
     openPermissionModal() {
       console.log('Open permission modal');
-    }
+    },
+    toggleEdit() {
+      this.isEditing = !this.isEditing;
+    },
   }
 };
 </script>
@@ -176,7 +283,7 @@ export default {
 .modal {
   display: block; /* 기본적으로 숨겨진 상태에서 display를 block으로 변경 */
   position: fixed; /* 고정 위치 */
-  z-index: 1000; /* 다른 요소 위에 배치 */
+  z-index: 10000; /* 다른 요소 위에 배치 */
   left: 0;
   top: 0;
   width: 100%;
@@ -220,6 +327,19 @@ export default {
   cursor: pointer;
 }
 
+#title {
+  display: block;
+  font-weight: 600;
+  font-family: "Roboto Slab", sans-serif;
+  font-size: 2.25rem;
+  line-height: 1.3;
+  margin-block-start: 0.83em;
+  margin-block-end: 0.83em;
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  color: #344767;
+}
+
 .modal-divider {
   margin-top: 20px;
   margin-bottom: 20px;
@@ -228,21 +348,38 @@ export default {
 .modal-info {
   display: flex;
   flex-wrap: wrap;
-  margin-bottom: 20px;
+  margin-bottom: 5px;
+  justify-content: flex-end; /* 컨테이너의 자식 요소들을 오른쪽으로 정렬 */
 }
 
 .modal-info-item {
-  flex: 1 1 20%; /* 각 항목이 동일한 너비를 가지도록 설정 */
-  margin-right: 10px;
-  position: relative; /* Tooltip을 포함한 요소의 위치 */
+  display: flex;
+  align-items: center; /* 세로 방향으로 중앙 정렬 */
 }
 
 .modal-info-label {
+  margin-left: 10px; /* 레이블과 값 사이의 간격 조정 */
+  margin-right: 10px; /* 레이블과 입력 요소 사이의 간격 조정 */
   font-weight: bold;
   color: #666;
 }
 
+.modal-info-value {
+  margin-right: 10px; /* 레이블과 입력 요소 사이의 간격 조정 */
+}
+
+.modal-description-container {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  height: 100%;
+  margin-top: 10px;
+  border-radius: 10px;
+  background-color: #d3e6ef;
+}
+
 .modal-description {
+  margin: 10px;
   margin-bottom: 20px;
 }
 
@@ -254,7 +391,7 @@ export default {
   border-radius: 10px;
   background-color: #f5f5f5;
   padding: 20px;
-  margin-bottom: 20px;
+  margin: 10px;
 }
 
 .modal-tasks-title {
@@ -282,7 +419,7 @@ export default {
 }
 
 .modal-actions {
-  position: absolute;
+  margin-top: 10px;
   bottom: 10px;
   right: 10px;
 }

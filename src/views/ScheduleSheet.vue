@@ -24,13 +24,14 @@ import StakeholderModal from '@/components/StakeholderModal.vue';
 import 'handsontable/dist/handsontable.full.css';
 
 export default defineComponent({
-  name: 'DataGrid',
+  name: 'ScheduleSheet',
   components: {
     Handsontable: HandsontableComponent,
     MaterialSchedule,
     StakeholderModal,
   },
-  setup: function () {
+  setup() {
+
     const stakeholders = ['조조', '유비', '관우', '장비', '손권'];
 
     const dummyData = ref(Array.from({ length: 20 }, (_, i) => {
@@ -119,7 +120,6 @@ export default defineComponent({
       ...hotSettings.value,
       readOnly: true
     });
-
     const selectedRow = ref(null);
     const modalOpen = ref(false);
     const modalUrl = ref('');

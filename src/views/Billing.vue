@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import DataGridTest from "@/views/DataGridTest.vue";
+import DataGridTest from "@/views/ScheduleSheet.vue";
 
 export default {
   name: "Billing",
