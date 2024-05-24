@@ -20,6 +20,7 @@
 import {defineComponent, ref} from 'vue';
 import HandsontableComponent from '../components/Handsontable.vue';
 import MaterialSchedule from '@/components/MaterialSchedule.vue';
+import StakeholderModal from '@/components/StakeholderModal.vue';
 import 'handsontable/dist/handsontable.full.css';
 
 export default defineComponent({
@@ -27,6 +28,7 @@ export default defineComponent({
   components: {
     Handsontable: HandsontableComponent,
     MaterialSchedule,
+    StakeholderModal
   },
   setup() {
 
