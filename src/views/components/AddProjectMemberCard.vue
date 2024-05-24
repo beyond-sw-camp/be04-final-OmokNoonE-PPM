@@ -30,10 +30,10 @@
                   </div>
                 </td>
                 <td class="text-left">
-                  <select v-model="member.role" class="form-select text-xs font-weight-bold mb-0">
-                    <option value="PM">PM</option>
-                    <option value="PL">PL</option>
+                  <select v-model="member.role" class="form-select form-select-sm">
                     <option value="PA">PA</option>
+                    <option value="PL">PL</option>
+                    <option value="PM">PM</option>
                   </select>
                 </td>
                 <td class="align-middle text-center text-sm">
@@ -48,8 +48,8 @@
           </div>
         </div>
         <div class="modal-footer">
+          <button type="button" class="btn btn-info" @click="addMembers">추가하기</button>
           <button type="button" class="btn btn-secondary" @click="$emit('close')">취소</button>
-          <button type="button" class="btn btn-primary" @click="addMembers">추가하기</button>
         </div>
       </div>
     </div>
@@ -60,30 +60,30 @@
 import { ref, watch } from 'vue';
 
 const props = defineProps({
-  availableMembers: Array
+  availableMembers: {
+    type: Array,
+    default: () => [],
+  },
 });
 
 const emit = defineEmits(['close', 'add-members']);
 
 const selectedMembers = ref([]);
 
-// availableMembers를 사용하는 방식으로 수정
-const availableMembers = ref(props.availableMembers);
+// availableMembers를 감시하여 선택된 구성원을 초기화
+watch(() => props.availableMembers, () => {
+  selectedMembers.value = props.availableMembers.map(member => ({
+    ...member,
+    role: 'PA', // 기본 직책을 PA로 설정
+  }));
+});
 
-// 선택된 멤버의 role 값을 기본값 'PA'로 설정
-watch(availableMembers, (newMembers) => {
-  newMembers.forEach(member => {
-    member.role = 'PA';
-  });
-}, { immediate: true });
-
+// 구성원 추가 함수
 const addMembers = () => {
   if (selectedMembers.value.length === 0) {
     alert('추가할 구성원을 선택해 주세요.');
     return;
   }
-
-  // 선택된 구성원들을 부모 컴포넌트로 전달
   emit('add-members', selectedMembers.value);
   selectedMembers.value = [];
 };
@@ -114,10 +114,5 @@ const addMembers = () => {
 .modal-body,
 .modal-footer {
   margin-bottom: 10px;
-}
-
-.form-select {
-  font-size: 0.875rem;
-  padding: 0.25rem;
 }
 </style>
