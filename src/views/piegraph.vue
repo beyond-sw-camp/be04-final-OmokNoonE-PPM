@@ -70,9 +70,10 @@ export default {
         const result = await response.json();
 
         // 예상 진행률 및 실제 진행률 데이터 업데이트
-        const ready = result.series.find(series => series.name === '준비');
-        const inProgress = result.series.find(series => series.name === '진행');
-        const done = result.series.find(series => series.name === '완료');
+        const dashboardData = result.result.viewProjectDashboardByProjectId;
+        const ready = dashboardData.series.find(series => series.name === '준비');
+        const inProgress = dashboardData.series.find(series => series.name === '진행');
+        const done = dashboardData.series.find(series => series.name === '완료');
 
         // data.series의 데이터 업데이트
         data.series.find(series => series.name === '준비').data = ready.data;

@@ -82,7 +82,9 @@ export default {
         }
         const result = await response.json();
 
-        const progress = result.series.find(series => series.name === '전체진행률');
+        const dashboardData = result.result.viewProjectDashboardByProjectId;
+        const progress = dashboardData.series.find(series => series.name === '전체진행률');
+
 
         data.series.find(series => series.name === '전체진행률').data = progress.data;
 
