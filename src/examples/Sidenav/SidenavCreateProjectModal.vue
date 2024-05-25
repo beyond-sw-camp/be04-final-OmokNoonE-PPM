@@ -86,7 +86,7 @@
 </template>
 
 <script>
-import {authInstance} from "@/axios/axios-instance";
+import {authInstance, defaultInstance} from "@/axios/axios-instance";
 import MaterialButton from "@/components/MaterialButton.vue";
 import MaterialInput from "@/components/MaterialInput.vue";
 // import router from "@/router";
@@ -116,7 +116,7 @@ export default {
       this.isEditing = false;
     },
     selectProject(project) {
-      console.log(`Selected project ID: ㅊ${project.projectId}`);
+      console.log(`Selected project ID: ${project.projectId}`);
     },
     create() {
       this.isEditing = true;
@@ -125,14 +125,20 @@ export default {
         projectTitle: '',
         projectStartDate: '',
         projectEndDate: '',
+        projectStatus: '계획',
+        projectModifiedDate: '',
         isNew: true,
       });
     },
-    saveProject() {
-      // 여기에 프로젝트 저장 로직을 추가하세요.
-      console.log(`Saving project: ${this.projects[0].projectTitle}`);
-      this.projects[0].isNew = false;
-      this.isEditing = false;
+    async saveProject() {
+      try {
+        await defaultInstance.post(`projects/create`, this.projects[0]);
+        this.projects[0].isNew = false;
+        this.isEditing = false;
+        await this.open();
+      } catch (error) {
+        console.error('Error creating projects:', error);
+      }
     },
   },
 };
