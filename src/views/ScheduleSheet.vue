@@ -32,11 +32,14 @@ export default defineComponent({
   },
   setup() {
 
-    const stakeholders = ['조조', '유비', '관우', '장비', '손권'];
+    const stakeholders = ['홍길동(EP000)', '조자룡(EP001)', '유비(EP002)'];
 
-    const dummyData = ref(Array.from({ length: 20 }, (_, i) => {
+    const dummyData = ref(Array.from({length: 20}, (_, i) => {
       const stakeholder = stakeholders[Math.floor(Math.random() * stakeholders.length)];
-      return [`${i}`, `Project ${i+1}`, '2024-05-01', '2024-06-30', 10, 80, '진행', 20, stakeholder, `${i+1}`];
+      return {
+        parentId: `${i}`, title: `Project ${i + 1}`, startDate: '2024-05-01', endDate: '2024-06-30', priority: 10,
+        progress: 80, status: '진행', manHours: 20, stakeholders: stakeholder, id: `${i + 1}`
+      };
     }));
 
     const hotSettings = ref({
@@ -46,31 +49,36 @@ export default defineComponent({
       ],
       columns: [
         {
-          data: 0, type: 'text', renderer(instance, td, row, col, prop, value) {
+          data: 'parentId', type: 'text', renderer(instance, td, row, col, prop, value) {
             td.title = `${value}의 일정 제목`;
             td.innerText = value;
             return td;
           }
         },
         {
-          data: 1, type: 'text', renderer(instance, td, row, col, prop, value) {
+          data: 'title', type: 'text', renderer(instance, td, row, col, prop, value) {
             td.title = value;
             td.innerText = value;
             return td;
           }
         },
-        {data: 2, type: 'date'},
-        {data: 3, type: 'date'},
-        {data: 4, type: 'numeric', validator: 'numeric'},
-        {data: 5, type: 'numeric', format: 'd%'},
-        {data: 6, type: 'dropdown', source: ['준비', '진행', '완료']},
-        {data: 7, type: 'numeric'},
+        {data: 'startDate', type: 'date'},
+        {data: 'endDate', type: 'date'},
+        {data: 'priority', type: 'numeric', validator: 'numeric'},
+        {data: 'progress', type: 'numeric', format: 'd%'},
+        {data: 'status', type: 'dropdown', source: ['준비', '진행', '완료']},
+        {data: 'manHours', type: 'numeric'},
         {
-          data: 8, type: 'text', renderer(instance, td, row, col, prop, value) {
+          data: 'stakeholders', type: 'text', renderer(instance, td, row, col, prop, value) {
             const button = document.createElement('button');
             button.innerText = value;
             button.style.cssText = 'background-color: #4CAF50; color: white; border: none; padding: 8px 22px; cursor: pointer;';
             button.addEventListener('click', () => openStakeholderModal(row, value));
+            button.addEventListener('change', () => {
+                  console.log('change value');
+                  button.innerText = dummyData.value[row][8];
+                }
+            );
             td.innerHTML = '';
             td.appendChild(button);
 
@@ -78,7 +86,7 @@ export default defineComponent({
           }
         },
         {
-          data: 9, renderer(instance, td, row, col, prop, value) {
+          data: 'id', renderer(instance, td, row, col, prop, value) {
             const button = document.createElement('button');
             button.innerText = 'link';
             button.style.cssText = 'background-color: #4CAF50; color: white; border: none; padding: 8px 22px; cursor: pointer;';
@@ -114,6 +122,10 @@ export default defineComponent({
       allowRemoveRow: false,
       allowRemoveColumn: false,
       colWidths: [60, 150, 100, 100, 70, 70, 70, 50, 150, 70],
+      afterChange() {
+        console.log('afterChange');
+        hotSettings.value.data = [...dummyData.value]; // 트리거를 위한 데이터 갱신
+      },
     });
 
     const readOnlyHotSettings = ref({
@@ -145,15 +157,16 @@ export default defineComponent({
     };
 
     const updateStakeholder = (stakeholders) => {
+      console.log(stakeholders); // 콘솔에 받은 이해관계자들 출력
       selectedStakeholders.value = stakeholders;
       closeStakeholderModal();
 
-      dummyData.value = dummyData.value.map((row, i) => {
-        if (i === selectedRow.value) {
-          return [...row.slice(0, 8), stakeholders.join(', '), ...row.slice(9)];
-        }
-        return row;
-      });
+      dummyData.value[selectedRow.value]['stakeholders'] = stakeholders.join(', ');
+
+      console.log(dummyData.value); // 콘솔에 업데이트된 dummyData 출력
+
+      hotSettings.value.afterChange();
+
     };
 
     const toggleEditMode = () => {

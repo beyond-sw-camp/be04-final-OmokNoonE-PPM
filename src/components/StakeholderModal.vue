@@ -17,46 +17,47 @@
 
 
 <script>
-  export default {
+export default {
   name: 'StakeholderModal',
   props: {
-  isOpen: {
-  type: Boolean,
-  required: true,
-},
-  selectedStakeholders: {
-  type: Array,
-  required: true,
-},
-},
+    isOpen: {
+      type: Boolean,
+      required: true,
+    },
+    selectedStakeholders: {
+      type: Array,
+      required: true,
+    },
+  },
   data() {
-  return {
-  searchQuery: '',
-  stakeholders: ['조조', '유비', '관우', '장비', '손권'],
-  checkedStakeholders: [],
-};
-},
+    return {
+      searchQuery: '',
+      stakeholders: ['홍길동(EP000)', '조자룡(EP001)', '유비(EP002)'],
+      checkedStakeholders: [],
+    };
+  },
   watch: {
-  selectedStakeholders: {
-  immediate: true,
-  handler(newVal) {
-  this.checkedStakeholders = [...newVal];
-},
-},
-},
+    selectedStakeholders: {
+      immediate: true,
+      handler(newVal) {
+        this.checkedStakeholders = [...newVal];
+      },
+    },
+  },
   computed: {
-  filteredStakeholders() {
-  return this.stakeholders.filter(stakeholder =>
-  stakeholder.includes(this.searchQuery)
-  );
-},
-},
+    filteredStakeholders() {
+      return this.stakeholders.filter(stakeholder =>
+          stakeholder.includes(this.searchQuery)
+      );
+    },
+  },
   methods: {
-  selectStakeholders() {
-  this.$emit('select', this.checkedStakeholders);
-  this.$emit('close');
-},
-},
+    selectStakeholders() {
+      console.log(this.checkedStakeholders); // 콘솔에 선택한 이해관계자들 출력
+      this.$emit('select', this.checkedStakeholders);
+      this.$emit('close');
+    },
+  },
 };
 </script>
 
