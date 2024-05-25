@@ -3,6 +3,7 @@
     <div class="row">
       <div class="col-12">
         <div class="card my-4">
+          <!-- 카드 헤더 -->
           <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
             <div class="bg-gradient-success shadow-success border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
               <div class="d-flex align-items-center ps-3">
@@ -12,6 +13,7 @@
               <MaterialButton color="info" size="md" variant="fill" class="me-3" @click="isModalVisible = true">+ 새로운 구성원</MaterialButton>
             </div>
           </div>
+          <!-- 카드 본문 -->
           <div class="card-body px-0 pb-2" style="max-height: 480px; min-height: 480px; overflow-y: auto;">
             <div class="table-responsive p-0">
               <table class="table align-items-center mb-0">
@@ -25,7 +27,12 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr v-if="!projectMembers || projectMembers.length === 0">
+                <tr v-if="projectMembersLoading">
+                  <td colspan="5" class="text-center">
+                    <span class="text-secondary">로딩 중...</span>
+                  </td>
+                </tr>
+                <tr v-if="!projectMembersLoading && (!projectMembers || projectMembers.length === 0)">
                   <td colspan="5" class="text-center text-muted" style="height: 320px;">
                     <span class="no-members-text">프로젝트에 참여하는 구성원이 없습니다.</span>
                   </td>
@@ -81,17 +88,27 @@ const isModalVisible = ref(false); // 모달 표시 상태
 
 // 프로젝트 구성원 데이터를 가져오는 함수
 const fetchProjectMembers = async () => {
-  await store.dispatch('fetchProjectMembers');
+  try {
+    await store.dispatch('fetchProjectMembers');
+  } catch (error) {
+    alert(error.message); // 에러 메시지 처리
+  }
 };
 
 // 현재 프로젝트에 추가되지 않은 회원 데이터를 가져오는 함수
 const fetchAvailableMembers = async () => {
-  await store.dispatch('fetchAvailableMembers');
+  try {
+    await store.dispatch('fetchAvailableMembers');
+  } catch (error) {
+    alert(error.message); // 에러 메시지 처리
+  }
 };
 
-// 필터링된 프로젝트 구성원 및 추가 가능한 구성원 목록을 가져오는 computed property
+// 필터링된 프로젝트 구성원 목록을 가져오는 computed property
 const projectMembers = computed(() => store.getters.filteredProjectMembers || []);
+// 필터링된 추가 가능한 구성원 목록을 가져오는 computed property
 const availableMembers = computed(() => store.getters.filteredAvailableMembers || []);
+const projectMembersLoading = computed(() => store.state.projectMembersLoading); // 프로젝트 구성원 로딩 상태
 
 // 새로운 구성원을 추가하는 함수
 const addMembers = async (selectedMembers) => {
@@ -100,20 +117,33 @@ const addMembers = async (selectedMembers) => {
     return;
   }
 
-  for (const member of selectedMembers) {
-    await store.dispatch('addProjectMember', { memberId: member.id, role: member.role });
+  try {
+    for (const member of selectedMembers) {
+      await store.dispatch('addProjectMember', { memberId: member.id, role: member.role });
+    }
+    alert('구성원이 성공적으로 추가되었습니다.');
+  } catch (error) {
+    alert(error.message); // 에러 메시지 처리
+  } finally {
+    isModalVisible.value = false;
+    await fetchProjectMembers();
+    await fetchAvailableMembers();
   }
-
-  isModalVisible.value = false;
-  await fetchProjectMembers();
-  await fetchAvailableMembers();
 };
 
 // 구성원을 제외하기 전에 확인 메시지를 표시하는 함수
 const confirmRemoveProjectMember = async (projectMemberId) => {
   const confirmDelete = window.confirm('팀에서 제외 시키겠습니까?');
   if (confirmDelete) {
-    await store.dispatch('removeProjectMember', projectMemberId);
+    try {
+      await store.dispatch('removeProjectMember', projectMemberId);
+      alert('구성원이 성공적으로 제외되었습니다.');
+    } catch (error) {
+      alert(error.message); // 에러 메시지 처리
+    } finally {
+      await fetchProjectMembers();
+      await fetchAvailableMembers();
+    }
   }
 };
 
