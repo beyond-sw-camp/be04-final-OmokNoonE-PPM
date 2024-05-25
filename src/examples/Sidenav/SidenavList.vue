@@ -118,6 +118,19 @@
           </template>
         </sidenav-collapse>
       </li>
+      <li class="nav-item">
+        <sidenav-collapse
+            url="#"
+            :aria-controls="''"
+            v-bind:collapse="false"
+            collapseRef="`requirements/list/${projectId}`"
+            navText="Requirements"
+        >
+          <template v-slot:icon>
+            <i class="material-icons-round opacity-10 fs-5">table_view</i>
+          </template>
+        </sidenav-collapse>
+      </li>
     </ul>
     <div class="sidenav-footer position-absolute w-100 bottom-0">
       <div class="mx-3">

@@ -1,12 +1,14 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Dashboard from "../views/Dashboard.vue";
-import Tables from "../views/Tables.vue";
+import Tables from "../views/Requirements.vue";
 import Billing from "../views/Billing.vue";
 import RTL from "../views/Rtl.vue";
 import Notifications from "../views/Notifications.vue";
 import Profile from "../views/Profile.vue";
 import SignIn from "../views/SignIn.vue";
 import SignUp from "../views/SignUp.vue";
+import Requirements from "@/views/Requirements.vue";
+import RegisterRequirement from "@/views/RegisterRequirement.vue";
 
 const routes = [
   {
@@ -54,6 +56,16 @@ const routes = [
     name: "SignUp",
     component: SignUp,
   },
+  {
+    path: "/requirements/list/:projectId",
+    name: "Requirements",
+    component: Requirements,
+  },
+  {
+    path: "/requirements/create",
+    name: "RegisterRequirement",
+    component: RegisterRequirement,
+  }
 ];
 
 const router = createRouter({
