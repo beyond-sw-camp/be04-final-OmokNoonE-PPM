@@ -5,12 +5,20 @@
         <div class="card my-4">
           <!-- 카드 헤더 -->
           <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-            <div class="bg-gradient-success shadow-success border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
+            <div
+                class="bg-gradient-success shadow-success border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
               <div class="d-flex align-items-center ps-3">
                 <i class="material-icons text-white me-2">groups</i>
                 <h6 class="text-white text-capitalize mb-0">프로젝트 구성원</h6>
               </div>
-              <MaterialButton color="info" size="md" variant="fill" class="me-3" @click="isModalVisible = true">+ 새로운 구성원</MaterialButton>
+              <div>
+                <MaterialButton color="info" size="md" variant="fill" class="me-3" @click="isModifyModalVisible = true">
+                  직책 변경
+                </MaterialButton>
+                <MaterialButton color="info" size="md" variant="fill" class="me-3" @click="isAddModalVisible = true">+
+                  새로운 구성원
+                </MaterialButton>
+              </div>
             </div>
           </div>
           <!-- 카드 본문 -->
@@ -21,8 +29,10 @@
                 <tr>
                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-left ps-3">이름</th>
                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-left ps-1">직책</th>
-                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center ps-2">연락처</th>
-                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-left ps-4">시작일</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center ps-2">연락처
+                  </th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-left ps-4">시작일
+                  </th>
                   <th class="text-secondary opacity-7"></th>
                 </tr>
                 </thead>
@@ -49,13 +59,17 @@
                     <p class="text-xs font-weight-bold mb-0">{{ projectMember.role }}</p>
                   </td>
                   <td class="align-middle text-center text-sm">
-                    <span class="text-secondary text-xs font-weight-bold text-left d-inline-block">E-mail. {{ projectMember.email }}<br><span class="ps-1">Phone. {{ projectMember.phone }}</span></span>
+                    <span class="text-secondary text-xs font-weight-bold text-left d-inline-block">E-mail. {{
+                        projectMember.email
+                      }}<br><span class="ps-1">Phone. {{ projectMember.phone }}</span></span>
                   </td>
                   <td class="align-middle text-left text-sm">
                     <span class="text-secondary text-xs font-weight-bold">{{ projectMember.startDate }}</span>
                   </td>
                   <td class="align-middle">
-                    <button class="btn btn-link text-secondary mb-0" @click="confirmRemoveProjectMember(projectMember.id)" data-toggle="tooltip" data-original-title="팀에서 제외">
+                    <button class="btn btn-link text-secondary mb-0"
+                            @click="confirmRemoveProjectMember(projectMember.id)" data-toggle="tooltip"
+                            data-original-title="팀에서 제외">
                       x
                     </button>
                   </td>
@@ -69,22 +83,29 @@
     </div>
 
     <!-- 구성원 추가 모달 -->
-    <AddProjectMemberCard v-if="isModalVisible" :available-members="availableMembers" @close="isModalVisible = false" @add-members="addMembers"></AddProjectMemberCard>
+    <AddProjectMemberCard v-if="isAddModalVisible" :available-members="availableMembers"
+                          @close="isAddModalVisible = false" @add-members="addMembers"></AddProjectMemberCard>
+    <!-- 직책 변경 모달 -->
+    <ModifyProjectMemberRoleCard v-if="isModifyModalVisible" :project-members="projectMembers"
+                                 @close="isModifyModalVisible = false"
+                                 @save-changes="saveChanges"></ModifyProjectMemberRoleCard>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
-import { useStore } from 'vuex';
+import {ref, onMounted, computed} from 'vue';
+import {useStore} from 'vuex';
 import MaterialButton from '@/components/MaterialButton.vue';
 import AddProjectMemberCard from '@/views/components/AddProjectMemberCard.vue';
+import ModifyProjectMemberRoleCard from '@/views/components/ModifyProjectMemberRoleCard.vue';
 
 const props = defineProps({
   projectId: Number,
 });
 
 const store = useStore();
-const isModalVisible = ref(false); // 모달 표시 상태
+const isAddModalVisible = ref(false); // 구성원 추가 모달 표시 상태
+const isModifyModalVisible = ref(false); // 직책 변경 모달 표시 상태
 
 // 프로젝트 구성원 데이터를 가져오는 함수
 const fetchProjectMembers = async () => {
@@ -119,13 +140,13 @@ const addMembers = async (selectedMembers) => {
 
   try {
     for (const member of selectedMembers) {
-      await store.dispatch('addProjectMember', { memberId: member.id, role: member.role });
+      await store.dispatch('addProjectMember', {memberId: member.id, role: member.role});
     }
     alert('구성원이 성공적으로 추가되었습니다.');
   } catch (error) {
     alert(error.message); // 에러 메시지 처리
   } finally {
-    isModalVisible.value = false;
+    isAddModalVisible.value = false;
     await fetchProjectMembers();
     await fetchAvailableMembers();
   }
@@ -144,6 +165,21 @@ const confirmRemoveProjectMember = async (projectMemberId) => {
       await fetchProjectMembers();
       await fetchAvailableMembers();
     }
+  }
+};
+
+// 직책 변경을 저장하는 함수
+const saveChanges = async (selectedMembers) => {
+  try {
+    for (const member of selectedMembers) {
+      await store.dispatch('updateProjectMemberRole', {memberId: member.id, role: member.role});
+    }
+    alert('구성원의 직책이 성공적으로 변경되었습니다.');
+  } catch (error) {
+    alert(error.message); // 에러 메시지 처리
+  } finally {
+    isModifyModalVisible.value = false;
+    await fetchProjectMembers();
   }
 };
 

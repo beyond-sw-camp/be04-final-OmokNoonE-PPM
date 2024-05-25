@@ -1,4 +1,4 @@
-import { createStore } from 'vuex';
+import {createStore} from 'vuex';
 import axios from 'axios';
 
 export const store = createStore({
@@ -6,8 +6,8 @@ export const store = createStore({
         projectMembers: [], // 프로젝트 구성원 목록
         availableMembers: [], // 프로젝트에 추가되지 않은 회원 목록
         projectId: null, // 현재 프로젝트 ID
-        projectMembersLoading: false, // 프로젝트 구성원 로딩 상태
-        availableMembersLoading: false, // 추가 가능한 구성원 로딩 상태
+        projectMembersLoading: false,
+        availableMembersLoading: false,
     },
     mutations: {
         SET_PROJECT_MEMBERS(state, members) {
@@ -25,20 +25,26 @@ export const store = createStore({
                 member.isDeleted = true;
             }
         },
+        UPDATE_PROJECT_MEMBER_ROLE(state, {memberId, role}) {
+            const member = state.projectMembers.find((m) => m.id === memberId);
+            if (member) {
+                member.role = role;
+            }
+        },
         SET_PROJECT_ID(state, projectId) {
             state.projectId = projectId;
         },
-        SET_PROJECT_MEMBERS_LOADING(state, isLoading) {
-            state.projectMembersLoading = isLoading;
+        SET_PROJECT_MEMBERS_LOADING(state, loading) {
+            state.projectMembersLoading = loading;
         },
-        SET_AVAILABLE_MEMBERS_LOADING(state, isLoading) {
-            state.availableMembersLoading = isLoading;
+        SET_AVAILABLE_MEMBERS_LOADING(state, loading) {
+            state.availableMembersLoading = loading;
         },
     },
     actions: {
-        async fetchProjectMembers({ commit, state }) {
+        async fetchProjectMembers({commit, state}) {
+            commit('SET_PROJECT_MEMBERS_LOADING', true);
             try {
-                commit('SET_PROJECT_MEMBERS_LOADING', true);
                 const response = await axios.get(`/api/project-members?projectId=${state.projectId}`);
                 commit('SET_PROJECT_MEMBERS', response.data);
             } catch (err) {
@@ -48,9 +54,9 @@ export const store = createStore({
                 commit('SET_PROJECT_MEMBERS_LOADING', false);
             }
         },
-        async fetchAvailableMembers({ commit, state }) {
+        async fetchAvailableMembers({commit, state}) {
+            commit('SET_AVAILABLE_MEMBERS_LOADING', true);
             try {
-                commit('SET_AVAILABLE_MEMBERS_LOADING', true);
                 const response = await axios.get(`/api/available-members?projectId=${state.projectId}`);
                 commit('SET_AVAILABLE_MEMBERS', response.data);
             } catch (err) {
@@ -60,7 +66,7 @@ export const store = createStore({
                 commit('SET_AVAILABLE_MEMBERS_LOADING', false);
             }
         },
-        async addProjectMember({ commit, state }, { memberId, role }) {
+        async addProjectMember({commit, state}, {memberId, role}) {
             try {
                 const response = await axios.post('/api/project-members', {
                     employeeId: memberId,
@@ -73,7 +79,7 @@ export const store = createStore({
                 throw new Error('프로젝트 구성원을 추가하는 중 오류가 발생했습니다.');
             }
         },
-        async removeProjectMember({ commit, state }, memberId) {
+        async removeProjectMember({commit, state}, memberId) {
             try {
                 await axios.put(`/api/project-members/${memberId}`, {
                     projectId: state.projectId,
@@ -82,6 +88,18 @@ export const store = createStore({
             } catch (err) {
                 console.error('프로젝트 구성원을 제외하는 중 오류 발생:', err);
                 throw new Error('프로젝트 구성원을 제외하는 중 오류가 발생했습니다.');
+            }
+        },
+        async updateProjectMemberRole({commit, state}, {memberId, role}) {
+            try {
+                await axios.put(`/api/project-members/${memberId}/role`, {
+                    role: role,
+                    projectId: state.projectId,
+                });
+                commit('UPDATE_PROJECT_MEMBER_ROLE', {memberId, role});
+            } catch (err) {
+                console.error('프로젝트 구성원 직책을 업데이트하는 중 오류 발생:', err);
+                throw new Error('프로젝트 구성원 직책을 업데이트하는 중 오류가 발생했습니다.');
             }
         },
     },
