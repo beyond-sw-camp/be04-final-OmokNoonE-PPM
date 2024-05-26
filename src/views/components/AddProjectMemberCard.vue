@@ -2,8 +2,18 @@
   <div class="modal" tabindex="-1" role="dialog" style="display: block;">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
-        <div class="modal-header">
+        <div class="modal-header d-flex justify-content-between align-items-center">
           <h5 class="modal-title">구성원 추가</h5>
+          <!-- 검색 입력 -->
+          <div class="search-container">
+            <MaterialInput
+                id="search"
+                v-model="searchQuery"
+                label="이름을 입력하세요..."
+                @keyup.enter="searchMembers"
+            />
+            <i class="material-icons search-icon" @click="searchMembers">search</i>
+          </div>
         </div>
         <div class="modal-body">
           <!-- 로딩 중일 때 로딩 스피너를 표시 -->
@@ -23,8 +33,17 @@
               </tr>
               </thead>
               <tbody>
-              <!-- availableMembers 배열을 순회하여 각 구성원 표시 -->
-              <tr v-for="member in availableMembers" :key="member.id">
+              <tr v-if="!searching && (availableMembers?.length ?? 0) === 0">
+                <td colspan="5" class="text-center text-muted" style="height: 320px;">
+                  <span class="no-members-text">구성원 목록이 없습니다.</span>
+                </td>
+              </tr>
+              <tr v-if="searching && (searchResults?.length ?? 0) === 0">
+                <td colspan="5" class="text-center text-muted" style="height: 320px;">
+                  <span class="no-members-text">검색 결과가 없습니다.</span>
+                </td>
+              </tr>
+              <tr v-for="member in displayedMembers" :key="member.id">
                 <td class="text-left">
                   <!-- 구성원 선택 체크박스 -->
                   <MaterialCheckbox v-model="selectedMembers" :value="member.id"/>
@@ -47,9 +66,9 @@
                 </td>
                 <td class="align-middle text-center text-sm">
                   <!-- 구성원의 이메일 및 전화번호 표시 -->
-                  <span class="text-secondary text-xs font-weight-bold text-left d-inline-block">E-mail. {{
-                      member.email
-                    }}<br><span class="ps-1">Phone. {{ member.phone }}</span></span>
+                  <span class="text-secondary text-xs font-weight-bold text-left d-inline-block">
+                      E-mail. {{ member.email }}<br><span class="ps-1">Phone. {{ member.phone }}</span>
+                    </span>
                 </td>
                 <td class="align-middle text-left text-sm">
                   <!-- 구성원의 가입일 표시 -->
@@ -72,10 +91,12 @@
 </template>
 
 <script setup>
-import {ref, watch, onMounted, computed} from 'vue';
+import {ref, onMounted, computed, watch} from 'vue';
 import {useStore} from 'vuex';
+import MaterialInput from '@/components/MaterialInput.vue'; // MaterialInput 컴포넌트 임포트
 import MaterialButton from '@/components/MaterialButton.vue'; // MaterialButton 컴포넌트 임포트
 import MaterialCheckbox from '@/components/MaterialCheckbox.vue'; // MaterialCheckbox 컴포넌트 임포트
+import {useToast} from 'vue-toastification';
 
 // 부모 컴포넌트에서 전달된 속성 정의
 const props = defineProps({
@@ -89,47 +110,53 @@ const props = defineProps({
 const emit = defineEmits(['close', 'add-members']);
 
 const selectedMembers = ref([]); // 선택된 구성원 목록을 저장
+const searchQuery = ref(''); // 검색어를 저장
 const store = useStore();
-const availableMembersLoading = computed(() => store.state.availableMembersLoading); // 추가 가능한 구성원 로딩 상태
+const toast = useToast();
+const availableMembersLoading = ref(false); // 추가 가능한 구성원 로딩 상태
+const searchResults = ref([]); // 검색 결과를 저장
+const availableMembersData = computed(() => store.state.availableMembers || []); // 원래의 추가 가능한 구성원 목록 가져오기
 
-// 컴포넌트가 처음 마운트될 때 선택된 구성원을 초기화
-onMounted(() => {
-  selectedMembers.value = props.availableMembers.map(member => ({
-    ...member,
-    role: 'PA', // 기본 직책을 PA로 설정
-  }));
-});
+const searching = ref(false); // 검색 여부를 저장
 
-// availableMembers가 변경되었을 때 선택된 구성원을 초기화하는 로직
-watch(() => props.availableMembers, (newAvailableMembers, oldAvailableMembers) => {
-  if (oldAvailableMembers.length === 0) {
-    // 초기 로드 시
-    selectedMembers.value = newAvailableMembers.map(member => ({
-      ...member,
-      role: 'PA', // 기본 직책을 PA로 설정
-    }));
-  } else {
-    // 기존 선택 유지 및 새로운 구성원 추가
-    const newSelectedMembers = newAvailableMembers.map(member => ({
-      ...member,
-      role: 'PA', // 기본 직책을 PA로 설정
-    }));
-    selectedMembers.value = [...selectedMembers.value, ...newSelectedMembers];
+const displayedMembers = computed(() => {
+  if (searching.value) {
+    return searchResults.value;
   }
+  return availableMembersData.value || [];
 });
+
+// 검색 함수
+const searchMembers = async () => {
+  searching.value = true;
+  availableMembersLoading.value = true;
+  try {
+    await store.dispatch('fetchAvailableMembers', {query: searchQuery.value});
+    searchResults.value = store.getters.searchResults ?? null;
+    if (searchResults.value === null) {
+      toast.error('검색 중 네트워크 오류가 발생했습니다.');
+    } else if (searchResults.value.length === 0) {
+      toast.info('검색 결과가 없습니다.');
+    }
+  } catch (error) {
+    toast.error('검색 중 네트워크 오류가 발생했습니다.'); // 에러 메시지 처리
+  } finally {
+    availableMembersLoading.value = false;
+  }
+};
 
 // 구성원 추가 함수
 const addMembers = async () => {
   if (selectedMembers.value.length === 0) {
-    alert('추가할 구성원을 선택해 주세요.');
+    toast.error('추가할 구성원을 선택해 주세요.');
     return;
   }
   try {
-    await emit('add-members', selectedMembers.value);
-    alert('구성원이 성공적으로 추가되었습니다.');
+    emit('add-members', selectedMembers.value);
+    toast.success('구성원이 성공적으로 추가되었습니다.');
     selectedMembers.value = [];
   } catch (error) {
-    alert('구성원 추가 중 오류가 발생했습니다.'); // 에러 메시지 처리
+    toast.error('구성원 추가 중 오류가 발생했습니다.'); // 에러 메시지 처리
   }
 };
 
@@ -143,6 +170,23 @@ const confirmClose = () => {
     emit('close');
   }
 };
+
+// 모달이 열릴 때마다 기본 데이터 로드
+watch(() => props.availableMembers, async (newVal, oldVal) => {
+  if (newVal.length === 0 && oldVal.length !== 0) {
+    searching.value = false;
+    await store.dispatch('fetchAvailableMembers');
+  }
+});
+
+// 컴포넌트가 처음 마운트될 때 선택된 구성원을 초기화
+onMounted(async () => {
+  await store.dispatch('fetchAvailableMembers');
+  selectedMembers.value = props.availableMembers.map(member => ({
+    ...member,
+    role: 'PA', // 기본 직책을 PA로 설정
+  }));
+});
 </script>
 
 <style scoped>
@@ -181,6 +225,22 @@ const confirmClose = () => {
   font-size: 1.5rem;
 }
 
+.no-members-text {
+  opacity: 0.5;
+  font-size: 1.2rem;
+}
+
+.search-container {
+  display: flex;
+  align-items: center;
+  width: 50%; /* 검색 창의 크기를 절반으로 설정 */
+}
+
+.search-icon {
+  cursor: pointer;
+  margin-left: 8px;
+}
+
 @media (max-width: 576px) {
   .modal-dialog {
     width: 90%;
@@ -207,6 +267,10 @@ const confirmClose = () => {
 
   .btn {
     margin-bottom: 10px;
+  }
+
+  .search-container {
+    width: 100%; /* 작은 화면에서 검색 창의 크기를 100%로 설정 */
   }
 }
 </style>

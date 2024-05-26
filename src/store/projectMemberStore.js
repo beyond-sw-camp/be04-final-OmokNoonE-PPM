@@ -8,6 +8,8 @@ export const store = createStore({
         projectId: null, // 현재 프로젝트 ID
         projectMembersLoading: false,
         availableMembersLoading: false,
+        searchQuery: '', // 검색어
+        searchResults: [], // 검색 결과
     },
     mutations: {
         SET_PROJECT_MEMBERS(state, members) {
@@ -40,12 +42,18 @@ export const store = createStore({
         SET_AVAILABLE_MEMBERS_LOADING(state, loading) {
             state.availableMembersLoading = loading;
         },
+        SET_SEARCH_QUERY(state, query) {
+            state.searchQuery = query;
+        },
+        SET_SEARCH_RESULTS(state, results) {
+            state.searchResults = results;
+        },
     },
     actions: {
         async fetchProjectMembers({commit, state}) {
             commit('SET_PROJECT_MEMBERS_LOADING', true);
             try {
-                const response = await axios.get(`/api/project-members?projectId=${state.projectId}`);
+                const response = await axios.get(`/projectMembers/project-members?projectId=${state.projectId}`);
                 commit('SET_PROJECT_MEMBERS', response.data);
             } catch (err) {
                 console.error('프로젝트 구성원을 가져오는 중 오류 발생:', err);
@@ -54,21 +62,22 @@ export const store = createStore({
                 commit('SET_PROJECT_MEMBERS_LOADING', false);
             }
         },
-        async fetchAvailableMembers({commit, state}) {
+        async fetchAvailableMembers({commit, state}, {query = ''} = {}) {
             commit('SET_AVAILABLE_MEMBERS_LOADING', true);
+            commit('SET_SEARCH_QUERY', query);
             try {
-                const response = await axios.get(`/api/available-members?projectId=${state.projectId}`);
-                commit('SET_AVAILABLE_MEMBERS', response.data);
+                const response = await axios.get(`/projectMembers/available-members?projectId=${state.projectId}&query=${query}`);
+                commit('SET_SEARCH_RESULTS', response.data);
             } catch (err) {
-                console.error('추가 가능한 회원 목록을 가져오는 중 오류 발생:', err);
-                throw new Error('추가 가능한 회원 목록을 가져오는 중 오류가 발생했습니다.');
+                console.error('구성원 목록을 가져오는 중 오류 발생:', err);
+                throw new Error('구성원 목록을 가져오는 중 오류가 발생했습니다.');
             } finally {
                 commit('SET_AVAILABLE_MEMBERS_LOADING', false);
             }
         },
         async addProjectMember({commit, state}, {memberId, role}) {
             try {
-                const response = await axios.post('/api/project-members', {
+                const response = await axios.post('/projectMembers/project-members', {
                     employeeId: memberId,
                     projectId: state.projectId,
                     role: role,
@@ -81,7 +90,7 @@ export const store = createStore({
         },
         async removeProjectMember({commit, state}, memberId) {
             try {
-                await axios.put(`/api/project-members/${memberId}`, {
+                await axios.put(`/projectMembers/project-members/${memberId}`, {
                     projectId: state.projectId,
                 });
                 commit('REMOVE_PROJECT_MEMBER', memberId);
@@ -92,7 +101,7 @@ export const store = createStore({
         },
         async updateProjectMemberRole({commit, state}, {memberId, role}) {
             try {
-                await axios.put(`/api/project-members/${memberId}/role`, {
+                await axios.put(`/projectMembers/project-members/${memberId}/role`, {
                     role: role,
                     projectId: state.projectId,
                 });
@@ -107,8 +116,8 @@ export const store = createStore({
         filteredProjectMembers(state) {
             return state.projectMembers.filter((member) => !member.isDeleted);
         },
-        filteredAvailableMembers(state) {
-            return state.availableMembers.filter((member) => !member.isDeleted);
+        searchResults(state) {
+            return state.searchResults;
         },
     },
 });

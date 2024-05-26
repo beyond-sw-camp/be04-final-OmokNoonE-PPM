@@ -98,12 +98,14 @@ import {useStore} from 'vuex';
 import MaterialButton from '@/components/MaterialButton.vue';
 import AddProjectMemberCard from '@/views/components/AddProjectMemberCard.vue';
 import ModifyProjectMemberRoleCard from '@/views/components/ModifyProjectMemberRoleCard.vue';
+import {useToast} from 'vue-toastification';
 
 const props = defineProps({
   projectId: Number,
 });
 
 const store = useStore();
+const toast = useToast();
 const isAddModalVisible = ref(false); // 구성원 추가 모달 표시 상태
 const isModifyModalVisible = ref(false); // 직책 변경 모달 표시 상태
 
@@ -112,7 +114,7 @@ const fetchProjectMembers = async () => {
   try {
     await store.dispatch('fetchProjectMembers');
   } catch (error) {
-    alert(error.message); // 에러 메시지 처리
+    toast.error(error.message); // 에러 메시지 처리
   }
 };
 
@@ -121,20 +123,18 @@ const fetchAvailableMembers = async () => {
   try {
     await store.dispatch('fetchAvailableMembers');
   } catch (error) {
-    alert(error.message); // 에러 메시지 처리
+    toast.error(error.message); // 에러 메시지 처리
   }
 };
 
 // 필터링된 프로젝트 구성원 목록을 가져오는 computed property
 const projectMembers = computed(() => store.getters.filteredProjectMembers || []);
-// 필터링된 추가 가능한 구성원 목록을 가져오는 computed property
-const availableMembers = computed(() => store.getters.filteredAvailableMembers || []);
 const projectMembersLoading = computed(() => store.state.projectMembersLoading); // 프로젝트 구성원 로딩 상태
 
 // 새로운 구성원을 추가하는 함수
 const addMembers = async (selectedMembers) => {
   if (selectedMembers.length === 0) {
-    alert('추가할 구성원을 선택해 주세요.');
+    toast.error('추가할 구성원을 선택해 주세요.');
     return;
   }
 
@@ -142,9 +142,9 @@ const addMembers = async (selectedMembers) => {
     for (const member of selectedMembers) {
       await store.dispatch('addProjectMember', {memberId: member.id, role: member.role});
     }
-    alert('구성원이 성공적으로 추가되었습니다.');
+    toast.success('구성원이 성공적으로 추가되었습니다.');
   } catch (error) {
-    alert(error.message); // 에러 메시지 처리
+    toast.error(error.message); // 에러 메시지 처리
   } finally {
     isAddModalVisible.value = false;
     await fetchProjectMembers();
@@ -158,9 +158,9 @@ const confirmRemoveProjectMember = async (projectMemberId) => {
   if (confirmDelete) {
     try {
       await store.dispatch('removeProjectMember', projectMemberId);
-      alert('구성원이 성공적으로 제외되었습니다.');
+      toast.success('구성원이 성공적으로 제외되었습니다.');
     } catch (error) {
-      alert(error.message); // 에러 메시지 처리
+      toast.error(error.message); // 에러 메시지 처리
     } finally {
       await fetchProjectMembers();
       await fetchAvailableMembers();
@@ -174,9 +174,9 @@ const saveChanges = async (selectedMembers) => {
     for (const member of selectedMembers) {
       await store.dispatch('updateProjectMemberRole', {memberId: member.id, role: member.role});
     }
-    alert('구성원의 직책이 성공적으로 변경되었습니다.');
+    toast.success('구성원의 직책이 성공적으로 변경되었습니다.');
   } catch (error) {
-    alert(error.message); // 에러 메시지 처리
+    toast.error(error.message); // 에러 메시지 처리
   } finally {
     isModifyModalVisible.value = false;
     await fetchProjectMembers();
