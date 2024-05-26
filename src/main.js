@@ -7,6 +7,7 @@ import "./assets/css/nucleo-svg.css";
 import MaterialDashboard from "./material-dashboard";
 import Toast, { POSITION } from "vue-toastification";
 import "vue-toastification/dist/index.css";
+import vueCookie from "vue3-cookies";
 
 const appInstance = createApp(App);
 
@@ -29,4 +30,5 @@ appInstance.use(store);
 appInstance.use(router);
 appInstance.use(MaterialDashboard);
 appInstance.use(Toast, toastOptions);
+appInstance.use(vueCookie);
 appInstance.mount("#app");

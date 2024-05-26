@@ -67,3 +67,12 @@ export default {
   name: "app-footer",
 };
 </script>
+
+<style scoped>
+.footer {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+}
+</style>
