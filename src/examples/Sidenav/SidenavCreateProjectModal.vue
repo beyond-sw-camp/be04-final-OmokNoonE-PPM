@@ -86,9 +86,10 @@
 </template>
 
 <script>
-import {authInstance, defaultInstance} from "@/axios/axios-instance";
+import {defaultInstance} from "@/axios/axios-instance";
 import MaterialButton from "@/components/MaterialButton.vue";
 import MaterialInput from "@/components/MaterialInput.vue";
+import store from "@/store";
 // import router from "@/router";
 
 export default {
@@ -104,8 +105,8 @@ export default {
     async open() {
       this.isActive = true;
       try {
-        let employeeId = "EP001";
-        const response = await authInstance.get(`projects/list/${employeeId}`);
+        const employeeId = store.getters.employeeId;
+        const response = await defaultInstance.get(`projects/list/${employeeId}`);
         this.projects = response.data.result.viewProjectList;
       } catch (error) {
         console.error('Error fetching projects:', error);
@@ -127,11 +128,13 @@ export default {
         projectEndDate: '',
         projectStatus: '계획',
         projectModifiedDate: '',
+        employeeId: store.getters.employeeId,  // 임시로 EP001로 설정
         isNew: true,
       });
     },
     async saveProject() {
       try {
+        console.log('Saving project:', this.projects[0])
         await defaultInstance.post(`projects/create`, this.projects[0]);
         this.projects[0].isNew = false;
         this.isEditing = false;

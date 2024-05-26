@@ -22,6 +22,7 @@ export default createStore({
     // 로그인 관련
     needLogin: true,
     employeeId: "",
+    employeeName: "",
     accessToken: localStorage.getItem("accessToken") || null,
   },
   mutations: {
@@ -63,6 +64,9 @@ export default createStore({
     employeeId(state, data) {
       state.employeeId = data;
     },
+    employeeName(state, data) {
+      state.employeeName = data;
+    },
     accessToken(state, data) {
       state.accessToken = data;
       localStorage.setItem('accessToken', data);
@@ -79,6 +83,9 @@ export default createStore({
     },
     employeeId(state) {
       return state.employeeId;
+    },
+    employeeName(state) {
+      return state.employeeName;
     },
   },
 });

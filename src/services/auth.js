@@ -11,9 +11,10 @@ export async function login(employeeId, password) {
     });
 
     if (response.status === 200) {  // 로그인 성공 시 처리
-        store.commit("needLogin", false);                         // 로그인 필요 여부 변경
+        store.commit("needLogin", false);                       // 로그인 필요 여부 변경
         store.commit('accessToken', response.headers["accesstoken"]);   // accessToken 저장
-        store.commit("employeeId", response.headers["employeeId"]);     // 사원번호 저장
+        store.commit("employeeId", response.headers["employeeid"]);     // 회원ID 저장
+        store.commit("employeeName", response.headers["employeename"]); // 이름 저장
     }
 }
 
