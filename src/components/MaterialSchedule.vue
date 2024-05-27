@@ -103,7 +103,7 @@
                   <option v-for="status in statusItems" :key="status" :value="status">
                     {{
                       status == 10401 ? '준비' :
-                      status == 10402 ? '진행' : '완료'
+                          status == 10402 ? '진행' : '완료'
                     }}
                   </option>
                 </select>
@@ -111,13 +111,13 @@
               <span v-else class="modal-info-value">
                 {{
                   schedule.status == 10401 ? '준비' :
-                  schedule.status == 10402 ? '진행' : '완료'
+                      schedule.status == 10402 ? '진행' : '완료'
                 }}
               </span>
             </div>
           </div>
 
-          <!-- 부모 일정, 선행 일정, 작성자 -->
+          <!-- 부모 일정, 선행 일정 -->
           <div class="modal-info">
             <div class="modal-info-item">
               <span class="modal-info-label">부모 일정:</span>
@@ -137,10 +137,22 @@
                     @mouseleave="hidePrecedingTitle">{{ schedule.precedingId }}</span>
               <span v-if="hoveredPrecedingTitle" class="info-tooltip">{{ schedule.precedingId }}의 일정 제목</span>
             </div>
+          </div>
+
+          <!--   PM, PL    -->
+          <div class="modal-info">
             <div class="modal-info-item">
-              <span class="modal-info-label">작성자:</span>
+              <span class="modal-info-label">PM:</span>
               <template v-for="(stakeholder, index) in stakeholders" :key="index">
-                <span v-if="stakeholder.type === 10401" class="modal-info-value">
+                <span v-if="stakeholder.roleName === 10601" class="modal-info-value">
+                  {{ stakeholder.name }}({{ stakeholder.id }})
+                </span>
+              </template>
+            </div>
+            <div class="modal-info-item">
+              <span class="modal-info-label">PL:</span>
+              <template v-for="(stakeholder, index) in stakeholders" :key="index">
+                <span v-if="stakeholder.roleName === 10602" class="modal-info-value">
                   {{ stakeholder.name }}({{ stakeholder.id }})
                 </span>
               </template>
@@ -158,7 +170,7 @@
               <div v-else class="modal-info-value">
                 <p class="modal-responsible">
                   <template v-for="(stakeholder, index) in stakeholders" :key="index">
-                  <span v-if="stakeholder.type === 10402">
+                  <span v-if="stakeholder.type === 10402" class="modal-info-value">
                       {{ stakeholder.name }} ({{ stakeholder.id }})
                       <span v-if="index !== stakeholder.length - 1">,</span>
                     </span>
@@ -272,72 +284,6 @@
           </table>
         </div>
 
-        <div v-show="currentTab === 'permissions'">
-          <!-- 권한 탭 내용 -->
-          <h3>권한</h3>
-          <table class="modal-sheet">
-            <thead>
-            <tr>
-              <th>이름</th>
-              <th>ID</th>
-              <th>역할</th>
-            </tr>
-            </thead>
-            <tbody v-if="isPermissionEditing">
-            <tr v-for="(permission, index) in permission" :key="index">
-              <td>
-                <input type="text" v-model="permission.name">
-              </td>
-              <td>
-                <input type="text" v-model="permission.id">
-              </td>
-              <td>
-                <input type="text" v-model="permission.role_name">
-              </td>
-              <td>
-                <button class="delete-button" @click="deletePermission(index)">삭제</button>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <input type="text" v-model="newPermission.name" placeholder="이름">
-              </td>
-              <td>
-                <input type="text" v-model="newPermission.id" placeholder="ID">
-              </td>
-              <td>
-                <select v-model="newPermission.role_name">
-                  <option value="PM">PM</option>
-                  <option value="PL">PL</option>
-                  <option value="PA">PA</option>
-                </select>
-              </td>
-              <td>
-                <button @click="addPermission">추가</button>
-              </td>
-            </tr>
-            </tbody>
-            <tbody v-else-if="!isPermissionEditing&permission.length > 0">
-            <tr v-for="(permission, index) in permission" :key="index">
-              <td>{{ permission.name }}</td>
-              <td>{{ permission.id }}</td>
-              <td>{{ permission.role_name }}</td>
-            </tr>
-            </tbody>
-            <tbody v-else>
-            <tr>
-              <td colspan="3">등록된 권한이 존재하지 않습니다.</td>
-            </tr>
-            </tbody>
-          </table>
-          <div class="modal-actions">
-            <p v-if="showInfoMessage" class="info-message">모든 항목을 채워주세요.</p>
-            <button class="modal-action-button" @click="togglePermissionEdit">
-              {{ isPermissionEditing ? '저장' : '수정' }}
-            </button>
-          </div>
-        </div>
-
         <div v-show="currentTab === 'requirement'">
           <!-- 요구사항 탭 내용 -->
           <h3>요구사항</h3>
@@ -421,9 +367,9 @@ export default {
         {id: 2, title: '게시글 추천 기능 구현', isCompleted: false}
       ],
       stakeholders: [
-        {name: '홍길동', id: 'EP000', type: 10401},
-        {name: '조자룡', id: 'EP001', type: 10402},
-        {name: '유비', id: 'EP002', type: 10402}
+        {name: '홍길동', id: 'EP000', type: 10401, roleName: 10601},
+        {name: '조자룡', id: 'EP001', type: 10402, roleName: 10603},
+        {name: '유비', id: 'EP002', type: 10402, roleName: 10602},
       ],
       history: [
         {id: 1, name: '홍길동', employeeId: 'EP000', reason: '게시글 CRUD 구현 내용 수정', modifiedDate: '2024-04-01T10:00:12'},

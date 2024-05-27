@@ -1,16 +1,16 @@
 <template>
 <div>
-  <DataGridTest/>
+  <ScheduleSheet/>
 </div>
 </template>
 
 <script>
-import DataGridTest from "@/views/ScheduleSheet.vue";
+import ScheduleSheet from "@/views/ScheduleSheetRefact.vue";
 
 export default {
   name: "Billing",
   components: {
-    DataGridTest
+    ScheduleSheet
   },
 };
 </script>
