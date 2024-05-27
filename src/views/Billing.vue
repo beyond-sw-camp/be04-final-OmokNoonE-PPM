@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import ScheduleSheet from "@/views/ScheduleSheetRefact.vue";
+import ScheduleSheet from "@/views/ScheduleSheet.vue";
 
 export default {
   name: "Billing",

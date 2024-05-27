@@ -1,6 +1,6 @@
 <template>
   <div id="example">
-    <div class="content-container">
+    <div v-if="!loadingState" class="content-container">
       <Handsontable :settings="editMode ? hotSettings : readOnlyHotSettings"></Handsontable>
       <div class="edit-button-container">
         <button class="edit-button" @click="toggleEditMode">{{ editMode ? '수정 완료' : '수정' }}</button>
@@ -17,11 +17,14 @@
 </template>
 
 <script>
-import {defineComponent, ref} from 'vue';
+import {defineComponent, onMounted, ref} from 'vue';
 import HandsontableComponent from '../components/Handsontable.vue';
 import MaterialSchedule from '@/components/MaterialSchedule.vue';
 import StakeholderModal from '@/components/StakeholderModal.vue';
 import 'handsontable/dist/handsontable.full.css';
+import axios from "axios";
+import {format} from 'date-fns';
+// import store from "@/store";
 
 export default defineComponent({
   name: 'ScheduleSheet',
@@ -30,53 +33,123 @@ export default defineComponent({
     MaterialSchedule,
     StakeholderModal
   },
+
   setup() {
 
-    const stakeholders = ['홍길동(EP000)', '조자룡(EP001)', '유비(EP002)'];
+    const schedules = [];
+    const copySchedules = ref([{}]);
 
-    const dummyData = ref(Array.from({length: 20}, (_, i) => {
-      const stakeholder = stakeholders[Math.floor(Math.random() * stakeholders.length)];
-      return {
-        parentId: `${i}`, title: `Project ${i + 1}`, startDate: '2024-05-01', endDate: '2024-06-30', priority: 10,
-        progress: 80, status: '진행', manHours: 20, stakeholders: stakeholder, id: `${i + 1}`
-      };
-    }));
+    const loadingState = ref(true);
+
+    onMounted(async () => {
+      try {
+        // const employeeId = store.getters['auth/getEmployeeId'];  // 로그인한 사용자의 ID, 향후 이 코드로 바꿔야함.
+        const employeeId = "EP001"
+        // const projectId = store.getters['project/getProjectId'];
+        const projectId = 1;
+        const response = await axios.get(`http://localhost:8888/schedules/sheet/${projectId}`, {
+          headers: {
+            'employeeId': employeeId
+          }
+        });
+        schedules.value = response.data.result.SheetData;
+        for (let i = 0; i < schedules.value.length; i++) {
+          const scheduleId = schedules.value[i].scheduleId;
+          const scheduleTitle = schedules.value[i].scheduleTitle;
+          const scheduleStartDate = formatDate(schedules.value[i].scheduleStartDate);
+          const scheduleEndDate = formatDate(schedules.value[i].scheduleEndDate);
+          const scheduleDepth = schedules.value[i].scheduleDepth;
+          const schedulePriority = schedules.value[i].schedulePriority;
+          const scheduleProgress = schedules.value[i].scheduleProgress;
+          const scheduleStatus = schedules.value[i].scheduleStatus;
+          const scheduleManHours = schedules.value[i].scheduleManHours;
+          const scheduleEmployeeInfoList = schedules.value[i].scheduleEmployeeInfoList === null ? [] : schedules.value[i].scheduleEmployeeInfoList;
+          const scheduleParentScheduleId = schedules.value[i].scheduleParentScheduleId;
+          const schedulePrecedingScheduleId = schedules.value[i].schedulePrecedingScheduleId;
+          const __children = schedules.value[i].__children === null ? [] : schedules.value[i].__children;
+
+          copySchedules.value[i] = {
+            scheduleId: scheduleId,
+            scheduleTitle: scheduleTitle,
+            scheduleStartDate: scheduleStartDate,
+            scheduleEndDate: scheduleEndDate,
+            scheduleDepth: scheduleDepth,
+            schedulePriority: schedulePriority,
+            scheduleProgress: scheduleProgress,
+            scheduleStatus: scheduleStatus,
+            scheduleManHours: scheduleManHours,
+            scheduleEmployeeInfoList: scheduleEmployeeInfoList,
+            scheduleParentScheduleId: scheduleParentScheduleId,
+            schedulePrecedingScheduleId: schedulePrecedingScheduleId,
+            __children: __children
+          };
+
+          if (copySchedules.value[i].__children) {
+            formatChildrenDates(copySchedules.value[i].__children);
+          }
+        }
+
+        loadingState.value = false;
+        console.log('copySchedule.value : ', copySchedules.value);
+
+      } catch (error) {
+        console.error(error);
+      }
+    });
 
     const hotSettings = ref({
-      data: dummyData,
+      data: copySchedules,
       colHeaders: [
         '부모', '제목', '시작일', '종료일', '가중치', '진행률', '상태', '공수', '담당자', '자세히'
       ],
       columns: [
         {
-          data: 'parentId', type: 'text', renderer(instance, td, row, col, prop, value) {
+          data: 'scheduleParentScheduleId', type: 'text', renderer(instance, td, row, col, prop, value) {
             td.title = `${value}의 일정 제목`;
             td.innerText = value;
             return td;
           }
         },
         {
-          data: 'title', type: 'text', renderer(instance, td, row, col, prop, value) {
+          data: 'scheduleTitle', type: 'text', renderer(instance, td, row, col, prop, value) {
             td.title = value;
             td.innerText = value;
             return td;
           }
         },
-        {data: 'startDate', type: 'date'},
-        {data: 'endDate', type: 'date'},
-        {data: 'priority', type: 'numeric', validator: 'numeric'},
-        {data: 'progress', type: 'numeric', format: 'd%'},
-        {data: 'status', type: 'dropdown', source: ['준비', '진행', '완료']},
-        {data: 'manHours', type: 'numeric'},
+        {data: 'scheduleStartDate', type: 'date'},
+        {data: 'scheduleEndDate', type: 'date'},
+        {data: 'schedulePriority', type: 'numeric', validator: 'numeric'},
+        {data: 'scheduleProgress', type: 'numeric', format: 'd%'},
+        {data: 'scheduleStatus', type: 'dropdown', source: ['준비', '진행', '완료']},
+        {data: 'scheduleManHours', type: 'numeric'},
         {
-          data: 'stakeholders', type: 'text', renderer(instance, td, row, col, prop, value) {
+          data: 'scheduleEmployeeInfoList', type: 'text', renderer(instance, td, row, col, prop, value) {
             const button = document.createElement('button');
-            button.innerText = value;
+            if (!value || value.length === 0) {
+              button.innerText = '담당자 없음';
+            } else {
+              button.innerText = '';
+              for (let i = 0; i < value.length; i++) {
+                const employeeName = value[i].employeeName;
+                const employeeId = value[i].employeeId;
+                button.innerText = button.innerText + (i > 0 ? ', ' : '') + employeeName + '(' + employeeId + ')';
+              }
+            }
             button.style.cssText = 'background-color: #4CAF50; color: white; border: none; padding: 8px 22px; cursor: pointer;';
             button.addEventListener('click', () => openStakeholderModal(row, value));
             button.addEventListener('change', () => {
                   console.log('change value');
-                  button.innerText = dummyData.value[row][8];
+                  if (!value) {
+                    button.innerText = '담당자 없음';
+                  } else {
+                    button.innerText = '';
+                    for (let i = 0; i < value.length; i++) {
+                      const employeeName = value[i].employeeName;
+                      const employeeId = value[i].employeeId;
+                      button.innerText = button.innerText + (i > 0 ? ', ' : '') + employeeName + '(' + employeeId + ')';
+                    }
+                  }
                 }
             );
             td.innerHTML = '';
@@ -86,7 +159,7 @@ export default defineComponent({
           }
         },
         {
-          data: 'id', renderer(instance, td, row, col, prop, value) {
+          data: 'scheduleId', renderer(instance, td, row, col, prop, value) {
             const button = document.createElement('button');
             button.innerText = 'link';
             button.style.cssText = 'background-color: #4CAF50; color: white; border: none; padding: 8px 22px; cursor: pointer;';
@@ -98,34 +171,43 @@ export default defineComponent({
         },
       ],
       className: 'htCenter',
-      licenseKey: 'non-commercial-and-evaluation',
-      rowHeaders: true,
-      dropdownMenu: true,
-      hiddenColumns: {indicators: true},
-      contextMenu: {
-        items: {
-          row_above: {name: 'Insert row above'},
-          row_below: {name: 'Insert row below'},
-          remove_row: {name: 'Remove row'},
-          cut: {name: 'Cut'},
-          copy: {name: 'Copy'},
-          paste: {name: 'Paste'},
-          alignment: {name: 'Alignment'}
-        }
-      },
-      filters: {readOnly: false},
+      licenseKey:
+          'non-commercial-and-evaluation',
+      rowHeaders:
+          true,
+      dropdownMenu:
+          true,
+      hiddenColumns:
+          {
+            indicators: true
+          }
+      ,
+      nestedRows: true,
+      contextMenu:
+          true,
+      bindRowsWithHeaders:
+          true,
+      autoWrapRow:
+          true,
+      autoWrapCol:
+          true,
+      filters:
+          {
+            readOnly: false
+          }
+      ,
       search: true,
-      multiColumnSorting: true,
-      readOnly: false,
-      allowInsertRow: false,
-      allowInsertColumn: false,
-      allowRemoveRow: false,
-      allowRemoveColumn: false,
-      colWidths: [60, 150, 100, 100, 70, 70, 70, 50, 150, 70],
+      multiColumnSorting:
+          true,
+      readOnly:
+          false,
+      colWidths:
+          [60, 150, 100, 100, 70, 70, 70, 50, 150, 70],
       afterChange() {
         console.log('afterChange');
-        hotSettings.value.data = [...dummyData.value]; // 트리거를 위한 데이터 갱신
-      },
+        hotSettings.value.data = [...copySchedules.value]; // 트리거를 위한 데이터 갱신
+      }
+      ,
     });
 
     const readOnlyHotSettings = ref({
@@ -161,9 +243,9 @@ export default defineComponent({
       selectedStakeholders.value = stakeholders;
       closeStakeholderModal();
 
-      dummyData.value[selectedRow.value]['stakeholders'] = stakeholders.join(', ');
+      copySchedules.value[selectedRow.value]['scheduleEmployeeInfoList'] = stakeholders.join(', ');
 
-      console.log(dummyData.value); // 콘솔에 업데이트된 dummyData 출력
+      console.log(copySchedules.value); // 콘솔에 업데이트된 dummyData 출력
 
       hotSettings.value.afterChange();
 
@@ -171,6 +253,21 @@ export default defineComponent({
 
     const toggleEditMode = () => {
       editMode.value = !editMode.value;
+    };
+
+    const formatDate = (date) => {
+      return format(new Date(date[0], date[1] - 1, date[2]), 'dd/MM/yyyy');
+    };
+
+    const formatChildrenDates = (children) => {
+      for (let i = 0; i < children.length; i++) {
+        children[i].scheduleStartDate = formatDate(children[i].scheduleStartDate);
+        children[i].scheduleEndDate = formatDate(children[i].scheduleEndDate);
+
+        if (children[i].__children) {
+          formatChildrenDates(children[i].__children);
+        }
+      }
     };
 
     return {
@@ -187,6 +284,7 @@ export default defineComponent({
       readOnlyHotSettings,
       selectedRow,
       openStakeholderModal,
+      loadingState,
     };
   },
 });
