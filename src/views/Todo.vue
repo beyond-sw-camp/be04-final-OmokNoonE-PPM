@@ -8,7 +8,7 @@
             <div
                 class="bg-gradient-success shadow-success border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
               <div class="d-flex align-items-center ps-3">
-                <i class="material-icons text-white me-2">groups</i>
+                <i class="material-icons text-white me-2">list_alt</i>
                 <h6 class="text-white text-capitalize mb-0">할 일 목록</h6>
               </div>
             </div>
@@ -58,11 +58,11 @@
                   <td class="text-left">
                     <div class="d-flex px-5 py-1">
                       <div class="d-flex flex-column justify-content-center">
-                        <h6 class="mb-0 text-sm">{{ todo.name }}</h6>
+                        <h6 class="mb-0 text-sm">{{ todo.title }}</h6>
                       </div>
                     </div>
                   </td>
-                  <td class="text-left">
+                  <td class="text-center">
                     <p class="text-xs font-weight-bold mb-0">{{ todo.PL }}</p>
                   </td>
                   <td class="text-left">
@@ -74,9 +74,9 @@
                   </td>
                   <td class="text-center text-sm">
                     <span class="text-secondary text-xs font-weight-bold text-left d-inline-block">
-                      <span v-if="todo.status === '진행중'" class="status-circle status-in-progress"></span>
+                      <span v-if="todo.status === '진행'" class="status-circle status-in-progress"></span>
                       <span v-else-if="todo.status === '완료'" class="status-circle status-completed"></span>
-                      <span v-else-if="todo.status === '보류중'" class="status-circle status-pending"></span>
+                      <span v-else-if="todo.status === '준비'" class="status-circle status-pending"></span>
                     </span>
                   </td>
                 </tr>
@@ -91,40 +91,59 @@
 </template>
 
 <script setup>
-import {ref/*, onMounted*/} from 'vue';
+import {ref, onMounted} from 'vue';
 import MaterialButton from "@/components/MaterialButton.vue";
-// import {defaultInstance} from "@/axios/axios-instance";
+import {defaultInstance} from "@/axios/axios-instance";
 
-// todoList 데이터 생성
 const todoList = ref([
-  {id: 1, name: '할 일 1', PL: 'PL1', assignee: ['담당자1', '담당자2'], status: '진행중'},
-  {id: 2, name: '할 일 2', PL: 'PL2', assignee: ['담당자3'], status: '보류중'},
-  {id: 3, name: '할 일 3', PL: 'PL3', assignee: ['담당자1', '담당자3', '담당자4', '담당자5', '담당자9'], status: '완료'},
-  // 추가적인 할 일 항목들...
+  {
+    id: null,
+    title: '',
+    PL: '',
+    assignee: [],
+    status: null
+  },
 ]);
-/*
 async function nextWeek() {
   console.log('차주 할 일 목록 데이터를 가져옵니다.');
-  // const projectId = 1; // 프로젝트 ID 설정
+  const projectId = 1; // 프로젝트 ID 값도 Store에서 받아올 수 있게 설정해야 합니다.
 
-  const response = await defaultInstance.get(`/schedules/nextweek`);
-  // todoList.value = response.data.result.todoList;
-  console.log(response.data)
+  const response = await defaultInstance.get(`/schedules/nextweek/${projectId}`);
+  const responseData = response.data.result.findSchedulesForNextWeek;
+  console.log(responseData);
+
+  // TODO. assignee 속성을 받아올 수 있게 Controller 수정이 필요함
+  todoList.value = responseData.map(item => ({
+    id: item.scheduleId,
+    title: item.scheduleTitle,
+    PL: item.scheduleContent, // PL 속성에 대한 정보가 없어서 scheduleContent를 사용했습니다.
+    assignee: [], // assignee 속성에 대한 정보가 없어서 빈 배열을 사용했습니다.
+    status: item.scheduleStatus
+  }));
 }
 
 async function thisWeek() {
   console.log('금주 할 일 목록 데이터를 가져옵니다.');
-  // const projectId = 1; // 프로젝트 ID 설정
+  const projectId = 1; // 프로젝트 ID 설정
 
-  const response = await defaultInstance.get(`/schedules/thisweek`);
-  // todoList.value = response.data.result.todoList;
-  console.log(response.data)
+  const response = await defaultInstance.get(`/schedules/thisweek/${projectId}`);
+  const responseData = response.data.result.findSchedulesForThisWeek;
+  console.log(responseData)
+
+  // TODO. assignee 속성을 받아올 수 있게 Controller 수정이 필요함
+  todoList.value = responseData.map(item => ({
+    id: item.scheduleId,
+    title: item.scheduleTitle,
+    PL: item.scheduleContent, // PL 속성에 대한 정보가 없어서 scheduleContent를 사용했습니다.
+    assignee: [], // assignee 속성에 대한 정보가 없어서 빈 배열을 사용했습니다.
+    status: item.scheduleStatus
+  }));
 }
 
 // 컴포넌트가 마운트될 때 프로젝트 ID를 설정하고 데이터를 가져옴
 onMounted(async () => {
   await thisWeek();
-});*/
+});
 </script>
 
 <style scoped>
