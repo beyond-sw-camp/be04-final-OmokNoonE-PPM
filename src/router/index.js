@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Dashboard from "../views/Dashboard.vue";
-import Tables from "../views/Requirements.vue";
+import Tables from "../views/Tables.vue";
 import Billing from "../views/Billing.vue";
 import RTL from "../views/Rtl.vue";
 import Notifications from "../views/Notifications.vue";
@@ -62,7 +62,7 @@ const routes = [
     component: SignUp,
   },
   {
-    path: "/requirements/list/:projectId",
+    path: "/requirements/list",
     name: "Requirements",
     component: Requirements,
   },
