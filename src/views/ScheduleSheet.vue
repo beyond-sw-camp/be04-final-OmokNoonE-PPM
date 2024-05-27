@@ -61,7 +61,7 @@ export default defineComponent({
           const scheduleDepth = schedules.value[i].scheduleDepth;
           const schedulePriority = schedules.value[i].schedulePriority;
           const scheduleProgress = schedules.value[i].scheduleProgress;
-          const scheduleStatus = schedules.value[i].scheduleStatus;
+          const scheduleStatus = schedules.value[i].scheduleStatus === 10303 ? '완료' : (schedules.value[i].scheduleStatus === 10302 ? '진행' : '준비');
           const scheduleManHours = schedules.value[i].scheduleManHours;
           const scheduleEmployeeInfoList = schedules.value[i].scheduleEmployeeInfoList === null ? [] : schedules.value[i].scheduleEmployeeInfoList;
           const scheduleParentScheduleId = schedules.value[i].scheduleParentScheduleId;
@@ -85,7 +85,7 @@ export default defineComponent({
           };
 
           if (copySchedules.value[i].__children) {
-            formatChildrenDates(copySchedules.value[i].__children);
+            formatChildrenAttributes(copySchedules.value[i].__children);
           }
         }
 
@@ -100,16 +100,9 @@ export default defineComponent({
     const hotSettings = ref({
       data: copySchedules,
       colHeaders: [
-        '부모', '제목', '시작일', '종료일', '가중치', '진행률', '상태', '공수', '담당자', '자세히'
+        '제목', '시작일', '종료일', '가중치', '진행률', '상태', '공수', '담당자', '자세히'
       ],
       columns: [
-        {
-          data: 'scheduleParentScheduleId', type: 'text', renderer(instance, td, row, col, prop, value) {
-            td.title = `${value}의 일정 제목`;
-            td.innerText = value;
-            return td;
-          }
-        },
         {
           data: 'scheduleTitle', type: 'text', renderer(instance, td, row, col, prop, value) {
             td.title = value;
@@ -128,27 +121,21 @@ export default defineComponent({
             const button = document.createElement('button');
             if (!value || value.length === 0) {
               button.innerText = '담당자 없음';
+            } else if (value.length === 1) {
+              button.innerText = value[0].employeeName + '(' + value[0].employeeId + ')';
             } else {
-              button.innerText = '';
-              for (let i = 0; i < value.length; i++) {
-                const employeeName = value[i].employeeName;
-                const employeeId = value[i].employeeId;
-                button.innerText = button.innerText + (i > 0 ? ', ' : '') + employeeName + '(' + employeeId + ')';
-              }
+              button.innerText = value[0].employeeName + '(' + value[0].employeeId + ') 등 ' + (value.length) + '명';
             }
             button.style.cssText = 'background-color: #4CAF50; color: white; border: none; padding: 8px 22px; cursor: pointer;';
             button.addEventListener('click', () => openStakeholderModal(row, value));
             button.addEventListener('change', () => {
                   console.log('change value');
-                  if (!value) {
+                  if (!value || value.length === 0) {
                     button.innerText = '담당자 없음';
+                  } else if (value.length === 1) {
+                    button.innerText = value[0].employeeName + '(' + value[0].employeeId + ')';
                   } else {
-                    button.innerText = '';
-                    for (let i = 0; i < value.length; i++) {
-                      const employeeName = value[i].employeeName;
-                      const employeeId = value[i].employeeId;
-                      button.innerText = button.innerText + (i > 0 ? ', ' : '') + employeeName + '(' + employeeId + ')';
-                    }
+                    button.innerText = value[0].employeeName + '(' + value[0].employeeId + ') 등 ' + (value.length) + '명';
                   }
                 }
             );
@@ -202,7 +189,7 @@ export default defineComponent({
       readOnly:
           false,
       colWidths:
-          [60, 150, 100, 100, 70, 70, 70, 50, 150, 70],
+          [250, 100, 100, 70, 70, 70, 50, 175, 70],
       afterChange() {
         console.log('afterChange');
         hotSettings.value.data = [...copySchedules.value]; // 트리거를 위한 데이터 갱신
@@ -259,13 +246,14 @@ export default defineComponent({
       return format(new Date(date[0], date[1] - 1, date[2]), 'dd/MM/yyyy');
     };
 
-    const formatChildrenDates = (children) => {
+    const formatChildrenAttributes = (children) => {
       for (let i = 0; i < children.length; i++) {
         children[i].scheduleStartDate = formatDate(children[i].scheduleStartDate);
         children[i].scheduleEndDate = formatDate(children[i].scheduleEndDate);
+        children[i].scheduleStatus = children[i].scheduleStatus === 10303 ? '완료' : (children[i].scheduleStatus === 10302 ? '진행' : '준비');
 
         if (children[i].__children) {
-          formatChildrenDates(children[i].__children);
+          formatChildrenAttributes(children[i].__children);
         }
       }
     };
