@@ -126,7 +126,7 @@
             url="#"
             :aria-controls="''"
             v-bind:collapse="false"
-            collapseRef="`requirements/list/${projectId}`"
+            collapseRef="requirements/list"
             navText="Requirements"
         >
           <template v-slot:icon>
