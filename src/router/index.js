@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Dashboard from "../views/Dashboard.vue";
-import Tables from "../views/Requirements.vue";
+import Tables from "../views/Tables.vue";
 import Billing from "../views/Billing.vue";
 import RTL from "../views/Rtl.vue";
 import Notifications from "../views/Notifications.vue";
@@ -9,6 +9,7 @@ import SignIn from "../views/SignIn.vue";
 import SignUp from "../views/SignUp.vue";
 import Requirements from "@/views/Requirements.vue";
 import RegisterRequirement from "@/views/RegisterRequirement.vue";
+import Todo from "@/views/Todo.vue";
 import store from '../store/index.js';
 import { refreshToken } from '../services/auth.js';
 import { useCookies } from 'vue3-cookies';
@@ -70,7 +71,12 @@ const routes = [
     path: "/requirements/create",
     name: "RegisterRequirement",
     component: RegisterRequirement,
-  }
+  },
+  {
+    path: "/todo",
+    name: "Todo",
+    component: Todo,
+  },
 ];
 
 const router = createRouter({

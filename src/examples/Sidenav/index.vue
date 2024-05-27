@@ -24,7 +24,7 @@
           alt="main_logo"
         />
         <span class="ms-2 font-weight-bold text-white"
-          >Material Dashboard 2</span
+          >프로젝트 이름(수정 필)</span
         >
       </a>
     </div>
