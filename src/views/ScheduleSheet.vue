@@ -1,7 +1,8 @@
 <template>
   <div id="example">
     <div v-if="!loadingState" class="content-container">
-      <Handsontable :settings="editMode ? hotSettings : readOnlyHotSettings"></Handsontable>
+      <Handsontable v-if="!editMode" :settings="hotSettings"></Handsontable>
+      <Handsontable v-if="editMode" :settings="readOnlyHotSettings"></Handsontable>
       <div class="edit-button-container">
         <button class="edit-button" @click="toggleEditMode">{{ editMode ? '수정 완료' : '수정' }}</button>
       </div>
@@ -171,7 +172,7 @@ export default defineComponent({
       ,
       nestedRows: true,
       contextMenu:
-          true,
+          false,
       bindRowsWithHeaders:
           true,
       autoWrapRow:
@@ -187,7 +188,7 @@ export default defineComponent({
       multiColumnSorting:
           true,
       readOnly:
-          false,
+          true,
       colWidths:
           [250, 100, 100, 70, 70, 70, 50, 175, 70],
       afterChange() {
@@ -199,7 +200,8 @@ export default defineComponent({
 
     const readOnlyHotSettings = ref({
       ...hotSettings.value,
-      readOnly: true
+      readOnly: false,
+      contextMenu: true,
     });
     const selectedRow = ref(null);
     const modalOpen = ref(false);

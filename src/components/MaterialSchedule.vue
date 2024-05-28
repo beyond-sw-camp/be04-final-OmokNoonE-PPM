@@ -19,7 +19,6 @@
         <div class="modal-actions">
           <button class="modal-action-button" @click="changeTab('details')">세부사항</button>
           <button class="modal-action-button" @click="changeTab('history')">수정내역</button>
-          <button class="modal-action-button" @click="changeTab('permissions')">권한</button>
           <button class="modal-action-button" @click="changeTab('requirement')">요구사항</button>
         </div>
 
