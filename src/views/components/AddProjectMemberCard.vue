@@ -24,12 +24,10 @@
               <thead>
               <tr>
                 <!-- 각 컬럼 헤더 -->
-                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-left ps-3">선택</th>
-                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-left ps-3">이름</th>
-                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-left ps-1">직책</th>
-                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center ps-2">연락처
-                </th>
-                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-left ps-4">가입일</th>
+                <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-left ps-3">선택</th>
+                <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-left ps-3">이름</th>
+                <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-center ps-2">연락처</th>
+                <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-left ps-4">가입일</th>
               </tr>
               </thead>
               <tbody>
@@ -55,14 +53,6 @@
                       <h6 class="mb-0 text-sm">{{ member.name }}</h6>
                     </div>
                   </div>
-                </td>
-                <td class="text-left">
-                  <!-- 구성원 직책 선택 드롭다운 -->
-                  <select v-model="member.role" class="form-select form-select-sm">
-                    <option value="PA">PA</option>
-                    <option value="PL">PL</option>
-                    <option value="PM">PM</option>
-                  </select>
                 </td>
                 <td class="align-middle text-center text-sm">
                   <!-- 구성원의 이메일 및 전화번호 표시 -->
@@ -91,12 +81,12 @@
 </template>
 
 <script setup>
-import {ref, onMounted, computed, watch} from 'vue';
-import {useStore} from 'vuex';
+import { ref, onMounted, computed, watch } from 'vue';
+import { useStore } from 'vuex';
 import MaterialInput from '@/components/MaterialInput.vue'; // MaterialInput 컴포넌트 임포트
 import MaterialButton from '@/components/MaterialButton.vue'; // MaterialButton 컴포넌트 임포트
 import MaterialCheckbox from '@/components/MaterialCheckbox.vue'; // MaterialCheckbox 컴포넌트 임포트
-import {useToast} from 'vue-toastification';
+import { useToast } from 'vue-toastification';
 
 // 부모 컴포넌트에서 전달된 속성 정의
 const props = defineProps({
@@ -131,7 +121,7 @@ const searchMembers = async () => {
   searching.value = true;
   availableMembersLoading.value = true;
   try {
-    await store.dispatch('fetchAvailableMembers', {query: searchQuery.value});
+    await store.dispatch('fetchAvailableMembers', { query: searchQuery.value });
     searchResults.value = store.getters.searchResults ?? null;
     if (searchResults.value === null) {
       toast.error('검색 중 네트워크 오류가 발생했습니다.');
@@ -182,10 +172,6 @@ watch(() => props.availableMembers, async (newVal, oldVal) => {
 // 컴포넌트가 처음 마운트될 때 선택된 구성원을 초기화
 onMounted(async () => {
   await store.dispatch('fetchAvailableMembers');
-  selectedMembers.value = props.availableMembers.map(member => ({
-    ...member,
-    role: 'PA', // 기본 직책을 PA로 설정
-  }));
 });
 </script>
 
@@ -263,10 +249,6 @@ onMounted(async () => {
   .modal-footer {
     display: flex;
     flex-direction: column;
-  }
-
-  .btn {
-    margin-bottom: 10px;
   }
 
   .search-container {

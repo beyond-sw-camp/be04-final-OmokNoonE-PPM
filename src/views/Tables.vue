@@ -12,9 +12,6 @@
                 <h6 class="text-white text-capitalize mb-0">프로젝트 구성원</h6>
               </div>
               <div>
-                <MaterialButton color="info" size="md" variant="fill" class="me-3" @click="isModifyModalVisible = true">
-                  직책 변경
-                </MaterialButton>
                 <MaterialButton color="info" size="md" variant="fill" class="me-3" @click="isAddModalVisible = true">+
                   새로운 구성원
                 </MaterialButton>
@@ -27,12 +24,10 @@
               <table class="table align-items-center mb-0">
                 <thead>
                 <tr>
-                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-left ps-3">이름</th>
-                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-left ps-1">직책</th>
-                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center ps-2">연락처
-                  </th>
-                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-left ps-4">시작일
-                  </th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-left ps-5">이름</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-left pe-4">직책</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-left pe-6">연락처</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-left pe-6">시작일</th>
                   <th class="text-secondary opacity-7"></th>
                 </tr>
                 </thead>
@@ -56,12 +51,13 @@
                     </div>
                   </td>
                   <td class="text-left">
-                    <p class="text-xs font-weight-bold mb-0">{{ projectMember.role }}</p>
+                    <p class="text-xs font-weight-bold mb-0">{{ projectMember.role || '-' }}</p>
                   </td>
                   <td class="align-middle text-center text-sm">
-                    <span class="text-secondary text-xs font-weight-bold text-left d-inline-block">E-mail. {{
-                        projectMember.email
-                      }}<br><span class="ps-1">Phone. {{ projectMember.phone }}</span></span>
+                    <span class="text-secondary text-xs font-weight-bold text-left d-inline-block">
+                      E-mail.{{ projectMember.email }}
+                      <br><span class="ps-1">Phone.{{ projectMember.phone }}</span>
+                    </span>
                   </td>
                   <td class="align-middle text-left text-sm">
                     <span class="text-secondary text-xs font-weight-bold">{{ projectMember.startDate }}</span>
@@ -85,20 +81,15 @@
     <!-- 구성원 추가 모달 -->
     <AddProjectMemberCard v-if="isAddModalVisible" :available-members="availableMembers"
                           @close="isAddModalVisible = false" @add-members="addMembers"></AddProjectMemberCard>
-    <!-- 직책 변경 모달 -->
-    <ModifyProjectMemberRoleCard v-if="isModifyModalVisible" :project-members="projectMembers"
-                                 @close="isModifyModalVisible = false"
-                                 @save-changes="saveChanges"></ModifyProjectMemberRoleCard>
   </div>
 </template>
 
 <script setup>
-import {ref, onMounted, computed} from 'vue';
-import {useStore} from 'vuex';
+import { ref, onMounted, computed } from 'vue';
+import { useStore } from 'vuex';
 import MaterialButton from '@/components/MaterialButton.vue';
 import AddProjectMemberCard from '@/views/components/AddProjectMemberCard.vue';
-import ModifyProjectMemberRoleCard from '@/views/components/ModifyProjectMemberRoleCard.vue';
-import {useToast} from 'vue-toastification';
+import { useToast } from 'vue-toastification';
 
 const props = defineProps({
   projectId: Number,
@@ -107,7 +98,6 @@ const props = defineProps({
 const store = useStore();
 const toast = useToast();
 const isAddModalVisible = ref(false); // 구성원 추가 모달 표시 상태
-const isModifyModalVisible = ref(false); // 직책 변경 모달 표시 상태
 
 // 프로젝트 구성원 데이터를 가져오는 함수
 const fetchProjectMembers = async () => {
@@ -140,7 +130,7 @@ const addMembers = async (selectedMembers) => {
 
   try {
     for (const member of selectedMembers) {
-      await store.dispatch('addProjectMember', {memberId: member.id, role: member.role});
+      await store.dispatch('addProjectMember', { memberId: member.id });
     }
     toast.success('구성원이 성공적으로 추가되었습니다.');
   } catch (error) {
@@ -165,21 +155,6 @@ const confirmRemoveProjectMember = async (projectMemberId) => {
       await fetchProjectMembers();
       await fetchAvailableMembers();
     }
-  }
-};
-
-// 직책 변경을 저장하는 함수
-const saveChanges = async (selectedMembers) => {
-  try {
-    for (const member of selectedMembers) {
-      await store.dispatch('updateProjectMemberRole', {memberId: member.id, role: member.role});
-    }
-    toast.success('구성원의 직책이 성공적으로 변경되었습니다.');
-  } catch (error) {
-    toast.error(error.message); // 에러 메시지 처리
-  } finally {
-    isModifyModalVisible.value = false;
-    await fetchProjectMembers();
   }
 };
 
