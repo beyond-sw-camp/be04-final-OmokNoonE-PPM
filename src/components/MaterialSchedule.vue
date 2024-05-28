@@ -138,7 +138,7 @@
             </div>
           </div>
 
-          <!--   PM, PL    -->
+          <!--   PM, PL 잘못된 view   -->
           <div class="modal-info">
             <div class="modal-info-item">
               <span class="modal-info-label">PM:</span>
@@ -256,7 +256,10 @@
           <div class="modal-actions">
             <p v-if="showInfoMessage" class="info-message">* 표시된 항목을 채워주세요. </p>
             <button v-if="!isEditing" class="modal-action-button" @click="toggleEdit">수정</button>
-            <button v-else class="modal-action-button" @click="saveScheduleChanges">저장</button>
+            <div v-else>
+              <button class="modal-action-button" @click="saveScheduleChanges">저장</button>
+              <material-button class="delete-button" @click="toggleEdit">취소</material-button>
+            </div>
           </div>
         </div>
 
@@ -341,41 +344,53 @@
 </template>
 
 <script>
+import MaterialButton from "@/components/MaterialButton.vue";
+import {defaultInstance} from "@/axios/axios-instance";
+
 export default {
+  components: {MaterialButton},
   props: ['isOpen', 'modalUrl'],
   data() {
     return {
       schedule: {
-        id: 1,
-        title: '게시글 기능 구현',
-        content: '회원이 게시글을 작성, 수정, 삭제하고 목록 조회, 상세 조회, 추천, 비추천할 수 있도록 구현합니다.',
-        startDate: '2024-05-01',
-        endDate: '2024-06-30',
-        priority: 10,
-        progress: 80,
-        status: 10402, // 상태 10401: 준비, 10402: 진행, 10403: 완료
-        manHours: 20,
-        parentId: '1',
-        precedingId: '2',
-        createdDate: '2024-04-01 10:00',
-        modifiedDate: '2024-05-15 15:00',
-        projectName: 'Project A',   // 향후 projectID로 변경
+        id: null,
+        title: '',
+        content: '',
+        startDate: '',
+        endDate: '',
+        priority: null,
+        progress: null,
+        status: null,
+        manHours: null,
+        parentId: '',
+        precedingId: '',
+        createdDate: '',
+        modifiedDate: '',
+        projectName: '',
       },
       tasks: [
-        {id: 1, title: '게시글 CRUD 구현', isCompleted: true},
-        {id: 2, title: '게시글 추천 기능 구현', isCompleted: false}
+        {
+          id: null,
+          title: '',
+          isCompleted: false,
+        }
       ],
       stakeholders: [
-        {name: '홍길동', id: 'EP000', type: 10401, roleName: 10601},
-        {name: '조자룡', id: 'EP001', type: 10402, roleName: 10603},
-        {name: '유비', id: 'EP002', type: 10402, roleName: 10602},
+        {
+          name: '',
+          id: '',
+          type: null,
+          roleName: null,
+        }
       ],
       history: [
-        {id: 1, name: '홍길동', employeeId: 'EP000', reason: '게시글 CRUD 구현 내용 수정', modifiedDate: '2024-04-01T10:00:12'},
-        {id: 2, name: '홍길동', employeeId: 'EP000', reason: '게시글 내용 수정', modifiedDate: '2024-04-01T10:22:12'},
-        {id: 3, name: '홍길동', employeeId: 'EP000', reason: '게시글 CRUD 구현 내용 수정', modifiedDate: '2024-04-01T10:24:12'},
-        {id: 4, name: '홍길동', employeeId: 'EP000', reason: '게시글 내용 수정', modifiedDate: '2024-04-01T10:26:12'},
-        {id: 5, name: '홍길동', employeeId: 'EP000', reason: '게시글 CRUD 구현 내용 수정', modifiedDate: '2024-04-01T10:28:12'},
+        {
+          id: null,
+          name: '',
+          employeeId: '',
+          reason: '',
+          modifiedDate: '',
+        }
       ],
       permission: [
         {id: 'EP000', name: '홍길동', role_name: 'PM'},
@@ -383,6 +398,7 @@ export default {
         {id: 'EP002', name: '유비', role_name: 'PA'},
       ],
       requirements: [
+          /* 현근님이 만든 component 활용 */
         {id: 1, name: '게시글 작성', content: '회원이 서비스에 게시글을 작성할 수 있도록 함.'},
         {id: 2, name: '게시글 수정', content: '회원이 작성한 게시글을 수정할 수 있도록 함.'},
         {id: 3, name: '게시글 삭제', content: '회원이 작성한 게시글을 삭제할 수 있도록 함.'},
@@ -405,7 +421,17 @@ export default {
       isRequirementEditing: false,
       showInfoMessage: false,
       currentTab: 'details',  // 기본 탭을 'details'로 설정
+      scheduleId: null,
     };
+  },
+  watch: {
+    isOpen() {
+      this.scheduleId = this.modalUrl.split('/').pop();
+      this.getScheduleData();
+      this.getTaskData();
+      this.getStakeholderData();
+      this.getScheduleHistoryData();
+    }
   },
   methods: {
     closeModal() {
@@ -503,7 +529,85 @@ export default {
     toggleRequirementEdit() {
       this.isRequirementEditing = !this.isRequirementEditing;
     },
+    getScheduleData() {
+      defaultInstance.get(`schedules/view/${this.scheduleId}`)
+          .then(response => {
+            const data = response.data.result.viewSchedule;
+            this.schedule = {
+              id: data.scheduleId,
+              title: data.scheduleTitle,
+              content: data.scheduleContent,
+              startDate: data.scheduleStartDate.join('-'),
+              endDate: data.scheduleEndDate.join('-'),
+              priority: data.schedulePriority,
+              progress: data.scheduleProgress,
+              status: data.scheduleStatus,
+              manHours: data.scheduleManHours,
+              parentId: data.scheduleParentScheduleId,
+              precedingId: data.schedulePrecedingScheduleId,
+              createdDate: `${data.scheduleCreatedDate.slice(0, 3).join('-')} ${data.scheduleCreatedDate.slice(3, 6).join(':')}`,
+              modifiedDate: `${data.scheduleModifiedDate.slice(0, 3).join('-')} ${data.scheduleModifiedDate.slice(3, 6).join(':')}`,
+              projectName: data.scheduleProjectId, // projectName is not provided in the response data
+            };
+          })
+          .catch(error => {
+            console.error(error);
+          });
+    },
+    getTaskData() {
+      defaultInstance.get(`tasks/list/${this.scheduleId}`)
+          .then(response => {
+            const data = response.data.result.viewScheduleTask;
+            console.log("getTaskData")
+            console.log(data);
+            this.tasks = data.map(task => ({
+              id: task.taskId,
+              title: task.taskTitle,
+              isCompleted: task.taskIsCompleted,
+            }));
+          })
+          .catch(error => {
+            console.error(error);
+          });
+    },
+    getStakeholderData() {
+      /* 전부 수정 해야될 수도 */
+      defaultInstance.get(`stakeholders/view/${this.scheduleId}`)
+          .then(response => {
+            console.log("getStakeholderData")
+            const data = response.data.result.viewStakeholders;
+            console.log(data)
+            this.stakeholders = data.map(stakeholder => ({
+              id: stakeholder.stakeholdersId,
+              name: stakeholder.stakeholdersName,
+              type: stakeholder.stakeholdersType,
+              roleName: stakeholder.stakeholdersRoleName,
+            }));
 
+          })
+          .catch(error => {
+            console.error(error);
+          });
+    },
+    getScheduleHistoryData() {
+      defaultInstance.get(`scheduleHistories/view/${this.scheduleId}`)
+          .then(response => {
+            console.log("getScheduleHistoryData")
+            const data = response.data.result.viewSchedule;
+            console.log(data)
+            this.history = data.map(item => ({
+              id: item.scheduleHistoryId,
+              name: item.scheduleHistoryName,
+              employeeId: item.scheduleHistoryEmployeeId,
+              reason: item.scheduleHistoryReason,
+              modifiedDate: item.scheduleHistoryModifiedDate,
+            }));
+
+          })
+          .catch(error => {
+            console.error(error);
+          });
+    }
   }
 };
 </script>
