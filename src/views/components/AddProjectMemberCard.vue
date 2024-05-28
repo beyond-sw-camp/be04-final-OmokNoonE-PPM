@@ -81,12 +81,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue';
-import { useStore } from 'vuex';
+import {ref, onMounted, computed, watch} from 'vue';
+import {useStore} from 'vuex';
 import MaterialInput from '@/components/MaterialInput.vue'; // MaterialInput 컴포넌트 임포트
 import MaterialButton from '@/components/MaterialButton.vue'; // MaterialButton 컴포넌트 임포트
 import MaterialCheckbox from '@/components/MaterialCheckbox.vue'; // MaterialCheckbox 컴포넌트 임포트
-import { useToast } from 'vue-toastification';
+import {useToast} from 'vue-toastification';
 
 // 부모 컴포넌트에서 전달된 속성 정의
 const props = defineProps({
@@ -121,7 +121,7 @@ const searchMembers = async () => {
   searching.value = true;
   availableMembersLoading.value = true;
   try {
-    await store.dispatch('fetchAvailableMembers', { query: searchQuery.value });
+    await store.dispatch('fetchAvailableMembers', {query: searchQuery.value});
     searchResults.value = store.getters.searchResults ?? null;
     if (searchResults.value === null) {
       toast.error('검색 중 네트워크 오류가 발생했습니다.');

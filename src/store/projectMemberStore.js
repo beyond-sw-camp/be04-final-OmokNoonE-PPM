@@ -27,12 +27,6 @@ export const store = createStore({
                 member.isDeleted = true;
             }
         },
-        UPDATE_PROJECT_MEMBER_ROLE(state, {memberId, role}) {
-            const member = state.projectMembers.find((m) => m.id === memberId);
-            if (member) {
-                member.role = role;
-            }
-        },
         SET_PROJECT_ID(state, projectId) {
             state.projectId = projectId;
         },
@@ -75,12 +69,11 @@ export const store = createStore({
                 commit('SET_AVAILABLE_MEMBERS_LOADING', false);
             }
         },
-        async addProjectMember({commit, state}, {memberId, role}) {
+        async addProjectMember({commit, state}, {memberId}) {
             try {
                 const response = await axios.post('/projectMembers/project-members', {
                     employeeId: memberId,
                     projectId: state.projectId,
-                    role: role,
                 });
                 commit('ADD_PROJECT_MEMBER', response.data);
             } catch (err) {
@@ -97,18 +90,6 @@ export const store = createStore({
             } catch (err) {
                 console.error('프로젝트 구성원을 제외하는 중 오류 발생:', err);
                 throw new Error('프로젝트 구성원을 제외하는 중 오류가 발생했습니다.');
-            }
-        },
-        async updateProjectMemberRole({commit, state}, {memberId, role}) {
-            try {
-                await axios.put(`/projectMembers/project-members/${memberId}/role`, {
-                    role: role,
-                    projectId: state.projectId,
-                });
-                commit('UPDATE_PROJECT_MEMBER_ROLE', {memberId, role});
-            } catch (err) {
-                console.error('프로젝트 구성원 직책을 업데이트하는 중 오류 발생:', err);
-                throw new Error('프로젝트 구성원 직책을 업데이트하는 중 오류가 발생했습니다.');
             }
         },
     },

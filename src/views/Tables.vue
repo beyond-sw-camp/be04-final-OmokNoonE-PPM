@@ -85,11 +85,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
-import { useStore } from 'vuex';
+import {ref, onMounted, computed} from 'vue';
+import {useStore} from 'vuex';
 import MaterialButton from '@/components/MaterialButton.vue';
 import AddProjectMemberCard from '@/views/components/AddProjectMemberCard.vue';
-import { useToast } from 'vue-toastification';
+import {useToast} from 'vue-toastification';
 
 const props = defineProps({
   projectId: Number,
@@ -130,7 +130,7 @@ const addMembers = async (selectedMembers) => {
 
   try {
     for (const member of selectedMembers) {
-      await store.dispatch('addProjectMember', { memberId: member.id });
+      await store.dispatch('addProjectMember', {memberId: member.id});
     }
     toast.success('구성원이 성공적으로 추가되었습니다.');
   } catch (error) {
