@@ -11,6 +11,7 @@ import MaterialSchedule from "@/components/MaterialSchedule.vue";
 import store from '../store/index.js';
 import { refreshToken } from '../services/auth.js';
 import { useCookies } from 'vue3-cookies';
+import CreateSchedule from "@/views/CreateSchedule.vue";
 const { cookies } = useCookies();
 
 const routes = [
@@ -63,6 +64,11 @@ const routes = [
     path: "/schedules/details/:scheduleId",
     name: "SchedulesDetails",
     component: MaterialSchedule,
+  },
+  {
+    path: "/schedules/create/:projectId",
+    name: "CreateSchedule",
+    component: CreateSchedule,
   },
 ];
 

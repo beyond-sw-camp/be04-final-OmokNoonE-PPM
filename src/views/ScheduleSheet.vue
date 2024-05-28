@@ -3,11 +3,14 @@
     <div v-if="!loadingState" class="content-container">
       <Handsontable v-if="!editMode" :settings="hotSettings"></Handsontable>
       <!--      <Handsontable v-if="editMode" :settings="editableHotSettings"></Handsontable>-->
-      <!--      일괄 편집 기능 추후 개발 예정-->
-      <!--      <div class="edit-button-container">-->
-      <!--        <button class="edit-button" @click="toggleEditMode">{{ editMode ? '수정 완료' : '수정' }}</button>-->
-      <!--        <button @click="checkCopySchedules">CopySchedules 값 확인</button>-->
-      <!--      </div>-->
+      <div class="edit-button-container">
+<!--        <button class="create-button" @click="goToCreateSchedulePage({{ store.getters['project/getProjectId'] }})">등록-->
+        <button class="create-button" @click="goToCreateSchedulePage(1)">등록
+        </button>
+        <!--      일괄 편집 기능 추후 개발 예정-->
+        <!--        <button class="edit-button" @click="toggleEditMode">{{ editMode ? '수정 완료' : '수정' }}</button>-->
+        <!--        <button @click="checkCopySchedules">CopySchedules 값 확인</button>-->
+      </div>
     </div>
     <MaterialSchedule :isOpen="modalOpen" :modalUrl="modalUrl" @close="modalOpen = false"></MaterialSchedule>
     <!--    <StakeholderModal-->
@@ -25,8 +28,9 @@ import HandsontableComponent from '../components/Handsontable.vue';
 import MaterialSchedule from '@/components/MaterialSchedule.vue';
 // import StakeholderModal from '@/components/StakeholderModal.vue';
 import 'handsontable/dist/handsontable.full.css';
-import axios from "axios";
 import {format} from 'date-fns';
+import {defaultInstance} from "@/axios/axios-instance";
+import router from "@/router";
 // import store from "@/store";
 
 export default defineComponent({
@@ -50,7 +54,7 @@ export default defineComponent({
         const employeeId = "EP003"
         // const projectId = store.getters['project/getProjectId'];
         const projectId = 1;
-        const response = await axios.get(`http://localhost:8888/schedules/sheet/${projectId}`, {
+        const response = await defaultInstance.get(`schedules/sheet/${projectId}`, {
           headers: {
             'employeeId': employeeId
           }
@@ -186,19 +190,12 @@ export default defineComponent({
       multiColumnSorting: true,
       readOnly: true,
       colWidths: [250, 100, 100, 70, 70, 70, 50, 175, 70, 50],
-      afterChange(changes) {
-        console.log('afterChange');
-        hotSettings.value.data = [...copySchedules.value]; // 트리거를 위한 데이터 갱신
-        console.log('changes : ', changes);
-      },
+      // afterChange(changes) {
+      //   console.log('afterChange');
+      //   hotSettings.value.data = [...copySchedules.value]; // 트리거를 위한 데이터 갱신
+      //   console.log('changes : ', changes);
+      // },
     });
-
-    /* 일괄 편집 기능 추후 개발 예정 */
-    // const editableHotSettings = ref({
-    //   ...hotSettings.value,
-    //   readOnly: false,
-    //   contextMenu: true,
-    // });
 
     const selectedRow = ref(null);
     const modalOpen = ref(false);
@@ -230,8 +227,7 @@ export default defineComponent({
 
       copySchedules.value[selectedRow.value]['scheduleEmployeeInfoList'] = stakeholders.join(', ');
 
-      hotSettings.value.afterChange();
-
+      // hotSettings.value.afterChange();
     };
 
     const formatDate = (date) => {
@@ -249,14 +245,6 @@ export default defineComponent({
         }
       }
     };
-
-    // 추후 개발 시 사용할 value 확인용 함수
-    // const checkCopySchedules = () => {
-    //   console.log('copySchedules.value : ', copySchedules.value);
-    // };
-
-    /* 시트에서 편집 시 사용할 변화 내용 감지 코드, 추후 개발 예정*/
-    // let initialCopySchedules = JSON.parse(JSON.stringify(copySchedules.value)); // copySchedules의 초기 상태 저장
 
     const toggleEditMode = () => {
       /* 일괄 편집 시 사용할 변화 감지 코드, 추후 개발 예정 */
@@ -288,7 +276,8 @@ export default defineComponent({
 
     const deleteSchedule = async (id) => {
       try {
-        await axios.delete(`http://localhost:8888/schedules/remove/${id}`);
+        await defaultInstance.delete(`schedules/remove/${id}`);
+        /* RequestBody 작성해야함. */
         console.log(id, '삭제 요청됨');
         location.reload();
       } catch (error) {
@@ -303,6 +292,27 @@ export default defineComponent({
         }
       }
     };
+
+    const goToCreateSchedulePage = (projectId) =>{
+      // router를 활용하여 페이지 이동
+      router.push({name: 'CreateSchedule', params: {projectId: projectId}});
+    }
+
+    /* 일괄 편집 기능 추후 개발 예정 */
+    // const editableHotSettings = ref({
+    //   ...hotSettings.value,
+    //   readOnly: false,
+    //   contextMenu: true,
+    // });
+
+    // 추후 개발 시 사용할 value 확인용 함수
+    // const checkCopySchedules = () => {
+    //   console.log('copySchedules.value : ', copySchedules.value);
+    // };
+
+    /* 시트에서 편집 시 사용할 변화 내용 감지 코드, 추후 개발 예정*/
+    // let initialCopySchedules = JSON.parse(JSON.stringify(copySchedules.value)); // copySchedules의 초기 상태 저장
+
 
     return {
       hotSettings,
@@ -322,6 +332,7 @@ export default defineComponent({
       // checkCopySchedules,
       deleteSchedule,
       confirmDelete,
+      goToCreateSchedulePage,
     };
   },
 });
@@ -356,6 +367,22 @@ table.htCore {
   bottom: 30px;
   right: 120px;
 }
+
+.create-button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 20px;
+  background-color: #4CAF50;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: #45a049;
+  }
+}
+
 
 .edit-button {
   padding: 10px 20px;
