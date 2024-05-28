@@ -2,18 +2,20 @@
   <div id="example">
     <div v-if="!loadingState" class="content-container">
       <Handsontable v-if="!editMode" :settings="hotSettings"></Handsontable>
-      <Handsontable v-if="editMode" :settings="readOnlyHotSettings"></Handsontable>
-      <div class="edit-button-container">
-        <button class="edit-button" @click="toggleEditMode">{{ editMode ? '수정 완료' : '수정' }}</button>
-      </div>
+      <!--      <Handsontable v-if="editMode" :settings="editableHotSettings"></Handsontable>-->
+      <!--      일괄 편집 기능 추후 개발 예정-->
+      <!--      <div class="edit-button-container">-->
+      <!--        <button class="edit-button" @click="toggleEditMode">{{ editMode ? '수정 완료' : '수정' }}</button>-->
+      <!--        <button @click="checkCopySchedules">CopySchedules 값 확인</button>-->
+      <!--      </div>-->
     </div>
     <MaterialSchedule :isOpen="modalOpen" :modalUrl="modalUrl" @close="modalOpen = false"></MaterialSchedule>
-    <StakeholderModal
-        :isOpen="stakeholderModalOpen"
-        :selectedStakeholders="selectedStakeholders"
-        @close="closeStakeholderModal"
-        @select="updateStakeholder"
-    ></StakeholderModal>
+    <!--    <StakeholderModal-->
+    <!--        :isOpen="stakeholderModalOpen"-->
+    <!--        :selectedStakeholders="selectedStakeholders"-->
+    <!--        @close="closeStakeholderModal"-->
+    <!--        @select="updateStakeholder"-->
+    <!--    ></StakeholderModal>-->
   </div>
 </template>
 
@@ -21,7 +23,7 @@
 import {defineComponent, onMounted, ref} from 'vue';
 import HandsontableComponent from '../components/Handsontable.vue';
 import MaterialSchedule from '@/components/MaterialSchedule.vue';
-import StakeholderModal from '@/components/StakeholderModal.vue';
+// import StakeholderModal from '@/components/StakeholderModal.vue';
 import 'handsontable/dist/handsontable.full.css';
 import axios from "axios";
 import {format} from 'date-fns';
@@ -32,20 +34,20 @@ export default defineComponent({
   components: {
     Handsontable: HandsontableComponent,
     MaterialSchedule,
-    StakeholderModal
+    // StakeholderModal
   },
 
   setup() {
 
-    const schedules = [];
-    const copySchedules = ref([{}]);
+    const schedules = ref([]);
+    const copySchedules = ref([]);
 
     const loadingState = ref(true);
 
     onMounted(async () => {
       try {
         // const employeeId = store.getters['auth/getEmployeeId'];  // 로그인한 사용자의 ID, 향후 이 코드로 바꿔야함.
-        const employeeId = "EP001"
+        const employeeId = "EP003"
         // const projectId = store.getters['project/getProjectId'];
         const projectId = 1;
         const response = await axios.get(`http://localhost:8888/schedules/sheet/${projectId}`, {
@@ -64,10 +66,10 @@ export default defineComponent({
           const scheduleProgress = schedules.value[i].scheduleProgress;
           const scheduleStatus = schedules.value[i].scheduleStatus === 10303 ? '완료' : (schedules.value[i].scheduleStatus === 10302 ? '진행' : '준비');
           const scheduleManHours = schedules.value[i].scheduleManHours;
-          const scheduleEmployeeInfoList = schedules.value[i].scheduleEmployeeInfoList === null ? [] : schedules.value[i].scheduleEmployeeInfoList;
+          const scheduleEmployeeInfoList = schedules.value[i].scheduleEmployeeInfoList;
           const scheduleParentScheduleId = schedules.value[i].scheduleParentScheduleId;
           const schedulePrecedingScheduleId = schedules.value[i].schedulePrecedingScheduleId;
-          const __children = schedules.value[i].__children === null ? [] : schedules.value[i].__children;
+          const __children = schedules.value[i].__children;
 
           copySchedules.value[i] = {
             scheduleId: scheduleId,
@@ -82,10 +84,10 @@ export default defineComponent({
             scheduleEmployeeInfoList: scheduleEmployeeInfoList,
             scheduleParentScheduleId: scheduleParentScheduleId,
             schedulePrecedingScheduleId: schedulePrecedingScheduleId,
-            __children: __children
           };
 
-          if (copySchedules.value[i].__children) {
+          if (__children) {
+            copySchedules.value[i].__children = __children;
             formatChildrenAttributes(copySchedules.value[i].__children);
           }
         }
@@ -99,9 +101,9 @@ export default defineComponent({
     });
 
     const hotSettings = ref({
-      data: copySchedules,
+      data: copySchedules.value,
       colHeaders: [
-        '제목', '시작일', '종료일', '가중치', '진행률', '상태', '공수', '담당자', '자세히'
+        '제목', '시작일', '종료일', '가중치', '진행률', '상태', '공수', '담당자', '자세히', '삭제'
       ],
       columns: [
         {
@@ -157,52 +159,47 @@ export default defineComponent({
             return td;
           }
         },
+        {
+          data: 'scheduleId', renderer(instance, td, row, col, prop, value) {
+            const button = document.createElement('button');
+            button.innerText = 'X';
+            button.style.cssText = 'background-color: #e72222; color: white; border: none; padding: 8px 22px; cursor: pointer;';
+            button.addEventListener('click', () => confirmDelete(value));
+            td.innerHTML = '';
+            td.appendChild(button);
+            return td;
+          }
+        },
       ],
       className: 'htCenter',
-      licenseKey:
-          'non-commercial-and-evaluation',
-      rowHeaders:
-          true,
-      dropdownMenu:
-          true,
-      hiddenColumns:
-          {
-            indicators: true
-          }
-      ,
+      licenseKey: 'non-commercial-and-evaluation',
+      rowHeaders: true,
+      dropdownMenu: true,
+      hiddenColumns: {indicators: true},
       nestedRows: true,
-      contextMenu:
-          false,
-      bindRowsWithHeaders:
-          true,
-      autoWrapRow:
-          true,
-      autoWrapCol:
-          true,
-      filters:
-          {
-            readOnly: false
-          }
-      ,
+      contextMenu: false,
+      bindRowsWithHeaders: true,
+      autoWrapRow: true,
+      autoWrapCol: true,
+      filters: {readOnly: false},
       search: true,
-      multiColumnSorting:
-          true,
-      readOnly:
-          true,
-      colWidths:
-          [250, 100, 100, 70, 70, 70, 50, 175, 70],
-      afterChange() {
+      multiColumnSorting: true,
+      readOnly: true,
+      colWidths: [250, 100, 100, 70, 70, 70, 50, 175, 70, 50],
+      afterChange(changes) {
         console.log('afterChange');
         hotSettings.value.data = [...copySchedules.value]; // 트리거를 위한 데이터 갱신
-      }
-      ,
+        console.log('changes : ', changes);
+      },
     });
 
-    const readOnlyHotSettings = ref({
-      ...hotSettings.value,
-      readOnly: false,
-      contextMenu: true,
-    });
+    /* 일괄 편집 기능 추후 개발 예정 */
+    // const editableHotSettings = ref({
+    //   ...hotSettings.value,
+    //   readOnly: false,
+    //   contextMenu: true,
+    // });
+
     const selectedRow = ref(null);
     const modalOpen = ref(false);
     const modalUrl = ref('');
@@ -228,20 +225,13 @@ export default defineComponent({
     };
 
     const updateStakeholder = (stakeholders) => {
-      console.log(stakeholders); // 콘솔에 받은 이해관계자들 출력
       selectedStakeholders.value = stakeholders;
       closeStakeholderModal();
 
       copySchedules.value[selectedRow.value]['scheduleEmployeeInfoList'] = stakeholders.join(', ');
 
-      console.log(copySchedules.value); // 콘솔에 업데이트된 dummyData 출력
-
       hotSettings.value.afterChange();
 
-    };
-
-    const toggleEditMode = () => {
-      editMode.value = !editMode.value;
     };
 
     const formatDate = (date) => {
@@ -260,6 +250,60 @@ export default defineComponent({
       }
     };
 
+    // 추후 개발 시 사용할 value 확인용 함수
+    // const checkCopySchedules = () => {
+    //   console.log('copySchedules.value : ', copySchedules.value);
+    // };
+
+    /* 시트에서 편집 시 사용할 변화 내용 감지 코드, 추후 개발 예정*/
+    // let initialCopySchedules = JSON.parse(JSON.stringify(copySchedules.value)); // copySchedules의 초기 상태 저장
+
+    const toggleEditMode = () => {
+      /* 일괄 편집 시 사용할 변화 감지 코드, 추후 개발 예정 */
+      // if (editMode.value) { // editMode가 true에서 false로 변경될 때
+      //   const changeList = [];
+      //
+      //   copySchedules.value.forEach((schedule, index) => {
+      //     const initialSchedule = initialCopySchedules[index];
+      //
+      //     Object.keys(schedule).forEach(key => {
+      //       if (JSON.stringify(schedule[key]) !== JSON.stringify(initialSchedule[key])) {
+      //         changeList.push({
+      //           row: index,
+      //           prop: key,
+      //           oldVal: initialSchedule[key],
+      //           newVal: schedule[key]
+      //         });
+      //       }
+      //     });
+      //   });
+      //
+      //   console.log('Change List:', changeList);
+      // } else { // editMode가 false에서 true로 변경될 때
+      //   initialCopySchedules = JSON.parse(JSON.stringify(copySchedules.value)); // copySchedules의 현재 상태 저장
+      // }
+
+      editMode.value = !editMode.value;
+    };
+
+    const deleteSchedule = async (id) => {
+      try {
+        await axios.delete(`http://localhost:8888/schedules/remove/${id}`);
+        console.log(id, '삭제 요청됨');
+        location.reload();
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    const confirmDelete = (deleteId) => {
+      if (copySchedules.value.length > 0) {
+        if (confirm('정말로 삭제하시겠습니까?')) {
+          deleteSchedule(deleteId);
+        }
+      }
+    };
+
     return {
       hotSettings,
       modalOpen,
@@ -271,10 +315,13 @@ export default defineComponent({
       closeStakeholderModal,
       selectedStakeholders,
       updateStakeholder,
-      readOnlyHotSettings,
+      // editableHotSettings,
       selectedRow,
       openStakeholderModal,
       loadingState,
+      // checkCopySchedules,
+      deleteSchedule,
+      confirmDelete,
     };
   },
 });
