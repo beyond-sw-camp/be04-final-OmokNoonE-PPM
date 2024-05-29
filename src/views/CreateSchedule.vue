@@ -58,16 +58,22 @@
                                  v-model="schedule.priority"></MaterialInput>
                 </div>
               </div>
+
               <!--   부모, 선행 일정  -->
               <div class="modal-info">
                 <div class="modal-info-item">
                   <span class="modal-info-label">부모 일정</span>
-                  <MaterialInput id="parentSchedule" label="부모 일정을 선택하세요." v-model="schedule.parentId"></MaterialInput>
+                  <span class="modal-info-value">{{ schedule.parentTitle }}</span>
+                  <material-button
+                    @click="searchSchedule('parent')"
+                    >검색</material-button>
                 </div>
                 <div class="modal-info-item">
                   <span class="modal-info-label">선행 일정</span>
-                  <MaterialInput id="precedingSchedule" label="선행 일정을 선택하세요."
-                                 v-model="schedule.precedingId"></MaterialInput>
+                  <span class="modal-info-value">{{ schedule.precedingTitle }}</span>
+                  <material-button
+                      @click="searchSchedule('preceding')"
+                  >검색</material-button>
                 </div>
               </div>
 
@@ -187,8 +193,8 @@
                 </thead>
                 <tbody>
                 <tr v-for="(requirement, index) in requirements" :key="index">
-                  <td style="width: 30%">{{ requirement.name }}</td>
-                  <td style="width: 50%">{{ requirement.content }}</td>
+                  <td style="width: 30%">{{ requirement.requirementId }}</td>
+                  <td style="width: 50%">{{ requirement.requirementName }}</td>
                   <td>
                     <MaterialButton class="custom-button" style="width: 60px"
                                     @click="viewRequirement(requirement.id)"></MaterialButton>
@@ -198,18 +204,44 @@
                     </MaterialButton>
                   </td>
                 </tr>
-                <tr>
-                  <td colspan="2">
-                    <MaterialInput label="요구사항명을 검색하세요." type="text" v-model="requirementSearchValue"></MaterialInput>
-                  </td>
-                  <td>
-                    <MaterialButton style="width: 60px" class="custom-button" @click="searchRequirement"
-                                    @mousedown="addRequirement">추가
-                    </MaterialButton>
-                  </td>
-                </tr>
                 </tbody>
               </table>
+
+              <div>
+                <MaterialInput label="요구사항명을 입력하세요." type="text" v-model="requirementSearchValue"/>
+                <MaterialButton class="custom-button" style="margin: 1em;" @click="searchRequirement">검색</MaterialButton>
+              </div>
+              <div v-if="isRequirementSearchModal">
+                <table class="modal-sheet">
+                  <thead>
+                  <tr>
+                    <th style="width: 30%">ID</th>
+                    <th style="width: 50%">요구사항명</th>
+                    <th>
+                      <div style="width: 60px">
+                        자세히
+                      </div>
+                    </th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr v-for="(requirement, index) in searchRequirements" :key="index">
+                    <td style="width: 30%">{{ requirement.requirementId }}</td>
+                    <td style="width: 50%">{{ requirement.requirementName }}</td>
+                    <td>
+                      <MaterialButton class="custom-button" style="width: 60px"
+                                      @click="selectRequirement(requirement.id)"></MaterialButton>
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+              <!-- 페이징 처리 -->
+              <div>
+                <button @click="previousPage">Previous</button>
+                <span>Page {{ page }} of {{ totalPages }}</span>
+                <button @click="nextPage">Next</button>
+              </div>
             </div>
 
             <hr class="modal-divider">
@@ -222,6 +254,49 @@
             </div>
           </div>
         </div>
+
+        <div v-if="isSearchModal">
+          <!-- 검색 모달 창 -->
+          <div class="modal fade show" style="display: block;" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">일정 검색</h5>
+                </div>
+                <div class="modal-body">
+                  <p>일정 검색 모달 창</p>
+                  <material-input
+                    label="일정 제목을 입력하세요."
+                    v-model="scheduleTitle"
+                  >일정 제목</material-input>
+                </div>
+                <table>
+                  <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>제목</th>
+                    <th>내용</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr v-for="(schedule, id) in searchSchedules" :key="id">
+                    <td>{{ schedule.id }}</td>
+                    <td>{{ schedule.title }}</td>
+                    <td>{{ schedule.content }}</td>
+                    <td>
+                      <material-button variant="fill" color="info" @click="selectSchedule(schedule)">선택</material-button>
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+                <div class="modal-footer">
+                  <material-button variant="fill" color="info" @click="isSearchModal = false">닫기</material-button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
     <AddProjectMemberToScheduleModal
@@ -254,7 +329,9 @@ export default {
         priority: null,
         manHours: null,
         parentId: '',
+        parentTitle: '',
         precedingId: '',
+        precedingTitle: '',
       },
       stakeholders: [
         {
@@ -268,14 +345,50 @@ export default {
           projectMemberId: null,
         }
       ],
+      searchSchedules: [
+        {
+          id: null,
+          title: '',
+          content: '',
+          type: '',
+        }
+      ],
+      requirements: [   // 일정에 등록할 요구사항
+        {
+          requirementId: null,
+          requirementName: '',
+          requirementContent: '',
+        }
+      ],
+      requirementList: [    // 요구사항 목록
+        {
+          requirementId: null,
+          requirementName: '',
+          requirementContent: '',
+        }
+      ],
+      searchRequirements: [ // 요구사항 검색 결과
+        {
+          requirementId: null,
+          requirementName: '',
+          requirementContent: '',
+        }
+      ],
       newStakeholders: [],
       tasks: [],
-      requirements: [],
       newTaskTitle: '',
       currentTab: 'details',
       showInfoMessage: false,
       requirementSearchValue: '',
       isEditProjectMemberVisible: false,
+      // 요구사항에 사용 되는 변수
+      isSearchModal: false,
+      scheduleTitle: '',
+      size: 10,
+      page: 1,
+      totalPages: 0,
+      isRequirementSearchModal: false,
+      // 
       // projectId: store.getters['project/getProjectId'],
       projectId: 1,
       scheduleId: null,
@@ -286,6 +399,9 @@ export default {
   methods: {
     changeTab(tabName) {
       this.currentTab = tabName;
+      if (tabName === 'requirement') {
+        this.getRequirements();
+      }
     },
     calculateTotalDays(startDate, endDate) {
       const start = new Date(startDate);
@@ -340,6 +456,46 @@ export default {
     deleteRequirement(index) {
       this.requirements.splice(index, 1);
     },
+    getRequirements() {
+      // 요구사항 목록 조회 로직 구현
+      try {
+        const projectId = 1;
+        const response = defaultInstance.get(`/requirements/list/${projectId}/${this.page}/${this.size}`);
+        const data = response.data.result.viewRequirementsByProjectIdByPage;
+        this.requirementList = data.map(requirement => ({
+          requirementId: requirement.requirementsId,
+          requirementName: requirement.requirementsName,
+          requirementContent: requirement.requirementsContent,
+        }))
+
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    searchRequirement() {
+      // 요구사항 검색 로직 구현
+      try {
+        const projectId = 1;
+        const response = defaultInstance.get(`/requirements/search/${projectId}/${this.requirementSearchValue}`);
+        const data = response.data.result.searchRequirementsByName;
+        this.searchRequirements = data.map(requirement => ({
+          requirementId: requirement.requirementsId,
+          requirementName: requirement.requirementsName,
+          requirementContent: requirement.requirementsContent,
+        }))
+        this.isRequirementSearchModal = true;
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    selectRequirement(requirementId) {
+      // 요구사항 선택 로직 구현
+      console.log('requirementId :', requirementId);
+      this.requirements.push({
+        requirementId: requirementId,
+        requirementName: '',
+        requirementContent: '',
+      });
     async saveRequirement() {
       // 요구사항 저장 로직 구현
       try {
@@ -491,6 +647,53 @@ export default {
           /* TODO. 해당 Project의 ScheduleSheet 페이지로 이동하도록 구현 */
           router.push({name: 'Billing'});
         }
+      }
+    },
+    // addStakeholders() {
+    //   // 일정 이해관계자 추가 로직 구현
+    // },
+
+    // 부모 일정 검색
+    searchSchedule(type) {
+      this.isSearchModal = true;
+
+      try {
+        const response = defaultInstance.get(`/schedules/search/${this.scheduleTitle}`);
+        const data = response.data.result.searchScheduleByTitle;
+        this.searchSchedules = data.map(schedule => ({
+          id: schedule.scheduleId,
+          title: schedule.scheduleTitle,
+          content: schedule.scheduleContent,
+          type: type,
+        }));
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    selectSchedule(schedule) {
+      if (schedule.type === 'parent') {         // 부모 일정 선택
+        this.schedule.parentId = schedule.id;
+        this.schedule.parentTitle = schedule.title;
+      }
+      else if (schedule.type === 'preceding') { // 선행 일정 선택
+        this.schedule.precedingId = schedule.id;
+        this.schedule.precedingTitle = schedule.title;
+      }
+
+      // 일정 선택 후 검색 모달창 닫기
+      this.isSearchModal = false;
+    },
+    // 요구사항 페이징 처리
+    previousPage() {
+      if (this.page > 1) {
+        this.page--;
+        this.getRequirements();
+      }
+    },
+    nextPage() {
+      if (this.page < this.totalPages) {
+        this.page++;
+        this.getRequirements();
       }
     },
   },
