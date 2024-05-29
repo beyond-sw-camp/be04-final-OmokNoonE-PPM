@@ -59,16 +59,22 @@
                                  v-model="schedule.priority"></MaterialInput>
                 </div>
               </div>
+
               <!--   부모, 선행 일정  -->
               <div class="modal-info">
                 <div class="modal-info-item">
                   <span class="modal-info-label">부모 일정</span>
-                  <MaterialInput id="parentSchedule" label="부모 일정을 선택하세요." v-model="schedule.parentId"></MaterialInput>
+                  <span class="modal-info-value">{{ schedule.parentTitle }}</span>
+                  <material-button
+                    @click="searchSchedule('parent')"
+                    >검색</material-button>
                 </div>
                 <div class="modal-info-item">
                   <span class="modal-info-label">선행 일정</span>
-                  <MaterialInput id="precedingSchedule" label="선행 일정을 선택하세요."
-                                 v-model="schedule.precedingId"></MaterialInput>
+                  <span class="modal-info-value">{{ schedule.precedingTitle }}</span>
+                  <material-button
+                      @click="searchSchedule('preceding')"
+                  >검색</material-button>
                 </div>
               </div>
 
@@ -223,6 +229,49 @@
             </div>
           </div>
         </div>
+
+        <div v-if="isSearchModal">
+          <!-- 검색 모달 창 -->
+          <div class="modal fade show" style="display: block;" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">일정 검색</h5>
+                </div>
+                <div class="modal-body">
+                  <p>일정 검색 모달 창</p>
+                  <material-input
+                    label="일정 제목을 입력하세요."
+                    v-model="scheduleTitle"
+                  >일정 제목</material-input>
+                </div>
+                <table>
+                  <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>제목</th>
+                    <th>내용</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr v-for="(schedule, id) in searchSchedules" :key="id">
+                    <td>{{ schedule.id }}</td>
+                    <td>{{ schedule.title }}</td>
+                    <td>{{ schedule.content }}</td>
+                    <td>
+                      <material-button variant="fill" color="info" @click="selectSchedule(schedule)">선택</material-button>
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+                <div class="modal-footer">
+                  <material-button variant="fill" color="info" @click="isSearchModal = false">닫기</material-button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
 <!--    <AddProjectMemberToScheduleModal-->
@@ -235,6 +284,7 @@
 <script>
 import MaterialButton from "@/components/MaterialButton.vue";
 import MaterialInput from "@/components/MaterialInput.vue";
+import {defaultInstance} from "@/axios/axios-instance";
 // import AddProjectMemberToScheduleModal from "@/views/components/AddProjectMemberToScheduleModal.vue";
 
 export default {
@@ -256,7 +306,9 @@ export default {
         status: null,
         manHours: null,
         parentId: '',
+        parentTitle: '',
         precedingId: '',
+        precedingTitle: '',
         createdDate: '',
         modifiedDate: '',
         projectName: '',
@@ -273,6 +325,14 @@ export default {
           projectMemberId: null,
         }
       ],
+      searchSchedules: [
+        {
+          id: null,
+          title: '',
+          content: '',
+          type: '',
+        }
+      ],
       newStakeholders: [],
       tasks: [],
       requirements: [],
@@ -281,6 +341,8 @@ export default {
       showInfoMessage: false,
       requirementSearchValue: '',
       isEditProjectMemberVisible: false,
+      isSearchModal: false,
+      scheduleTitle: '',
     };
   },
   methods: {
@@ -340,6 +402,38 @@ export default {
     // addStakeholders() {
     //   // 일정 이해관계자 추가 로직 구현
     // },
+
+    // 부모 일정 검색
+    searchSchedule(type) {
+      this.isSearchModal = true;
+
+      try {
+        const response = defaultInstance.get(`/schedules/search/${this.scheduleTitle}`);
+        const data = response.data.result.searchScheduleByTitle;
+        this.searchSchedules = data.map(schedule => ({
+          id: schedule.scheduleId,
+          title: schedule.scheduleTitle,
+          content: schedule.scheduleContent,
+          type: type,
+        }));
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    selectSchedule(schedule) {
+
+      if (schedule.type === 'parent') {         // 부모 일정 선택
+        this.schedule.parentId = schedule.id;
+        this.schedule.parentTitle = schedule.title;
+      }
+      else if (schedule.type === 'preceding') { // 선행 일정 선택
+        this.schedule.precedingId = schedule.id;
+        this.schedule.precedingTitle = schedule.title;
+      }
+
+      // 일정 선택 후 검색 모달창 닫기
+      this.isSearchModal = false;
+    }
   },
 };
 </script>
