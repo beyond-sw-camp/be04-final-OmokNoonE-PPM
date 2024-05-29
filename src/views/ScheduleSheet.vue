@@ -31,7 +31,7 @@ import 'handsontable/dist/handsontable.full.css';
 import {format} from 'date-fns';
 import {defaultInstance} from "@/axios/axios-instance";
 import router from "@/router";
-// import store from "@/store";
+// import store from "@/store/index.js";
 
 export default defineComponent({
   name: 'ScheduleSheet',

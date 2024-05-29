@@ -659,7 +659,7 @@ export default {
 }
 
 .importance {
-  color: #e72222; /* 중요도 색상 설정 */
+  color: #e72222;/* 중요도 색상 설정 */
   font-size: 22px;
 }
 

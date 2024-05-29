@@ -66,7 +66,7 @@ const routes = [
     component: MaterialSchedule,
   },
   {
-    path: "/schedules/create/:projectId",
+    path: "/schedules/:projectId/create",
     name: "CreateSchedule",
     component: CreateSchedule,
   },
