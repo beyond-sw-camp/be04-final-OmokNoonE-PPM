@@ -9,7 +9,6 @@
               <div class="d-flex align-items-center ps-3">
                 <div class="d-flex flex-column justify-content-center">
                   <h6 style="color: white !important;">일정 등록</h6>
-                  <p class="modal-project-name" style="color: lightgray !important;">{{ schedule.projectName }}</p>
                 </div>
               </div>
               <div class="modal-actions">
@@ -86,7 +85,7 @@
                   <span class="modal-info-label">PM</span>
                   <template v-for="(stakeholder, index) in stakeholders" :key="index">
                     <span v-if="stakeholder.roleName === 10601"
-                          class="modal-info-value">{{ stakeholder.name }}({{ stakeholder.id }})</span>
+                          class="modal-info-value">{{ stakeholder.name }}({{ stakeholder.employeeId }})</span>
                   </template>
                 </div>
                 <div class="modal-info-item">
@@ -150,7 +149,7 @@
                     </td>
                     <td v-if="tasks.length > 0" class="task-isCompleted">
                       <div style="width: 100px">
-                        <input style="width: 13px" type="checkbox" v-model="task.isCompleted">
+                        <input style="width: 13px" type="checkbox" disabled="true" v-model="task.isCompleted">
                         <label style="width: 42px">{{ task.isCompleted ? '완료' : '미완료' }}</label>
                       </div>
                     </td>
@@ -300,44 +299,39 @@
 
       </div>
     </div>
-<!--    <AddProjectMemberToScheduleModal-->
-<!--        v-if="isEditProjectMemberVisible" :newStakeholders="newStakeholders"-->
-<!--        @close="isEditProjectMemberVisible = false" @add-members="addStakeholders">-->
-<!--    </AddProjectMemberToScheduleModal>-->
+    <AddProjectMemberToScheduleModal
+        v-if="isEditProjectMemberVisible"
+        @close="isEditProjectMemberVisible = false" @add-members="addStakeholders">
+    </AddProjectMemberToScheduleModal>
   </div>
 </template>
 
 <script>
 import MaterialButton from "@/components/MaterialButton.vue";
 import MaterialInput from "@/components/MaterialInput.vue";
+import AddProjectMemberToScheduleModal from "@/views/components/AddProjectMemberToScheduleModal.vue";
 import {defaultInstance} from "@/axios/axios-instance";
-// import AddProjectMemberToScheduleModal from "@/views/components/AddProjectMemberToScheduleModal.vue";
+import router from "@/router";
 
 export default {
   components: {
-    // AddProjectMemberToScheduleModal,
+    AddProjectMemberToScheduleModal,
     MaterialButton,
     MaterialInput,
   },
   data() {
     return {
       schedule: {
-        id: null,
         title: '',
         content: '',
         startDate: '',
         endDate: '',
         priority: null,
-        progress: null,
-        status: null,
         manHours: null,
         parentId: '',
         parentTitle: '',
         precedingId: '',
         precedingTitle: '',
-        createdDate: '',
-        modifiedDate: '',
-        projectName: '',
       },
       stakeholders: [
         {
@@ -387,15 +381,28 @@ export default {
       showInfoMessage: false,
       requirementSearchValue: '',
       isEditProjectMemberVisible: false,
+      // 요구사항에 사용 되는 변수
       isSearchModal: false,
       scheduleTitle: '',
       size: 10,
       page: 1,
       totalPages: 0,
       isRequirementSearchModal: false,
+      // 
+      // projectId: store.getters['project/getProjectId'],
+      projectId: 1,
+      scheduleId: null,
+      /* TODO. backend 코드 완성 시, 삭제 */
+      alwaysTrue: true,
     };
   },
   methods: {
+    changeTab(tabName) {
+      this.currentTab = tabName;
+      if (tabName === 'requirement') {
+        this.getRequirements();
+      }
+    },
     calculateTotalDays(startDate, endDate) {
       const start = new Date(startDate);
       const end = new Date(endDate);
@@ -403,20 +410,45 @@ export default {
       const dayDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
       return dayDiff >= 0 ? dayDiff : '유효하지 않은 날짜';
     },
-    changeTab(tabName) {
-      this.currentTab = tabName;
-      if (tabName === 'requirement') {
-        this.getRequirements();
-      }
-    },
     addTask() {
       if (this.newTaskTitle.trim() !== '') {
-        this.tasks.push({id: null, title: this.newTaskTitle, isCompleted: false});
+        this.tasks.push({title: this.newTaskTitle, isCompleted: false});
         this.newTaskTitle = '';
       }
     },
     deleteTask(index) {
       this.tasks.splice(index, 1);
+    },
+    async saveTask() {
+      // 업무 저장 로직 구현
+      try {
+        /* 복수의 업무 저장 메소드 제작해야함 */
+        const requestBody = this.tasks.map(task => ({
+          taskTitle: task.title,
+          taskScheduleId: this.scheduleId,
+        }));
+        const response = await defaultInstance.post('/tasks/creates', {
+          taskList: requestBody,
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        /* 새로 저장한 스케쥴 아이디 리스트를 출력하는 메소드(확인용) */
+
+        return response.ok;
+      } catch (error) {
+        console.error('error :', error);
+      }
+    },
+
+    viewRequirement(requirementId) {
+      // 요구사항 자세히 보기 로직 구현
+      console.log('requirementId :', requirementId);
+    },
+    searchRequirement() {
+      // 요구사항 검색 로직 구현
     },
     addRequirement() {
       // 요구사항 추가 로직 구현
@@ -464,11 +496,120 @@ export default {
         requirementName: '',
         requirementContent: '',
       });
+    async saveRequirement() {
+      // 요구사항 저장 로직 구현
+      try {
+        const requestBody = this.requirements.map(requirement => ({
+          scheduleRequirementMapScheduleId: this.scheduleId,
+          scheduleRequirementMapRequirementId: requirement.requirementId,
+        }));
+        /* backend에서 복수개의 요구사항맵을 저장하는 메소드 구현해야함. */
+        const response = await defaultInstance.post('scheduleRequirementsMaps/creates', {
+          requirementList: requestBody,
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        /* 새로 저장한 일정요구사항맵 아이디 리스트를 출력하는 메소드(확인용) */
+
+        return response.ok;
+      } catch (error) {
+        console.error('error :', error);
+      }
     },
-    viewRequirement(requirementId) {
-      // 요구사항 자세히 보기 로직 구현
-      console.log('requirementId :', requirementId);
+
+    editStakeholders() {
+      // 일정 이해관계자 수정 로직 구현
+      this.isEditProjectMemberVisible = true;
     },
+    addStakeholders(selectedMembers) {
+      // 일정 이해관계자 추가 로직 구현
+      this.newStakeholders = selectedMembers;
+      console.log('newStakeholders : ', this.newStakeholders);
+      console.log('selectedMembers : ', selectedMembers);
+      this.newStakeholders.forEach(member => this.stakeholders.push(member));
+      /* TODO. stakeholders가 갱신된 후, 화면의 이해관계자 부분이 갱신된 데이터로 출력하게끔 구현해야함. */
+      console.log('stakeholders : ', this.stakeholders);
+    },
+    async saveStakeholders() {
+      // 이해관계자 저장 로직 구현
+      try {
+        const requestBody = this.stakeholders.map(stakeholder => ({
+          stakeholdersType: stakeholder.type,
+          stakeholdersScheduleId: this.scheduleId,
+          stakeholdersProjectMemberId: stakeholder.projectMemberId,
+        }));
+        /* backend에서 복수개의 이해관계자를 저장하는 메소드 구현해야함. */
+        const response = await defaultInstance.post('stakeholders/creates', {
+          stakeholdersList: requestBody,
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        /* 새로 저장한 이해관계자 아이디 리스트를 출력하는 메소드(확인용) */
+
+        return response.ok;
+      } catch (error) {
+        console.error('error :', error);
+      }
+    },
+    async savePermissions() {
+      // 권한 저장 로직 구현
+      try {
+        const requestBody = this.stakeholders.map(stakeholder => ({
+          permissionRoleName: stakeholder.roleName,
+          permissionProjectMemberId: stakeholder.projectMemberId,
+          permissionScheduleId: this.scheduleId,
+        }));
+        /* backend에서 복수개의 권한을 저장하는 메소드 구현해야함. */
+        const response = await defaultInstance.post('permissions/creates', {
+          permissionList: requestBody,
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        /* 새로 저장한 권한 아이디 리스트를 출력하는 메소드(확인용) */
+
+        return response.ok;
+      } catch (error) {
+        console.error('error :', error);
+      }
+    },
+
+    async saveScheduleChanges() {
+      // 업무 저장 로직 구현
+      try {
+        const response = await defaultInstance.post('schedules/create', {
+          scheduleTitle: this.schedule.title,
+          scheduleContent: this.schedule.content,
+          scheduleStartDate: this.schedule.startDate,
+          scheduleEndDate: this.schedule.endDate,
+          scheduleDepth: null, // Assuming this.schedule.depth exists
+          schedulePriority: this.schedule.priority,
+          scheduleParentScheduleId: this.schedule.parentId,
+          schedulePrecedingScheduleId: this.schedule.precedingId,
+          scheduleProjectId: this.projectId // Assuming this.schedule.projectId exists
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        this.scheduleId = response.data.result.viewSchedule.scheduleId;
+        console.log('생성된 scheduleId :', this.scheduleId);
+
+        return response.ok;
+      } catch (error) {
+        console.error('error :', error);
+      }
+    },
+
     checkValidation() {
       console.log('schedule: ', this.schedule);
       console.log('stakeholders: ', this.stakeholders);
@@ -480,15 +621,33 @@ export default {
         this.showInfoMessage = true;
       } else {
         this.showInfoMessage = false;
-        this.saveScheduleChanges();
+        this.saveAll();
       }
     },
-    saveScheduleChanges() {
-      // 일정 등록 로직 구현
-    },
-    editStakeholders() {
-      // 일정 이해관계자 수정 로직 구현
-      this.isEditProjectMemberVisible = true;
+    async saveAll() {
+      /* TODO. backend 코드 완성 시, if문 삭제 */
+      if (this.alwaysTrue) {
+        await alert('저장 메소드 구현 시, 이 코드를 삭제할 것.');
+      } else {
+        const scheduleSaveResult = await this.saveScheduleChanges();
+        const taskSaveResult = await this.saveTask();
+        const requirementSaveResult = await this.saveRequirement();
+        const stakeholdersSaveResult = await this.saveStakeholders();
+        const permissionsSaveResult = await this.savePermissions();
+
+        const message =
+            '일정 등록에' + (scheduleSaveResult ? '성공했습니다.\n' : '실패했습니다.\n') +
+            '업무 등록에' + (taskSaveResult ? '성공했습니다.\n' : '실패했습니다.\n') +
+            '요구사항 등록에' + (requirementSaveResult ? '성공했습니다.\n' : '실패했습니다.\n') +
+            '이해관계자 등록에' + (stakeholdersSaveResult ? '성공했습니다.\n' : '실패했습니다.\n') +
+            '권한 등록에' + (permissionsSaveResult ? '성공했습니다.\n' : '실패했습니다.\n');
+
+        alert(message);
+        if (scheduleSaveResult && taskSaveResult && requirementSaveResult && stakeholdersSaveResult && permissionsSaveResult) {
+          /* TODO. 해당 Project의 ScheduleSheet 페이지로 이동하도록 구현 */
+          router.push({name: 'Billing'});
+        }
+      }
     },
     // addStakeholders() {
     //   // 일정 이해관계자 추가 로직 구현
