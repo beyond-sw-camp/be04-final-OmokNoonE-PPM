@@ -194,8 +194,8 @@
                 </thead>
                 <tbody>
                 <tr v-for="(requirement, index) in requirements" :key="index">
-                  <td style="width: 30%">{{ requirement.name }}</td>
-                  <td style="width: 50%">{{ requirement.content }}</td>
+                  <td style="width: 30%">{{ requirement.requirementId }}</td>
+                  <td style="width: 50%">{{ requirement.requirementName }}</td>
                   <td>
                     <MaterialButton class="custom-button" style="width: 60px"
                                     @click="viewRequirement(requirement.id)"></MaterialButton>
@@ -205,18 +205,44 @@
                     </MaterialButton>
                   </td>
                 </tr>
-                <tr>
-                  <td colspan="2">
-                    <MaterialInput label="요구사항명을 검색하세요." type="text" v-model="requirementSearchValue"></MaterialInput>
-                  </td>
-                  <td>
-                    <MaterialButton style="width: 60px" class="custom-button" @click="searchRequirement"
-                                    @mousedown="addRequirement">추가
-                    </MaterialButton>
-                  </td>
-                </tr>
                 </tbody>
               </table>
+
+              <div>
+                <MaterialInput label="요구사항명을 입력하세요." type="text" v-model="requirementSearchValue"/>
+                <MaterialButton class="custom-button" style="margin: 1em;" @click="searchRequirement">검색</MaterialButton>
+              </div>
+              <div v-if="isRequirementSearchModal">
+                <table class="modal-sheet">
+                  <thead>
+                  <tr>
+                    <th style="width: 30%">ID</th>
+                    <th style="width: 50%">요구사항명</th>
+                    <th>
+                      <div style="width: 60px">
+                        자세히
+                      </div>
+                    </th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr v-for="(requirement, index) in searchRequirements" :key="index">
+                    <td style="width: 30%">{{ requirement.requirementId }}</td>
+                    <td style="width: 50%">{{ requirement.requirementName }}</td>
+                    <td>
+                      <MaterialButton class="custom-button" style="width: 60px"
+                                      @click="selectRequirement(requirement.id)"></MaterialButton>
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+              <!-- 페이징 처리 -->
+              <div>
+                <button @click="previousPage">Previous</button>
+                <span>Page {{ page }} of {{ totalPages }}</span>
+                <button @click="nextPage">Next</button>
+              </div>
             </div>
 
             <hr class="modal-divider">
@@ -333,9 +359,29 @@ export default {
           type: '',
         }
       ],
+      requirements: [   // 일정에 등록할 요구사항
+        {
+          requirementId: null,
+          requirementName: '',
+          requirementContent: '',
+        }
+      ],
+      requirementList: [    // 요구사항 목록
+        {
+          requirementId: null,
+          requirementName: '',
+          requirementContent: '',
+        }
+      ],
+      searchRequirements: [ // 요구사항 검색 결과
+        {
+          requirementId: null,
+          requirementName: '',
+          requirementContent: '',
+        }
+      ],
       newStakeholders: [],
       tasks: [],
-      requirements: [],
       newTaskTitle: '',
       currentTab: 'details',
       showInfoMessage: false,
@@ -343,6 +389,10 @@ export default {
       isEditProjectMemberVisible: false,
       isSearchModal: false,
       scheduleTitle: '',
+      size: 10,
+      page: 1,
+      totalPages: 0,
+      isRequirementSearchModal: false,
     };
   },
   methods: {
@@ -355,6 +405,9 @@ export default {
     },
     changeTab(tabName) {
       this.currentTab = tabName;
+      if (tabName === 'requirement') {
+        this.getRequirements();
+      }
     },
     addTask() {
       if (this.newTaskTitle.trim() !== '') {
@@ -371,8 +424,46 @@ export default {
     deleteRequirement(index) {
       this.requirements.splice(index, 1);
     },
+    getRequirements() {
+      // 요구사항 목록 조회 로직 구현
+      try {
+        const projectId = 1;
+        const response = defaultInstance.get(`/requirements/list/${projectId}/${this.page}/${this.size}`);
+        const data = response.data.result.viewRequirementsByProjectIdByPage;
+        this.requirementList = data.map(requirement => ({
+          requirementId: requirement.requirementsId,
+          requirementName: requirement.requirementsName,
+          requirementContent: requirement.requirementsContent,
+        }))
+
+      } catch (error) {
+        console.log(error);
+      }
+    },
     searchRequirement() {
       // 요구사항 검색 로직 구현
+      try {
+        const projectId = 1;
+        const response = defaultInstance.get(`/requirements/search/${projectId}/${this.requirementSearchValue}`);
+        const data = response.data.result.searchRequirementsByName;
+        this.searchRequirements = data.map(requirement => ({
+          requirementId: requirement.requirementsId,
+          requirementName: requirement.requirementsName,
+          requirementContent: requirement.requirementsContent,
+        }))
+        this.isRequirementSearchModal = true;
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    selectRequirement(requirementId) {
+      // 요구사항 선택 로직 구현
+      console.log('requirementId :', requirementId);
+      this.requirements.push({
+        requirementId: requirementId,
+        requirementName: '',
+        requirementContent: '',
+      });
     },
     viewRequirement(requirementId) {
       // 요구사항 자세히 보기 로직 구현
@@ -421,7 +512,6 @@ export default {
       }
     },
     selectSchedule(schedule) {
-
       if (schedule.type === 'parent') {         // 부모 일정 선택
         this.schedule.parentId = schedule.id;
         this.schedule.parentTitle = schedule.title;
@@ -433,7 +523,20 @@ export default {
 
       // 일정 선택 후 검색 모달창 닫기
       this.isSearchModal = false;
-    }
+    },
+    // 요구사항 페이징 처리
+    previousPage() {
+      if (this.page > 1) {
+        this.page--;
+        this.getRequirements();
+      }
+    },
+    nextPage() {
+      if (this.page < this.totalPages) {
+        this.page++;
+        this.getRequirements();
+      }
+    },
   },
 };
 </script>
