@@ -108,7 +108,7 @@
                       <template v-for="(stakeholder, index) in stakeholders" :key="index">
                       <span v-if="stakeholder.type === 10402"
                             class="modal-info-value">
-                        {{ stakeholder.name }} ({{ stakeholder.id }})
+                        {{ stakeholder.name }} ({{ stakeholder.employeeId }})
                         <span v-if="index !== stakeholders.length - 1">,</span>
                       </span>
                       </template>
@@ -140,11 +140,7 @@
                   <thead>
                   <tr>
                     <th style="width: 80%">업무 제목</th>
-                    <th>
-                      <div style="width: 100px">
-                        수행 여부
-                      </div>
-                    </th>
+                    <th style="width: 100px">수행 여부</th>
                   </tr>
                   </thead>
                   <tbody>
@@ -237,7 +233,8 @@
                   <th style="width: 30%">요구사항명</th>
                   <th style="width: 50%">내용</th>
                   <th>
-                    <div style="width: 60px">
+                    <div style="
+                    width: 60px">
                       자세히
                     </div>
                   </th>
@@ -300,6 +297,7 @@
           </div>
         </div>
 
+        <!--  부모, 선행 일정 검색 모달  -->
         <div v-if="isSearchModal">
           <!-- 검색 모달 창 -->
           <div id="searchScheduleModal" class="modal fade show" style="display: block;" tabindex="-1" role="dialog">
@@ -426,7 +424,6 @@ export default {
       showInfoMessage: false,
       requirementSearchValue: '',
       isEditProjectMemberVisible: false,
-      // 요구사항에 사용 되는 변수
       isSearchModal: false,
       searchScheduleType: '',
       searchScheduleTitleValue: '',
