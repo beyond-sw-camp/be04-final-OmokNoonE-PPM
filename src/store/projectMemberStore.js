@@ -47,8 +47,8 @@ export const store = createStore({
         async fetchProjectMembers({commit, state}) {
             commit('SET_PROJECT_MEMBERS_LOADING', true);
             try {
-                const response = await axios.get(`/projectMembers/project-members?projectId=${state.projectId}`);
-                commit('SET_PROJECT_MEMBERS', response.data);
+                const response = await axios.get(`/projectMembers/list/${state.projectId}`);
+                commit('SET_PROJECT_MEMBERS', response.data.viewProjectMembersByProject);
             } catch (err) {
                 console.error('프로젝트 구성원을 가져오는 중 오류 발생:', err);
                 throw new Error('프로젝트 구성원을 가져오는 중 오류가 발생했습니다.');
@@ -60,8 +60,8 @@ export const store = createStore({
             commit('SET_AVAILABLE_MEMBERS_LOADING', true);
             commit('SET_SEARCH_QUERY', query);
             try {
-                const response = await axios.get(`/projectMembers/available-members?projectId=${state.projectId}&query=${query}`);
-                commit('SET_SEARCH_RESULTS', response.data);
+                const response = await axios.get(`/projectMembers/available/${state.projectId}?query=${query}`);
+                commit('SET_SEARCH_RESULTS', response.data.viewAvailableMembers);
             } catch (err) {
                 console.error('구성원 목록을 가져오는 중 오류 발생:', err);
                 throw new Error('구성원 목록을 가져오는 중 오류가 발생했습니다.');
@@ -71,20 +71,22 @@ export const store = createStore({
         },
         async addProjectMember({commit, state}, {memberId}) {
             try {
-                const response = await axios.post('/projectMembers/project-members', {
-                    employeeId: memberId,
-                    projectId: state.projectId,
+                const response = await axios.post('/projectMembers/create', {
+                    projectMemberProjectId: state.projectId,
+                    projectMemberEmployeeId: memberId,
                 });
-                commit('ADD_PROJECT_MEMBER', response.data);
+                commit('ADD_PROJECT_MEMBER', response.data.createProjectMember);
             } catch (err) {
                 console.error('프로젝트 구성원을 추가하는 중 오류 발생:', err);
                 throw new Error('프로젝트 구성원을 추가하는 중 오류가 발생했습니다.');
             }
         },
-        async removeProjectMember({commit, state}, memberId) {
+        async removeProjectMember({commit}, {memberId, reason}) {
             try {
-                await axios.put(`/projectMembers/project-members/${memberId}`, {
-                    projectId: state.projectId,
+                await axios.delete(`/projectMembers/remove/${memberId}`, {
+                    data: {
+                        projectMemberHistoryReason: reason
+                    }
                 });
                 commit('REMOVE_PROJECT_MEMBER', memberId);
             } catch (err) {
