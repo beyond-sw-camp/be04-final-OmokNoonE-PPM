@@ -47,10 +47,10 @@
                 <!-- 구성원 직책 선택 드롭다운 -->
                 <td class="text-left">
                   <select v-model="member.roleName" class="form-select form-select-sm">
-                    <option value="10603">PA</option>
-                    <option value="10602">PL</option>
+                    <option :value="10603">PA</option>
+                    <option :value="10602">PL</option>
                     <!--   PM은 선택 불가     -->
-                    <!--                    <option value="10601">PM</option>-->
+                    <!--                    <option :value=10601>PM</option>-->
                   </select>
                 </td>
               </tr>
@@ -142,7 +142,6 @@ const addMembers = async () => {
     console.log('selectedMembers : ', selectedMembers);
     console.log('copyProjectMembers.value.filter: ', copyProjectMembers.value.filter(member => member.isChecked));
     emit('add-members', selectedMembers);
-    alert('구성원이 성공적으로 추가되었습니다.');
     emit('close');
   } catch (error) {
     alert('구성원 추가 중 오류가 발생했습니다.'); // 에러 메시지 처리

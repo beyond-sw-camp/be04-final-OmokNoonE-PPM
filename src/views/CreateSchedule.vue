@@ -65,18 +65,21 @@
                   <span class="modal-info-label">부모 일정</span>
                   <span class="modal-info-value">{{ schedule.parentTitle }}</span>
                   <material-button
-                    @click="searchSchedule('parent')"
-                    >검색</material-button>
+                      @click="openSearchScheduleModal('parent')"
+                  >검색
+                  </material-button>
                 </div>
                 <div class="modal-info-item">
                   <span class="modal-info-label">선행 일정</span>
                   <span class="modal-info-value">{{ schedule.precedingTitle }}</span>
                   <material-button
-                      @click="searchSchedule('preceding')"
-                  >검색</material-button>
+                      @click="openSearchScheduleModal('preceding')"
+                  >검색
+                  </material-button>
                 </div>
               </div>
 
+              <!--   이해관계자      -->
               <h5>&nbsp; 이해관계자</h5>
               <hr class="modal-divider">
               <!--   PM, PL   -->
@@ -116,6 +119,8 @@
               <div class="modal-actions">
                 <MaterialButton class="custom-button" @click="editStakeholders">수정</MaterialButton>
               </div>
+
+              <!--   일정 내용   -->
               <div class="modal-info-item">
                 <h5 class="importance">*</h5>
                 <h5>일정 내용</h5>
@@ -126,6 +131,8 @@
                   <textarea class="textarea-description custom-textarea" v-model="schedule.content" rows="8"></textarea>
                 </div>
               </div>
+
+              <!--  업무 목록   -->
               <h5>&nbsp; 업무 목록</h5>
               <hr class="modal-divider">
               <div class="modal-tasks-container">
@@ -176,9 +183,54 @@
                 </table>
               </div>
 
+
             </div>
+
+            <!--  요구사항 검색 및 선택 탭      -->
             <div v-show="currentTab === 'requirement'">
-              <h5>요구사항</h5>
+              <!-- 선택된 요구사항   -->
+              <h5>&nbsp;선택된 요구사항 </h5>
+              <hr class="modal-divider">
+              <div class="modal-tasks-container">
+                <table class="modal-sheet">
+                  <thead>
+                  <tr>
+                    <th style="width: 30%">요구사항명</th>
+                    <th style="width: 50%">내용</th>
+                    <th>
+                      <div style="width: 60px">
+                        자세히
+                      </div>
+                    </th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr v-for="(requirement, index) in requirements" :key="index">
+                    <td style="width: 50%">{{ requirement.requirementName }}</td>
+                    <td style="width: 50%">{{ requirement.requirementContent.slice(0, 30) }}...</td>
+                    <td>
+                      <MaterialButton class="custom-button" style="width: 60px"
+                                      @click="viewRequirement(requirement.requirementId)">link
+                      </MaterialButton>
+                    </td>
+                    <td>
+                      <MaterialButton class="delete-button" style="width: 60px"
+                                      @click="deleteRequirement(requirements, index)">삭제
+                      </MaterialButton>
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <h5>요구사항 검색</h5>
+              <div style="display: flex; align-items: flex-start;">
+                <MaterialInput label="요구사항명을 입력하세요." type="text" v-model="requirementSearchValue"
+                               @keyup.enter="searchRequirement"/>
+                <MaterialButton class="custom-button" style="margin: 1em;" @click="searchRequirement">검색
+                </MaterialButton>
+              </div>
+              <hr class="modal-divider">
               <table class="modal-sheet">
                 <thead>
                 <tr>
@@ -189,53 +241,46 @@
                       자세히
                     </div>
                   </th>
+                  <th>
+                    <div style="width: 60px">
+                      추가
+                    </div>
+                  </th>
                 </tr>
                 </thead>
-                <tbody>
-                <tr v-for="(requirement, index) in requirements" :key="index">
-                  <td style="width: 30%">{{ requirement.requirementId }}</td>
-                  <td style="width: 50%">{{ requirement.requirementName }}</td>
+                <tbody v-if="isRequirementSearchModal">
+                <tr v-for="(requirement, index) in searchRequirements" :key="index">
+                  <td style="width: 30%">{{ requirement.requirementName }}</td>
+                  <td style="width: 50%">{{ requirement.requirementContent.slice(0, 30) }}...</td>
                   <td>
                     <MaterialButton class="custom-button" style="width: 60px"
-                                    @click="viewRequirement(requirement.id)"></MaterialButton>
+                                    @click="viewRequirement(requirement.requirementId)">link
+                    </MaterialButton>
                   </td>
                   <td>
-                    <MaterialButton class="delete-button" style="width: 60px" @click="deleteRequirement(index)">삭제
+                    <MaterialButton class="custom-button" style="width: 60px"
+                                    @click="selectRequirement(requirement)">추가
+                    </MaterialButton>
+                  </td>
+                </tr>
+                </tbody>
+                <tbody v-else>
+                <tr v-for="(requirement, index) in requirementList" :key="index">
+                  <td style="width: 50%">{{ requirement.requirementName }}</td>
+                  <td style="width: 50%">{{ requirement.requirementContent.slice(0, 30) }}...</td>
+                  <td>
+                    <MaterialButton class="custom-button" style="width: 60px"
+                                    @click="viewRequirement(requirement.requirementId)">link
+                    </MaterialButton>
+                  </td>
+                  <td>
+                    <MaterialButton class="custom-button" style="width: 60px"
+                                    @click="selectRequirement(requirement)">추가
                     </MaterialButton>
                   </td>
                 </tr>
                 </tbody>
               </table>
-
-              <div>
-                <MaterialInput label="요구사항명을 입력하세요." type="text" v-model="requirementSearchValue"/>
-                <MaterialButton class="custom-button" style="margin: 1em;" @click="searchRequirement">검색</MaterialButton>
-              </div>
-              <div v-if="isRequirementSearchModal">
-                <table class="modal-sheet">
-                  <thead>
-                  <tr>
-                    <th style="width: 30%">ID</th>
-                    <th style="width: 50%">요구사항명</th>
-                    <th>
-                      <div style="width: 60px">
-                        자세히
-                      </div>
-                    </th>
-                  </tr>
-                  </thead>
-                  <tbody>
-                  <tr v-for="(requirement, index) in searchRequirements" :key="index">
-                    <td style="width: 30%">{{ requirement.requirementId }}</td>
-                    <td style="width: 50%">{{ requirement.requirementName }}</td>
-                    <td>
-                      <MaterialButton class="custom-button" style="width: 60px"
-                                      @click="selectRequirement(requirement.id)"></MaterialButton>
-                    </td>
-                  </tr>
-                  </tbody>
-                </table>
-              </div>
               <!-- 페이징 처리 -->
               <div>
                 <button @click="previousPage">Previous</button>
@@ -257,18 +302,19 @@
 
         <div v-if="isSearchModal">
           <!-- 검색 모달 창 -->
-          <div class="modal fade show" style="display: block;" tabindex="-1" role="dialog">
+          <div id="searchScheduleModal" class="modal fade show" style="display: block;" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-dialog-centered" role="document">
               <div class="modal-content">
                 <div class="modal-header">
                   <h5 class="modal-title">일정 검색</h5>
                 </div>
                 <div class="modal-body">
-                  <p>일정 검색 모달 창</p>
-                  <material-input
-                    label="일정 제목을 입력하세요."
-                    v-model="scheduleTitle"
-                  >일정 제목</material-input>
+                  <MaterialInput
+                      label="일정 제목을 입력하세요."
+                      v-model="searchScheduleTitleValue"
+                  >
+                  </MaterialInput>
+                  <MaterialButton @click="searchSchedule">검색</MaterialButton>
                 </div>
                 <table>
                   <thead>
@@ -284,19 +330,19 @@
                     <td>{{ schedule.title }}</td>
                     <td>{{ schedule.content }}</td>
                     <td>
-                      <material-button variant="fill" color="info" @click="selectSchedule(schedule)">선택</material-button>
+                      <material-button variant="fill" color="info" @click="selectSchedule(schedule)">선택
+                      </material-button>
                     </td>
                   </tr>
                   </tbody>
                 </table>
                 <div class="modal-footer">
-                  <material-button variant="fill" color="info" @click="isSearchModal = false">닫기</material-button>
+                  <material-button variant="fill" color="info" @click="closeSearchModal">닫기</material-button>
                 </div>
               </div>
             </div>
           </div>
         </div>
-
       </div>
     </div>
     <AddProjectMemberToScheduleModal
@@ -335,6 +381,7 @@ export default {
       },
       stakeholders: [
         {
+          // TODO. 등록하는 자의 정보로 변경해야함
           // name: store.getName(),
           name: '홍길동',
           // employeeId: store.getEmployeeId,
@@ -342,7 +389,9 @@ export default {
           id: null,
           type: 10401,    // 작성자
           roleName: 10601,  //PM
-          projectMemberId: null,
+          // 값을 어디서(back? front?) 받아올지는 고민
+          // projectMemberId: store.getProjectMemberId(),
+          projectMemberId: 1,
         }
       ],
       searchSchedules: [
@@ -354,11 +403,7 @@ export default {
         }
       ],
       requirements: [   // 일정에 등록할 요구사항
-        {
-          requirementId: null,
-          requirementName: '',
-          requirementContent: '',
-        }
+
       ],
       requirementList: [    // 요구사항 목록
         {
@@ -383,12 +428,13 @@ export default {
       isEditProjectMemberVisible: false,
       // 요구사항에 사용 되는 변수
       isSearchModal: false,
-      scheduleTitle: '',
+      searchScheduleType: '',
+      searchScheduleTitleValue: '',
       size: 10,
       page: 1,
       totalPages: 0,
       isRequirementSearchModal: false,
-      // 
+      //
       // projectId: store.getters['project/getProjectId'],
       projectId: 1,
       scheduleId: null,
@@ -447,37 +493,39 @@ export default {
       // 요구사항 자세히 보기 로직 구현
       console.log('requirementId :', requirementId);
     },
-    searchRequirement() {
-      // 요구사항 검색 로직 구현
+    deleteRequirement(requirements, index) {
+      requirements.splice(index, 1);
     },
-    addRequirement() {
-      // 요구사항 추가 로직 구현
-    },
-    deleteRequirement(index) {
-      this.requirements.splice(index, 1);
-    },
-    getRequirements() {
+    async getRequirements() {
       // 요구사항 목록 조회 로직 구현
       try {
         const projectId = 1;
-        const response = defaultInstance.get(`/requirements/list/${projectId}/${this.page}/${this.size}`);
+        const response = await defaultInstance.get(`/requirements/list/${projectId}/${this.page}/${this.size}`);
         const data = response.data.result.viewRequirementsByProjectIdByPage;
-        this.requirementList = data.map(requirement => ({
+        console.log(data);
+        this.requirementList = data.content.map(requirement => ({
           requirementId: requirement.requirementsId,
           requirementName: requirement.requirementsName,
           requirementContent: requirement.requirementsContent,
         }))
+        console.log('requirementList :', this.requirementList);
 
       } catch (error) {
         console.log(error);
       }
     },
-    searchRequirement() {
+    async searchRequirement() {
       // 요구사항 검색 로직 구현
       try {
+        if (this.requirementSearchValue === '') {
+          this.isRequirementSearchModal = false;
+          return;
+        }
         const projectId = 1;
-        const response = defaultInstance.get(`/requirements/search/${projectId}/${this.requirementSearchValue}`);
+        console.log(`requirementSearchValue` + this.requirementSearchValue);
+        const response = await defaultInstance.get(`/requirements/search/${projectId}/${this.requirementSearchValue}`);
         const data = response.data.result.searchRequirementsByName;
+        console.log(data);
         this.searchRequirements = data.map(requirement => ({
           requirementId: requirement.requirementsId,
           requirementName: requirement.requirementsName,
@@ -488,14 +536,15 @@ export default {
         console.log(error);
       }
     },
-    selectRequirement(requirementId) {
+    selectRequirement(requirement) {
       // 요구사항 선택 로직 구현
-      console.log('requirementId :', requirementId);
+      console.log('requirementId :', requirement.requirementId);
       this.requirements.push({
-        requirementId: requirementId,
-        requirementName: '',
-        requirementContent: '',
+        requirementId: requirement.requirementId,
+        requirementName: requirement.requirementName,
+        requirementContent: requirement.requirementContent,
       });
+    },
     async saveRequirement() {
       // 요구사항 저장 로직 구현
       try {
@@ -529,7 +578,16 @@ export default {
       this.newStakeholders = selectedMembers;
       console.log('newStakeholders : ', this.newStakeholders);
       console.log('selectedMembers : ', selectedMembers);
-      this.newStakeholders.forEach(member => this.stakeholders.push(member));
+      this.newStakeholders.forEach(member => this.stakeholders.push(
+          {
+            employeeId: member.employeeId,
+            id: null,
+            name: member.name,
+            projectMemberId: member.projectMemberId,
+            roleName: member.roleName,
+            type: 10402 // TODO. PA와 PL 모두 담당자로 기록됨(?) 확인 필요
+          }
+      ));
       /* TODO. stakeholders가 갱신된 후, 화면의 이해관계자 부분이 갱신된 데이터로 출력하게끔 구현해야함. */
       console.log('stakeholders : ', this.stakeholders);
     },
@@ -628,6 +686,7 @@ export default {
       /* TODO. backend 코드 완성 시, if문 삭제 */
       if (this.alwaysTrue) {
         await alert('저장 메소드 구현 시, 이 코드를 삭제할 것.');
+        router.push({name: 'Billing'});
       } else {
         const scheduleSaveResult = await this.saveScheduleChanges();
         const taskSaveResult = await this.saveTask();
@@ -649,39 +708,44 @@ export default {
         }
       }
     },
-    // addStakeholders() {
-    //   // 일정 이해관계자 추가 로직 구현
-    // },
+    openSearchScheduleModal(type) {
+      this.isSearchModal = true;
+      this.searchScheduleType = type;
+    },
 
     // 부모 일정 검색
-    searchSchedule(type) {
-      this.isSearchModal = true;
-
+    async searchSchedule() {
       try {
-        const response = defaultInstance.get(`/schedules/search/${this.scheduleTitle}`);
+        const response = await defaultInstance.get(`/schedules/search/${this.searchScheduleTitleValue}`);
         const data = response.data.result.searchScheduleByTitle;
         this.searchSchedules = data.map(schedule => ({
           id: schedule.scheduleId,
           title: schedule.scheduleTitle,
           content: schedule.scheduleContent,
-          type: type,
+          // type: this.searchScheduleType,
         }));
       } catch (error) {
         console.log(error);
       }
     },
     selectSchedule(schedule) {
-      if (schedule.type === 'parent') {         // 부모 일정 선택
+      if (this.searchScheduleType === 'parent') {         // 부모 일정 선택
         this.schedule.parentId = schedule.id;
         this.schedule.parentTitle = schedule.title;
-      }
-      else if (schedule.type === 'preceding') { // 선행 일정 선택
+      } else if (this.searchScheduleType === 'preceding') { // 선행 일정 선택
         this.schedule.precedingId = schedule.id;
         this.schedule.precedingTitle = schedule.title;
       }
 
+      this.closeSearchModal();
+    },
+    closeSearchModal() {
       // 일정 선택 후 검색 모달창 닫기
       this.isSearchModal = false;
+      // 연관값 초기화
+      this.searchScheduleType = '';
+      this.searchScheduleTitleValue = '';
+      this.searchSchedules = [];
     },
     // 요구사항 페이징 처리
     previousPage() {
@@ -718,12 +782,6 @@ export default {
 .card-body.px-0.pb-2 {
   padding-left: 1rem !important;
   padding-right: 1rem !important;
-}
-
-.modal-project-name {
-  margin: 0 0 0.5rem 0;
-  font-size: 1.2rem;
-  font-weight: bold;
 }
 
 .modal-actions {
@@ -846,5 +904,61 @@ export default {
   color: red;
   font-size: 0.875rem;
   margin-top: 0.5rem;
+}
+
+#searchScheduleModal {
+  z-index: 11000;
+}
+
+
+.modal {
+  background: rgba(0, 0, 0, 0.5); /* 모달 배경 반투명 처리 */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-dialog {
+  background: white;
+  border-radius: 5px;
+  padding: 20px;
+  max-width: 800px;
+  width: 70%;
+  height: 70%; /* 모달의 높이를 고정 */
+}
+
+.modal-content {
+  height: 100%; /* 고정 높이를 설정 */
+}
+
+.modal-body {
+  height: 70%; /* 모달 본문의 높이를 설정 */
+  overflow-y: auto; /* 세로 스크롤 활성화 */
+}
+
+@media (max-width: 576px) {
+  .modal-dialog {
+    width: 90%;
+    height: 90%; /* 작은 화면에서 모달의 높이 조정 */
+  }
+
+  .modal-content {
+    height: 100%; /* 고정 높이를 설정 */
+  }
+
+  .modal-body {
+    height: 80%; /* 모달 본문의 높이를 설정 */
+    overflow-y: auto; /* 세로 스크롤 활성화 */
+  }
+
+  .modal-footer {
+    display: flex;
+    flex-direction: column;
+  }
 }
 </style>
