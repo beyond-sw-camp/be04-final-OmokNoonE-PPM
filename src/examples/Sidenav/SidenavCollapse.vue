@@ -1,7 +1,7 @@
 <template>
   <router-link
     :data-bs-toggle="collapse ? 'collapse' : ''"
-    :to="collapse ? `#${collapseRef}` : collapseRef"
+    :to="collapse ? `#${collapseRef}` : `/${collapseRef}`"
     :aria-controls="collapseRef"
     :aria-expanded="isExpanded"
     class="nav-link"

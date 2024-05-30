@@ -3,300 +3,73 @@
     <div class="row">
       <div class="col-12">
         <div class="card my-4">
+          <!-- 카드 헤더 -->
           <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
             <div
-              class="bg-gradient-success shadow-success border-radius-lg pt-4 pb-3"
-            >
-              <h6 class="text-white text-capitalize ps-3">Authors table</h6>
+                class="bg-gradient-success shadow-success border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
+              <div class="d-flex align-items-center ps-3">
+                <i class="material-icons text-white me-2">groups</i>
+                <h6 class="text-white text-capitalize mb-0">프로젝트 구성원</h6>
+              </div>
+              <div>
+                <MaterialButton color="info" size="md" variant="fill" class="me-3" @click="isAddModalVisible = true">+
+                  새로운 구성원
+                </MaterialButton>
+              </div>
             </div>
           </div>
-          <div class="card-body px-0 pb-2">
+          <!-- 카드 본문 -->
+          <div class="card-body px-0 pb-2" style="max-height: 480px; min-height: 480px; overflow-y: auto;">
             <div class="table-responsive p-0">
               <table class="table align-items-center mb-0">
                 <thead>
-                  <tr>
-                    <th
-                      class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-                    >
-                      Author
-                    </th>
-                    <th
-                      class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2"
-                    >
-                      Function
-                    </th>
-                    <th
-                      class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-                    >
-                      Status
-                    </th>
-                    <th
-                      class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-                    >
-                      Employed
-                    </th>
-                    <th class="text-secondary opacity-7"></th>
-                  </tr>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-left ps-5">이름</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-left pe-4">직책</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-left pe-6">연락처</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-left pe-6">시작일</th>
+                  <th class="text-secondary opacity-7"></th>
+                </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td>
-                      <div class="d-flex px-2 py-1">
-                        <div>
-                          <img
-                            src="../assets/img/team-2.jpg"
-                            class="avatar avatar-sm me-3 border-radius-lg"
-                            alt="user1"
-                          />
-                        </div>
-                        <div class="d-flex flex-column justify-content-center">
-                          <h6 class="mb-0 text-sm">John Michael</h6>
-                          <p class="text-xs text-secondary mb-0">
-                            john@creative-tim.com
-                          </p>
-                        </div>
+                <tr v-if="projectMembersLoading">
+                  <td colspan="5" class="text-center">
+                    <span class="text-secondary">로딩 중...</span>
+                  </td>
+                </tr>
+                <tr v-if="!projectMembersLoading && (!projectMembers || projectMembers.length === 0)">
+                  <td colspan="5" class="text-center text-muted" style="height: 320px;">
+                    <span class="no-members-text">프로젝트에 참여하는 구성원이 없습니다.</span>
+                  </td>
+                </tr>
+                <tr v-else v-for="projectMember in projectMembers" :key="projectMember.id">
+                  <td class="text-left">
+                    <div class="d-flex px-2 py-1">
+                      <div class="d-flex flex-column justify-content-center">
+                        <h6 class="mb-0 text-sm">{{ projectMember.name }}</h6>
                       </div>
-                    </td>
-                    <td>
-                      <p class="text-xs font-weight-bold mb-0">Manager</p>
-                      <p class="text-xs text-secondary mb-0">Organization</p>
-                    </td>
-                    <td class="align-middle text-center text-sm">
-                      <span class="badge badge-sm bg-gradient-success"
-                        >Online</span
-                      >
-                    </td>
-                    <td class="align-middle text-center">
-                      <span class="text-secondary text-xs font-weight-bold"
-                        >23/04/18</span
-                      >
-                    </td>
-                    <td class="align-middle">
-                      <a
-                        href="javascript:;"
-                        class="text-secondary font-weight-bold text-xs"
-                        data-toggle="tooltip"
-                        data-original-title="Edit user"
-                      >
-                        Edit
-                      </a>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <div class="d-flex px-2 py-1">
-                        <div>
-                          <img
-                            src="../assets/img/team-3.jpg"
-                            class="avatar avatar-sm me-3 border-radius-lg"
-                            alt="user2"
-                          />
-                        </div>
-                        <div class="d-flex flex-column justify-content-center">
-                          <h6 class="mb-0 text-sm">Alexa Liras</h6>
-                          <p class="text-xs text-secondary mb-0">
-                            alexa@creative-tim.com
-                          </p>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <p class="text-xs font-weight-bold mb-0">Programator</p>
-                      <p class="text-xs text-secondary mb-0">Developer</p>
-                    </td>
-                    <td class="align-middle text-center text-sm">
-                      <span class="badge badge-sm bg-gradient-secondary"
-                        >Offline</span
-                      >
-                    </td>
-                    <td class="align-middle text-center">
-                      <span class="text-secondary text-xs font-weight-bold"
-                        >11/01/19</span
-                      >
-                    </td>
-                    <td class="align-middle">
-                      <a
-                        href="javascript:;"
-                        class="text-secondary font-weight-bold text-xs"
-                        data-toggle="tooltip"
-                        data-original-title="Edit user"
-                      >
-                        Edit
-                      </a>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <div class="d-flex px-2 py-1">
-                        <div>
-                          <img
-                            src="../assets/img/team-4.jpg"
-                            class="avatar avatar-sm me-3 border-radius-lg"
-                            alt="user3"
-                          />
-                        </div>
-                        <div class="d-flex flex-column justify-content-center">
-                          <h6 class="mb-0 text-sm">Laurent Perrier</h6>
-                          <p class="text-xs text-secondary mb-0">
-                            laurent@creative-tim.com
-                          </p>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <p class="text-xs font-weight-bold mb-0">Executive</p>
-                      <p class="text-xs text-secondary mb-0">Projects</p>
-                    </td>
-                    <td class="align-middle text-center text-sm">
-                      <span class="badge badge-sm bg-gradient-success"
-                        >Online</span
-                      >
-                    </td>
-                    <td class="align-middle text-center">
-                      <span class="text-secondary text-xs font-weight-bold"
-                        >19/09/17</span
-                      >
-                    </td>
-                    <td class="align-middle">
-                      <a
-                        href="javascript:;"
-                        class="text-secondary font-weight-bold text-xs"
-                        data-toggle="tooltip"
-                        data-original-title="Edit user"
-                      >
-                        Edit
-                      </a>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <div class="d-flex px-2 py-1">
-                        <div>
-                          <img
-                            src="../assets/img/team-3.jpg"
-                            class="avatar avatar-sm me-3 border-radius-lg"
-                            alt="user4"
-                          />
-                        </div>
-                        <div class="d-flex flex-column justify-content-center">
-                          <h6 class="mb-0 text-sm">Michael Levi</h6>
-                          <p class="text-xs text-secondary mb-0">
-                            michael@creative-tim.com
-                          </p>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <p class="text-xs font-weight-bold mb-0">Programator</p>
-                      <p class="text-xs text-secondary mb-0">Developer</p>
-                    </td>
-                    <td class="align-middle text-center text-sm">
-                      <span class="badge badge-sm bg-gradient-success"
-                        >Online</span
-                      >
-                    </td>
-                    <td class="align-middle text-center">
-                      <span class="text-secondary text-xs font-weight-bold"
-                        >24/12/08</span
-                      >
-                    </td>
-                    <td class="align-middle">
-                      <a
-                        href="javascript:;"
-                        class="text-secondary font-weight-bold text-xs"
-                        data-toggle="tooltip"
-                        data-original-title="Edit user"
-                      >
-                        Edit
-                      </a>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <div class="d-flex px-2 py-1">
-                        <div>
-                          <img
-                            src="../assets/img/team-2.jpg"
-                            class="avatar avatar-sm me-3 border-radius-lg"
-                            alt="user5"
-                          />
-                        </div>
-                        <div class="d-flex flex-column justify-content-center">
-                          <h6 class="mb-0 text-sm">Richard Gran</h6>
-                          <p class="text-xs text-secondary mb-0">
-                            richard@creative-tim.com
-                          </p>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <p class="text-xs font-weight-bold mb-0">Manager</p>
-                      <p class="text-xs text-secondary mb-0">Executive</p>
-                    </td>
-                    <td class="align-middle text-center text-sm">
-                      <span class="badge badge-sm bg-gradient-secondary"
-                        >Offline</span
-                      >
-                    </td>
-                    <td class="align-middle text-center">
-                      <span class="text-secondary text-xs font-weight-bold"
-                        >04/10/21</span
-                      >
-                    </td>
-                    <td class="align-middle">
-                      <a
-                        href="javascript:;"
-                        class="text-secondary font-weight-bold text-xs"
-                        data-toggle="tooltip"
-                        data-original-title="Edit user"
-                      >
-                        Edit
-                      </a>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <div class="d-flex px-2 py-1">
-                        <div>
-                          <img
-                            src="../assets/img/team-4.jpg"
-                            class="avatar avatar-sm me-3 border-radius-lg"
-                            alt="user6"
-                          />
-                        </div>
-                        <div class="d-flex flex-column justify-content-center">
-                          <h6 class="mb-0 text-sm">Miriam Eric</h6>
-                          <p class="text-xs text-secondary mb-0">
-                            miriam@creative-tim.com
-                          </p>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <p class="text-xs font-weight-bold mb-0">Programator</p>
-                      <p class="text-xs text-secondary mb-0">Developer</p>
-                    </td>
-                    <td class="align-middle text-center text-sm">
-                      <span class="badge badge-sm bg-gradient-secondary"
-                        >Offline</span
-                      >
-                    </td>
-                    <td class="align-middle text-center">
-                      <span class="text-secondary text-xs font-weight-bold"
-                        >14/09/20</span
-                      >
-                    </td>
-                    <td class="align-middle">
-                      <a
-                        href="javascript:;"
-                        class="text-secondary font-weight-bold text-xs"
-                        data-toggle="tooltip"
-                        data-original-title="Edit user"
-                      >
-                        Edit
-                      </a>
-                    </td>
-                  </tr>
+                    </div>
+                  </td>
+                  <td class="text-left">
+                    <p class="text-xs font-weight-bold mb-0">{{ projectMember.role || '-' }}</p>
+                  </td>
+                  <td class="align-middle text-center text-sm">
+                    <span class="text-secondary text-xs font-weight-bold text-left d-inline-block">
+                      E-mail.{{ projectMember.email }}
+                      <br><span class="ps-1">Phone.{{ projectMember.phone }}</span>
+                    </span>
+                  </td>
+                  <td class="align-middle text-left text-sm">
+                    <span class="text-secondary text-xs font-weight-bold">{{ projectMember.startDate }}</span>
+                  </td>
+                  <td class="align-middle">
+                    <button class="btn btn-link text-secondary mb-0"
+                            @click="confirmRemoveProjectMember(projectMember.id)" data-toggle="tooltip"
+                            data-original-title="팀에서 제외">
+                      x
+                    </button>
+                  </td>
+                </tr>
                 </tbody>
               </table>
             </div>
@@ -304,373 +77,125 @@
         </div>
       </div>
     </div>
-    <div class="row">
-      <div class="col-12">
-        <div class="card my-4">
-          <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-            <div
-              class="bg-gradient-success shadow-success border-radius-lg pt-4 pb-3"
-            >
-              <h6 class="text-white text-capitalize ps-3">Projects table</h6>
-            </div>
-          </div>
-          <div class="card-body px-0 pb-2">
-            <div class="table-responsive p-0">
-              <table
-                class="table align-items-center justify-content-center mb-0"
-              >
-                <thead>
-                  <tr>
-                    <th
-                      class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-                    >
-                      Project
-                    </th>
-                    <th
-                      class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2"
-                    >
-                      Budget
-                    </th>
-                    <th
-                      class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2"
-                    >
-                      Status
-                    </th>
-                    <th
-                      class="text-uppercase text-secondary text-xxs font-weight-bolder text-center opacity-7 ps-2"
-                    >
-                      Completion
-                    </th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>
-                      <div class="d-flex px-2">
-                        <div>
-                          <img
-                            src="../assets/img/small-logos/logo-asana.svg"
-                            class="avatar avatar-sm rounded-circle me-2"
-                            alt="spotify"
-                          />
-                        </div>
-                        <div class="my-auto">
-                          <h6 class="mb-0 text-sm">Asana</h6>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <p class="text-sm font-weight-bold mb-0">$2,500</p>
-                    </td>
-                    <td>
-                      <span class="text-xs font-weight-bold">working</span>
-                    </td>
-                    <td class="align-middle text-center">
-                      <div
-                        class="d-flex align-items-center justify-content-center"
-                      >
-                        <span class="me-2 text-xs font-weight-bold">60%</span>
-                        <div>
-                          <div class="progress">
-                            <div
-                              class="progress-bar bg-gradient-info"
-                              role="progressbar"
-                              aria-valuenow="60"
-                              aria-valuemin="0"
-                              aria-valuemax="100"
-                              style="width: 60%"
-                            ></div>
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="align-middle">
-                      <button class="btn btn-link text-secondary mb-0">
-                        <i
-                          class="fa fa-ellipsis-v text-xs"
-                          aria-hidden="true"
-                        ></i>
-                      </button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <div class="d-flex px-2">
-                        <div>
-                          <img
-                            src="../assets/img/small-logos/github.svg"
-                            class="avatar avatar-sm rounded-circle me-2"
-                            alt="invision"
-                          />
-                        </div>
-                        <div class="my-auto">
-                          <h6 class="mb-0 text-sm">Github</h6>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <p class="text-sm font-weight-bold mb-0">$5,000</p>
-                    </td>
-                    <td>
-                      <span class="text-xs font-weight-bold">done</span>
-                    </td>
-                    <td class="align-middle text-center">
-                      <div
-                        class="d-flex align-items-center justify-content-center"
-                      >
-                        <span class="me-2 text-xs font-weight-bold">100%</span>
-                        <div>
-                          <div class="progress">
-                            <div
-                              class="progress-bar bg-gradient-success"
-                              role="progressbar"
-                              aria-valuenow="100"
-                              aria-valuemin="0"
-                              aria-valuemax="100"
-                              style="width: 100%"
-                            ></div>
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="align-middle">
-                      <button
-                        class="btn btn-link text-secondary mb-0"
-                        aria-haspopup="true"
-                        aria-expanded="false"
-                      >
-                        <i
-                          class="fa fa-ellipsis-v text-xs"
-                          aria-hidden="true"
-                        ></i>
-                      </button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <div class="d-flex px-2">
-                        <div>
-                          <img
-                            src="../assets/img/small-logos/logo-atlassian.svg"
-                            class="avatar avatar-sm rounded-circle me-2"
-                            alt="jira"
-                          />
-                        </div>
-                        <div class="my-auto">
-                          <h6 class="mb-0 text-sm">Atlassian</h6>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <p class="text-sm font-weight-bold mb-0">$3,400</p>
-                    </td>
-                    <td>
-                      <span class="text-xs font-weight-bold">canceled</span>
-                    </td>
-                    <td class="align-middle text-center">
-                      <div
-                        class="d-flex align-items-center justify-content-center"
-                      >
-                        <span class="me-2 text-xs font-weight-bold">30%</span>
-                        <div>
-                          <div class="progress">
-                            <div
-                              class="progress-bar bg-gradient-danger"
-                              role="progressbar"
-                              aria-valuenow="30"
-                              aria-valuemin="0"
-                              aria-valuemax="30"
-                              style="width: 30%"
-                            ></div>
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="align-middle">
-                      <button
-                        class="btn btn-link text-secondary mb-0"
-                        aria-haspopup="true"
-                        aria-expanded="false"
-                      >
-                        <i
-                          class="fa fa-ellipsis-v text-xs"
-                          aria-hidden="true"
-                        ></i>
-                      </button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <div class="d-flex px-2">
-                        <div>
-                          <img
-                            src="../assets/img/small-logos/bootstrap.svg"
-                            class="avatar avatar-sm rounded-circle me-2"
-                            alt="webdev"
-                          />
-                        </div>
-                        <div class="my-auto">
-                          <h6 class="mb-0 text-sm">Bootstrap</h6>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <p class="text-sm font-weight-bold mb-0">$14,000</p>
-                    </td>
-                    <td>
-                      <span class="text-xs font-weight-bold">working</span>
-                    </td>
-                    <td class="align-middle text-center">
-                      <div
-                        class="d-flex align-items-center justify-content-center"
-                      >
-                        <span class="me-2 text-xs font-weight-bold">80%</span>
-                        <div>
-                          <div class="progress">
-                            <div
-                              class="progress-bar bg-gradient-info"
-                              role="progressbar"
-                              aria-valuenow="80"
-                              aria-valuemin="0"
-                              aria-valuemax="80"
-                              style="width: 80%"
-                            ></div>
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="align-middle">
-                      <button
-                        class="btn btn-link text-secondary mb-0"
-                        aria-haspopup="true"
-                        aria-expanded="false"
-                      >
-                        <i
-                          class="fa fa-ellipsis-v text-xs"
-                          aria-hidden="true"
-                        ></i>
-                      </button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <div class="d-flex px-2">
-                        <div>
-                          <img
-                            src="../assets/img/small-logos/logo-slack.svg"
-                            class="avatar avatar-sm rounded-circle me-2"
-                            alt="slack"
-                          />
-                        </div>
-                        <div class="my-auto">
-                          <h6 class="mb-0 text-sm">Slack</h6>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <p class="text-sm font-weight-bold mb-0">$1,000</p>
-                    </td>
-                    <td>
-                      <span class="text-xs font-weight-bold">canceled</span>
-                    </td>
-                    <td class="align-middle text-center">
-                      <div
-                        class="d-flex align-items-center justify-content-center"
-                      >
-                        <span class="me-2 text-xs font-weight-bold">0%</span>
-                        <div>
-                          <div class="progress">
-                            <div
-                              class="progress-bar bg-gradient-success"
-                              role="progressbar"
-                              aria-valuenow="0"
-                              aria-valuemin="0"
-                              aria-valuemax="0"
-                              style="width: 0%"
-                            ></div>
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="align-middle">
-                      <button
-                        class="btn btn-link text-secondary mb-0"
-                        aria-haspopup="true"
-                        aria-expanded="false"
-                      >
-                        <i
-                          class="fa fa-ellipsis-v text-xs"
-                          aria-hidden="true"
-                        ></i>
-                      </button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <div class="d-flex px-2">
-                        <div>
-                          <img
-                            src="../assets/img/small-logos/devto.svg"
-                            class="avatar avatar-sm rounded-circle me-2"
-                            alt="xd"
-                          />
-                        </div>
-                        <div class="my-auto">
-                          <h6 class="mb-0 text-sm">Devto</h6>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <p class="text-sm font-weight-bold mb-0">$2,300</p>
-                    </td>
-                    <td>
-                      <span class="text-xs font-weight-bold">done</span>
-                    </td>
-                    <td class="align-middle text-center">
-                      <div
-                        class="d-flex align-items-center justify-content-center"
-                      >
-                        <span class="me-2 text-xs font-weight-bold">100%</span>
-                        <div>
-                          <div class="progress">
-                            <div
-                              class="progress-bar bg-gradient-success"
-                              role="progressbar"
-                              aria-valuenow="100"
-                              aria-valuemin="0"
-                              aria-valuemax="100"
-                              style="width: 100%"
-                            ></div>
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="align-middle">
-                      <button
-                        class="btn btn-link text-secondary mb-0"
-                        aria-haspopup="true"
-                        aria-expanded="false"
-                      >
-                        <i
-                          class="fa fa-ellipsis-v text-xs"
-                          aria-hidden="true"
-                        ></i>
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+
+    <!-- 구성원 추가 모달 -->
+    <AddProjectMemberCard v-if="isAddModalVisible" :available-members="availableMembers"
+                          @close="isAddModalVisible = false" @add-members="addMembers"></AddProjectMemberCard>
   </div>
 </template>
 
-<script>
-export default {
-  name: "tables",
+<script setup>
+import {ref, onMounted, computed} from 'vue';
+import {useStore} from 'vuex';
+import MaterialButton from '@/components/MaterialButton.vue';
+import AddProjectMemberCard from '@/views/components/AddProjectMemberCard.vue';
+import {useToast} from 'vue-toastification';
+
+const props = defineProps({
+  projectId: Number,
+});
+
+const store = useStore();
+const toast = useToast();
+const isAddModalVisible = ref(false); // 구성원 추가 모달 표시 상태
+
+// 프로젝트 구성원 데이터를 가져오는 함수
+const fetchProjectMembers = async () => {
+  try {
+    await store.dispatch('fetchProjectMembers');
+  } catch (error) {
+    toast.error(error.message); // 에러 메시지 처리
+  }
 };
+
+// 현재 프로젝트에 추가되지 않은 회원 데이터를 가져오는 함수
+const fetchAvailableMembers = async () => {
+  try {
+    await store.dispatch('fetchAvailableMembers');
+  } catch (error) {
+    toast.error(error.message); // 에러 메시지 처리
+  }
+};
+
+// 필터링된 프로젝트 구성원 목록을 가져오는 computed property
+const projectMembers = computed(() => store.getters.filteredProjectMembers || []);
+const projectMembersLoading = computed(() => store.state.projectMembersLoading); // 프로젝트 구성원 로딩 상태
+
+// 새로운 구성원을 추가하는 함수
+const addMembers = async (selectedMembers) => {
+  if (selectedMembers.length === 0) {
+    toast.error('추가할 구성원을 선택해 주세요.');
+    return;
+  }
+
+  try {
+    for (const member of selectedMembers) {
+      await store.dispatch('addProjectMember', {memberId: member.id});
+    }
+    toast.success('구성원이 성공적으로 추가되었습니다.');
+  } catch (error) {
+    toast.error(error.message); // 에러 메시지 처리
+  } finally {
+    isAddModalVisible.value = false;
+    await fetchProjectMembers();
+    await fetchAvailableMembers();
+  }
+};
+
+// 구성원을 제외하기 전에 확인 메시지를 표시하는 함수
+const confirmRemoveProjectMember = async (projectMemberId) => {
+  const reason = window.prompt('구성원을 제외하는 이유를 입력하세요:');
+  if (reason !== null && reason.trim() !== '') {
+    const confirmDelete = window.confirm('팀에서 제외 시키겠습니까?');
+    if (confirmDelete) {
+      try {
+        await store.dispatch('removeProjectMember', { memberId: projectMemberId, reason });
+        toast.success('구성원이 성공적으로 제외되었습니다.');
+      } catch (error) {
+        toast.error(error.message); // 에러 메시지 처리
+      } finally {
+        await fetchProjectMembers();
+        await fetchAvailableMembers();
+      }
+    }
+  } else {
+    toast.error('제외 사유를 입력해 주세요.');
+  }
+};
+
+// 컴포넌트가 마운트될 때 프로젝트 ID를 설정하고 데이터를 가져옴
+onMounted(async () => {
+  store.commit('SET_PROJECT_ID', props.projectId);
+  await fetchProjectMembers();
+  await fetchAvailableMembers();
+});
 </script>
+
+<style scoped>
+.table th,
+.table td {
+  padding: 0.3rem;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.table th.text-center,
+.table td.text-center {
+  text-align: center;
+}
+
+.text-center {
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .table-responsive {
+    overflow-x: auto;
+  }
+}
+
+.no-members-text {
+  opacity: 0.5;
+  font-size: 1.2rem;
+}
+</style>
