@@ -20,22 +20,22 @@ const routes = [
   },
   {
     path: "/dashboard",
-    name: "Dashboard",
+    name: "대시보드",
     component: Dashboard,
   },
   {
     path: "/project-member",
-    name: "ProjectMember",
+    name: "프로젝트 구성원",
     component: ProjectMember,
   },
   {
     path: "/billing",
-    name: "Billing",
+    name: "일정",
     component: Billing,
   },
   {
     path: "/notifications",
-    name: "Notifications",
+    name: "알림",
     component: Notifications,
   },
   {
@@ -45,7 +45,7 @@ const routes = [
   },
   {
     path: "/requirements",
-    name: "Requirements",
+    name: "요구사항",
     component: Requirements,
   },
   {
