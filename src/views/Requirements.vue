@@ -60,8 +60,8 @@
 import { ref, onMounted } from 'vue';
 import { useRoute } from "vue-router";
 import RegisterRequirement from '@/views/RegisterRequirement.vue';
-import ModifyRequirement from '@/views/ModifyRequirement.vue';
-import {defaultInstance} from "@/axios/axios-instance";  // 경로 확인 및 수정
+import ModifyRequirement from '@/views/components/ModifyRequirement.vue';
+import {defaultInstance} from "@/axios/axios-instance";
 
 const requirements = ref([]);
 const route = useRoute();

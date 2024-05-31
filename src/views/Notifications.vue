@@ -257,7 +257,7 @@ const errorMessage = computed(() => store.getters["notifications/errorMessage"] 
   color: gray;
 }
 
-/* Add the same container style as in Tables.vue */
+/* Add the same container style as in ProjectMember.vue */
 .container-fluid {
   max-width: 1200px;
   margin: 0 auto;
