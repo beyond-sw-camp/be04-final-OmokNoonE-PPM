@@ -37,7 +37,7 @@
 
 <script setup>
 import { ref, defineEmits, defineProps} from 'vue';
-import axios from 'axios';
+import {defaultInstance} from "@/axios/axios-instance";
 
 const props = defineProps({
   isVisible: {
@@ -65,7 +65,7 @@ const registerRequirement = async () => {
   }
 
   try {
-    await axios.post('http://localhost:8888/requirements/create', {
+    await defaultInstance.post('/requirements/create', {
       requirementsProjectId: props.projectId,
       requirementsName: requirementsName.value,
       requirementsContent: requirementsContent.value,
