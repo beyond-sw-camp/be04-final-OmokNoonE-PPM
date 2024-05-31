@@ -1,3 +1,4 @@
+<!-- AddProjectMemberCard.vue -->
 <template>
   <div class="modal" tabindex="-1" role="dialog" style="display: block;">
     <div class="modal-dialog" role="document">
@@ -25,7 +26,9 @@
               <tr>
                 <!-- 각 컬럼 헤더 -->
                 <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-left ps-3">선택</th>
+                <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-left ps-3">사원번호</th>
                 <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-left ps-3">이름</th>
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-left ps-1">권한</th>
                 <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-center ps-2">연락처</th>
                 <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-left ps-4">가입일</th>
               </tr>
@@ -53,6 +56,14 @@
                       <h6 class="mb-0 text-sm">{{ member.name }}</h6>
                     </div>
                   </div>
+                </td>
+                <td class="text-left">
+                  <!-- 구성원 직책 선택 드롭다운 -->
+                  <select v-model="member.role" class="form-select form-select-sm">
+                    <option value="PA">PA</option>
+                    <option value="PL">PL</option>
+                    <option value="PM">PM</option>
+                  </select>
                 </td>
                 <td class="align-middle text-center text-sm">
                   <!-- 구성원의 이메일 및 전화번호 표시 -->

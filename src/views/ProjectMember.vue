@@ -12,6 +12,9 @@
                 <h6 class="text-white text-capitalize mb-0">프로젝트 구성원</h6>
               </div>
               <div>
+                <MaterialButton color="info" size="md" variant="fill" class="me-3" @click="isModifyModalVisible = true">
+                  권한 변경
+                </MaterialButton>
                 <MaterialButton color="info" size="md" variant="fill" class="me-3" @click="isAddModalVisible = true">+
                   새로운 구성원
                 </MaterialButton>
@@ -24,8 +27,10 @@
               <table class="table align-items-center mb-0">
                 <thead>
                 <tr>
-                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-left ps-5">이름</th>
-                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-left pe-4">직책</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-left ps-5">사원번호
+                  </th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-left pe-3">이름</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-left ">권한</th>
                   <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-left pe-6">연락처</th>
                   <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-left pe-6">시작일</th>
                   <th class="text-secondary opacity-7"></th>
@@ -80,7 +85,12 @@
 
     <!-- 구성원 추가 모달 -->
     <AddProjectMemberCard v-if="isAddModalVisible" :available-members="availableMembers"
-                          @close="isAddModalVisible = false" @add-members="addMembers"></AddProjectMemberCard>
+                          @close="isAddModalVisible = false" @add-members="addMembers">
+    </AddProjectMemberCard>
+    <!-- 직책 변경 모달 -->
+    <ModifyProjectMemberRoleCard v-if="isModifyModalVisible" :project-members="projectMembers"
+                                 @close="isModifyModalVisible = false" @save-changes="saveChanges">
+    </ModifyProjectMemberRoleCard>
   </div>
 </template>
 
@@ -89,6 +99,7 @@ import {ref, onMounted, computed} from 'vue';
 import {useStore} from 'vuex';
 import MaterialButton from '@/components/MaterialButton.vue';
 import AddProjectMemberCard from '@/views/components/AddProjectMemberCard.vue';
+import ModifyProjectMemberRoleCard from '@/views/components/ModifyProjectMemberRoleCard.vue';
 import {useToast} from 'vue-toastification';
 
 const props = defineProps({
@@ -98,6 +109,7 @@ const props = defineProps({
 const store = useStore();
 const toast = useToast();
 const isAddModalVisible = ref(false); // 구성원 추가 모달 표시 상태
+const isModifyModalVisible = ref(false); // 직책 변경 모달 표시 상태
 
 // 프로젝트 구성원 데이터를 가져오는 함수
 const fetchProjectMembers = async () => {
@@ -149,7 +161,7 @@ const confirmRemoveProjectMember = async (projectMemberId) => {
     const confirmDelete = window.confirm('팀에서 제외 시키겠습니까?');
     if (confirmDelete) {
       try {
-        await store.dispatch('removeProjectMember', { memberId: projectMemberId, reason });
+        await store.dispatch('removeProjectMember', {memberId: projectMemberId, reason});
         toast.success('구성원이 성공적으로 제외되었습니다.');
       } catch (error) {
         toast.error(error.message); // 에러 메시지 처리
@@ -160,6 +172,21 @@ const confirmRemoveProjectMember = async (projectMemberId) => {
     }
   } else {
     toast.error('제외 사유를 입력해 주세요.');
+  }
+};
+
+// 직책 변경을 저장하는 함수
+const saveChanges = async (selectedMembers) => {
+  try {
+    for (const member of selectedMembers) {
+      await store.dispatch('modifyProjectMember', {projectMemberId: member.id, role: member.role});
+    }
+    toast.success('구성원의 직책이 성공적으로 변경되었습니다.');
+  } catch (error) {
+    toast.error(error.message); // 에러 메시지 처리
+  } finally {
+    isModifyModalVisible.value = false;
+    await fetchProjectMembers();
   }
 };
 
