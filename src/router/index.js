@@ -74,12 +74,12 @@ function isTokenExpired(token) {
 
 router.beforeEach(async (to, from, next) => {
   // 로그인이 필요한 경우 토큰 갱신을 건너뜀
-  if (store.state.needLogin) {
+  if (store.getters.needLogin) {
     next();
     return;
   }
 
-  const accessToken = store.state.accessToken;
+  const accessToken = store.getters.accessToken;
 
   // accessToken이 만료되었는지 확인하고 만료되었다면 refreshToken을 사용해 accessToken을 갱신
   if (accessToken && isTokenExpired(accessToken)) {
