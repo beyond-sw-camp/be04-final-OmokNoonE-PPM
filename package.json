@@ -19,6 +19,8 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@handsontable/vue": "^14.3.0",
+    "@handsontable/vue3": "^14.3.0",
     "@popperjs/core": "2.11.8",
     "@stomp/stompjs": "^7.0.0",
     "@toast-ui/chart": "^4.6.1",
@@ -26,6 +28,9 @@
     "bootstrap": "5.3.2",
     "chart.js": "4.4.0",
     "core-js": "3.33.0",
+    "date-fns": "^3.6.0",
+    "handsontable": "^14.3.0",
+    // "vue": "^3.4.27",
     "sockjs-client": "^1.6.1",
     "vue": "3.3.4",
     "vue-router": "4.2.5",
@@ -35,18 +40,23 @@
   },
   "devDependencies": {
     "@babel/eslint-parser": "7.22.15",
+    "@types/webpack-env": "^1.18.5",
     "@vue/cli-plugin-babel": "~5.0.8",
     "@vue/cli-plugin-eslint": "~5.0.8",
     "@vue/cli-plugin-router": "~5.0.8",
     "@vue/cli-service": "~5.0.8",
-    "@vue/compiler-sfc": "3.3.4",
+    "@vue/compiler-sfc": "^3.4.27",
     "@vue/eslint-config-prettier": "8.0.0",
     "eslint": "8.51.0",
     "eslint-plugin-prettier": "5.0.1",
     "eslint-plugin-vue": "9.17.0",
     "prettier": "3.0.3",
     "sass": "1.69.3",
-    "sass-loader": "13.3.2"
+    "sass-loader": "13.3.2",
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.4.5",
+    "vue-loader": "^17.4.2",
+    "vue-template-compiler": "^2.7.16"
   },
   "overrides": {
     "consolidate": "1.0.1"

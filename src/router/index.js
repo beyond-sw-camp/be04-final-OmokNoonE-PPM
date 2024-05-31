@@ -4,12 +4,13 @@ import ProjectMember from "../views/ProjectMember.vue";
 import Billing from "../views/Billing.vue";
 import Notifications from "../views/Notifications.vue";
 import SignIn from "../views/SignIn.vue";
+import MaterialSchedule from "@/components/MaterialSchedule.vue";
 import Requirements from "@/views/Requirements.vue";
 import RegisterRequirement from "@/views/RegisterRequirement.vue";
 import store from '../store/index.js';
 import { refreshToken } from '../services/auth.js';
 import { useCookies } from 'vue3-cookies';
-
+import CreateSchedule from "@/views/CreateSchedule.vue";
 const { cookies } = useCookies();
 
 const routes = [
@@ -52,6 +53,16 @@ const routes = [
     path: "/requirements/register",
     name: "RegisterRequirement",
     component: RegisterRequirement,
+  },
+  {
+    path: "/schedules/details/:scheduleId",
+    name: "SchedulesDetails",
+    component: MaterialSchedule,
+  },
+  {
+    path: "/schedules/:projectId/create",
+    name: "CreateSchedule",
+    component: CreateSchedule,
   }
 ];
 
