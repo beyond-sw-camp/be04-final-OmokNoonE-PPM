@@ -15,7 +15,7 @@ switching from our pages to the real website is very easy to be done.
 
 View [all components here](https://www.creative-tim.com/learning-lab/vue/alerts/material-dashboard/).
 
-**Documentation built by Developers**
+**Documentation built by Developers**dd
 
 Each element is well presented in very complex documentation.
 
