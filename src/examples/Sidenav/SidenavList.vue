@@ -35,7 +35,7 @@
           url="#"
           :aria-controls="''"
           v-bind:collapse="false"
-          collapseRef="billing"
+          collapseRef="shcedules"
           navText="일정"
         >
           <template v-slot:icon>
@@ -76,19 +76,6 @@
         >
           ACCOUNT PAGES
         </h6>
-      </li>
-      <li class="nav-item">
-        <sidenav-collapse
-          url="#"
-          :aria-controls="''"
-          v-bind:collapse="false"
-          collapseRef="profile"
-          navText="Profile"
-        >
-          <template v-slot:icon>
-            <i class="material-icons-round opacity-10 fs-5">person</i>
-          </template>
-        </sidenav-collapse>
       </li>
 
       <!-- 로그인 상태에 따라 Sign-In과 Logout이 보인다. -->
