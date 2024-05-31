@@ -1,10 +1,10 @@
 import { createStore } from "vuex";
-import notification  from "./notifications";
+import notifications  from "./notifications";
 import login from "@/store/login";
 
 export default createStore({
   modules: {
-    notification,
+    notifications,
     login,
   },
   state: {
