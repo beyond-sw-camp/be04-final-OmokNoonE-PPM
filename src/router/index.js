@@ -62,12 +62,12 @@ const routes = [
     component: SignUp,
   },
   {
-    path: "/requirements/list",
+    path: "/requirements",
     name: "Requirements",
     component: Requirements,
   },
   {
-    path: "/requirements/create",
+    path: "/requirements/register",
     name: "RegisterRequirement",
     component: RegisterRequirement,
   }
