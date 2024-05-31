@@ -4,12 +4,22 @@
       <Handsontable v-if="!editMode" :settings="hotSettings"></Handsontable>
       <!--      <Handsontable v-if="editMode" :settings="editableHotSettings"></Handsontable>-->
       <div class="edit-button-container">
-<!--        <button class="create-button" @click="goToCreateSchedulePage({{ store.getters['project/getProjectId'] }})">등록-->
+        <!--        <button class="create-button" @click="goToCreateSchedulePage({{ store.getters['project/getProjectId'] }})">등록-->
         <button class="create-button" @click="goToCreateSchedulePage(1)">등록
         </button>
         <!--      일괄 편집 기능 추후 개발 예정-->
         <!--        <button class="edit-button" @click="toggleEditMode">{{ editMode ? '수정 완료' : '수정' }}</button>-->
         <!--        <button @click="checkCopySchedules">CopySchedules 값 확인</button>-->
+      </div>
+    </div>
+    <div class="delete-reason" v-if="showDeleteModal">
+      <div class="delete-reason-content">
+        <h5>삭제 사유</h5>
+        <textarea v-model="deleteReason" placeholder="삭제 사유를 입력하세요." rows="4"></textarea>
+        <div class="delete-reason-actions">
+        <MaterialButton @click="confirmDelete">확인</MaterialButton>
+        <MaterialButton @click="cancelDelete">취소</MaterialButton>
+        </div>
       </div>
     </div>
     <MaterialSchedule :isOpen="modalOpen" :modalUrl="modalUrl" @close="modalOpen = false"></MaterialSchedule>
@@ -20,6 +30,7 @@
     <!--        @select="updateStakeholder"-->
     <!--    ></StakeholderModal>-->
   </div>
+
 </template>
 
 <script>
@@ -31,11 +42,13 @@ import 'handsontable/dist/handsontable.full.css';
 import {format} from 'date-fns';
 import {defaultInstance} from "@/axios/axios-instance";
 import router from "@/router";
+import MaterialButton from "@/components/MaterialButton.vue";
 // import store from "@/store/index.js";
 
 export default defineComponent({
   name: 'ScheduleSheet',
   components: {
+    MaterialButton,
     Handsontable: HandsontableComponent,
     MaterialSchedule,
     // StakeholderModal
@@ -51,7 +64,7 @@ export default defineComponent({
     onMounted(async () => {
       try {
         // const employeeId = store.getters['auth/getEmployeeId'];  // 로그인한 사용자의 ID, 향후 이 코드로 바꿔야함.
-        const employeeId = "EP003"
+        const employeeId = "EP001"
         // const projectId = store.getters['project/getProjectId'];
         const projectId = 1;
         const response = await defaultInstance.get(`schedules/sheet/${projectId}`, {
@@ -168,7 +181,7 @@ export default defineComponent({
             const button = document.createElement('button');
             button.innerText = 'X';
             button.style.cssText = 'background-color: #e72222; color: white; border: none; padding: 8px 22px; cursor: pointer;';
-            button.addEventListener('click', () => confirmDelete(value));
+            button.addEventListener('click', () => openDeleteModal(value));
             td.innerHTML = '';
             td.appendChild(button);
             return td;
@@ -203,6 +216,10 @@ export default defineComponent({
     const editMode = ref(false);
     const stakeholderModalOpen = ref(false);
     const selectedStakeholders = ref([]);
+    const showDeleteModal = ref(false);
+    const deleteReason = ref('');
+    const deleteId = ref(0);
+
 
     const openModal = (url) => {
       modalUrl.value = url;
@@ -274,9 +291,9 @@ export default defineComponent({
       editMode.value = !editMode.value;
     };
 
-    const deleteSchedule = async (id) => {
+    const deleteSchedule = async (id, reason) => {
       try {
-        await defaultInstance.delete(`schedules/remove/${id}`);
+        await defaultInstance.delete(`schedules/remove/${id}`, {data: {reason}});
         /* RequestBody 작성해야함. */
         console.log(id, '삭제 요청됨');
         location.reload();
@@ -285,15 +302,27 @@ export default defineComponent({
       }
     }
 
-    const confirmDelete = (deleteId) => {
-      if (copySchedules.value.length > 0) {
-        if (confirm('정말로 삭제하시겠습니까?')) {
-          deleteSchedule(deleteId);
-        }
+    const confirmDelete = () => {
+      if (deleteReason.value) {
+        deleteSchedule(deleteId.value, deleteReason.value);
+        showDeleteModal.value = false;
+        deleteReason.value = '';
+      } else {
+        alert('삭제 사유를 입력해주세요.');
       }
     };
+    const cancelDelete = () => {
+      showDeleteModal.value = false;
+      deleteReason.value = '';
+    };
+    const openDeleteModal = (id) => {
+      deleteId.value = id;
+      console.log('deleteId : ', deleteId.value);
+      showDeleteModal.value = true;
+      console.log('showDeleteModal : ', showDeleteModal);
+    };
 
-    const goToCreateSchedulePage = (projectId) =>{
+    const goToCreateSchedulePage = (projectId) => {
       // router를 활용하여 페이지 이동
       router.push({name: 'CreateSchedule', params: {projectId: projectId}});
     }
@@ -333,13 +362,63 @@ export default defineComponent({
       deleteSchedule,
       confirmDelete,
       goToCreateSchedulePage,
+      showDeleteModal,
+      deleteReason,
+      deleteId,
+      cancelDelete,
+      openDeleteModal,
     };
   },
 });
 
 </script>
 
-<style lang="scss">
+<style lang="scss">+
+.delete-reason {
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  height: 100%;
+  justify-content: center;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  z-index: 20000;
+}
+
+
+.delete-reason-content {
+  background-color: #fefefe;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  width: 30%;
+  height: fit-content;
+  left: 50%;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 20px;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 21000;
+}
+
+.delete-reason-content textarea{
+  width: 300px;
+  padding : 10px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+}
+
+
+.delete-reason-actions {
+  bottom: 10px;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+  right: 10px;
+}
+
 table.htCore {
   tr.odd td {
     background: #FAFBFF;

@@ -11,14 +11,14 @@
                   <h6 style="color: white !important;">일정 등록</h6>
                 </div>
               </div>
-              <div class="modal-actions">
-                <MaterialButton color="info" size="md" variant="fill" style="margin-right: 1em;"
-                                @click="changeTab('details')">세부사항
-                </MaterialButton>
-                <MaterialButton color="info" size="md" variant="fill" style="margin-right: 1em;"
-                                @click="changeTab('requirement')">요구사항
-                </MaterialButton>
-              </div>
+<!--              <div class="modal-actions">-->
+<!--                <MaterialButton color="info" size="md" variant="fill" style="margin-right: 1em;"-->
+<!--                                @click="changeTab('details')">세부사항-->
+<!--                </MaterialButton>-->
+<!--                <MaterialButton color="info" size="md" variant="fill" style="margin-right: 1em;"-->
+<!--                                @click="changeTab('requirement')">요구사항-->
+<!--                </MaterialButton>-->
+<!--              </div>-->
             </div>
           </div>
           <div class="card-body px-0 pb-2">
@@ -80,45 +80,45 @@
               </div>
 
               <!--   이해관계자      -->
-              <h5>&nbsp; 이해관계자</h5>
-              <hr class="modal-divider">
-              <!--   PM, PL   -->
-              <div class="modal-info">
-                <div class="modal-info-item">
-                  <span class="modal-info-label">PM</span>
-                  <template v-for="(stakeholder, index) in stakeholders" :key="index">
-                    <span v-if="stakeholder.roleName === 10601"
-                          class="modal-info-value">{{ stakeholder.name }}({{ stakeholder.employeeId }})</span>
-                  </template>
-                </div>
-                <div class="modal-info-item">
-                  <span class="modal-info-label">PL</span>
-                  <template v-for="(stakeholder, index) in stakeholders" :key="index">
-                    <span v-if="stakeholder.roleName === 10602"
-                          class="modal-info-value">{{ stakeholder.name }}({{ stakeholder.id }})</span>
-                  </template>
-                </div>
-              </div>
-              <!--   담당자   -->
-              <div class="modal-info">
-                <div class="modal-info-item">
-                  <p class="modal-info-label">담당자</p>
-                  <div class="modal-info-value">
-                    <p class="modal-responsible">
-                      <template v-for="(stakeholder, index) in stakeholders" :key="index">
-                      <span v-if="stakeholder.type === 10402"
-                            class="modal-info-value">
-                        {{ stakeholder.name }} ({{ stakeholder.employeeId }})
-                        <span v-if="index !== stakeholders.length - 1">,</span>
-                      </span>
-                      </template>
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div class="modal-actions">
-                <MaterialButton class="custom-button" @click="editStakeholders">수정</MaterialButton>
-              </div>
+              <!--              <h5>&nbsp; 이해관계자</h5>-->
+              <!--              <hr class="modal-divider">-->
+              <!--              &lt;!&ndash;   PM, PL   &ndash;&gt;-->
+              <!--              <div class="modal-info">-->
+              <!--                <div class="modal-info-item">-->
+              <!--                  <span class="modal-info-label">PM</span>-->
+              <!--                  <template v-for="(stakeholder, index) in stakeholders" :key="index">-->
+              <!--                    <span v-if="stakeholder.roleName === 10601"-->
+              <!--                          class="modal-info-value">{{ stakeholder.name }}({{ stakeholder.employeeId }})</span>-->
+              <!--                  </template>-->
+              <!--                </div>-->
+              <!--                <div class="modal-info-item">-->
+              <!--                  <span class="modal-info-label">PL</span>-->
+              <!--                  <template v-for="(stakeholder, index) in stakeholders" :key="index">-->
+              <!--                    <span v-if="stakeholder.roleName === 10602"-->
+              <!--                          class="modal-info-value">{{ stakeholder.name }}({{ stakeholder.id }})</span>-->
+              <!--                  </template>-->
+              <!--                </div>-->
+              <!--              </div>-->
+              <!--              &lt;!&ndash;   담당자   &ndash;&gt;-->
+              <!--              <div class="modal-info">-->
+              <!--                <div class="modal-info-item">-->
+              <!--                  <p class="modal-info-label">담당자</p>-->
+              <!--                  <div class="modal-info-value">-->
+              <!--                    <p class="modal-responsible">-->
+              <!--                      <template v-for="(stakeholder, index) in stakeholders" :key="index">-->
+              <!--                      <span v-if="stakeholder.type === 10402"-->
+              <!--                            class="modal-info-value">-->
+              <!--                        {{ stakeholder.name }} ({{ stakeholder.employeeId }})-->
+              <!--                        <span v-if="index !== stakeholders.length - 1">,</span>-->
+              <!--                      </span>-->
+              <!--                      </template>-->
+              <!--                    </p>-->
+              <!--                  </div>-->
+              <!--                </div>-->
+              <!--              </div>-->
+              <!--              <div class="modal-actions">-->
+              <!--                <MaterialButton class="custom-button" @click="editStakeholders">수정</MaterialButton>-->
+              <!--              </div>-->
 
               <!--   일정 내용   -->
               <div class="modal-info-item">
@@ -133,158 +133,158 @@
               </div>
 
               <!--  업무 목록   -->
-              <h5>&nbsp; 업무 목록</h5>
-              <hr class="modal-divider">
-              <div class="modal-tasks-container">
-                <table class="modal-sheet">
-                  <thead>
-                  <tr>
-                    <th style="width: 80%">업무 제목</th>
-                    <th style="width: 100px">수행 여부</th>
-                  </tr>
-                  </thead>
-                  <tbody>
-                  <tr v-for="(task, index) in tasks" :key="task.id">
-                    <td v-if="tasks.length > 0" class="task-title">
-                      <div style="width: 80%">
-                        {{ task.title }}
-                      </div>
-                    </td>
-                    <td v-if="tasks.length > 0" class="task-isCompleted">
-                      <div style="width: 100px">
-                        <input style="width: 13px" type="checkbox" disabled="true" v-model="task.isCompleted">
-                        <label style="width: 42px">{{ task.isCompleted ? '완료' : '미완료' }}</label>
-                      </div>
-                    </td>
-                    <td v-if="tasks.length > 0">
-                      <MaterialButton style="width: 60px" class="delete-button" @click="deleteTask(index)">삭제
-                      </MaterialButton>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td class="task-title" style="width: 80%">
-                      <MaterialInput type="text" label="새 업무명을 입력하세요." v-model="newTaskTitle"></MaterialInput>
-                    </td>
-                    <td class="task-isCompleted">
-                      <div style="width: 100px">
-                        <input style="width: 13px" type="checkbox" disabled="true">
-                        <label style="width: 42px">미완료</label>
-                      </div>
-                    </td>
-                    <td>
-                      <MaterialButton class="custom-button" style="width: 60px" @click="addTask">추가</MaterialButton>
-                    </td>
-                  </tr>
-                  </tbody>
-                </table>
-              </div>
+              <!--              <h5>&nbsp; 업무 목록</h5>-->
+              <!--              <hr class="modal-divider">-->
+              <!--              <div class="modal-tasks-container">-->
+              <!--                <table class="modal-sheet">-->
+              <!--                  <thead>-->
+              <!--                  <tr>-->
+              <!--                    <th style="width: 80%">업무 제목</th>-->
+              <!--                    <th style="width: 100px">수행 여부</th>-->
+              <!--                  </tr>-->
+              <!--                  </thead>-->
+              <!--                  <tbody>-->
+              <!--                  <tr v-for="(task, index) in tasks" :key="task.id">-->
+              <!--                    <td v-if="tasks.length > 0" class="task-title">-->
+              <!--                      <div style="width: 80%">-->
+              <!--                        {{ task.title }}-->
+              <!--                      </div>-->
+              <!--                    </td>-->
+              <!--                    <td v-if="tasks.length > 0" class="task-isCompleted">-->
+              <!--                      <div style="width: 100px">-->
+              <!--                        <input style="width: 13px" type="checkbox" disabled="true" v-model="task.isCompleted">-->
+              <!--                        <label style="width: 42px">{{ task.isCompleted ? '완료' : '미완료' }}</label>-->
+              <!--                      </div>-->
+              <!--                    </td>-->
+              <!--                    <td v-if="tasks.length > 0">-->
+              <!--                      <MaterialButton style="width: 60px" class="delete-button" @click="deleteTask(index)">삭제-->
+              <!--                      </MaterialButton>-->
+              <!--                    </td>-->
+              <!--                  </tr>-->
+              <!--                  <tr>-->
+              <!--                    <td class="task-title" style="width: 80%">-->
+              <!--                      <MaterialInput type="text" label="새 업무명을 입력하세요." v-model="newTaskTitle"></MaterialInput>-->
+              <!--                    </td>-->
+              <!--                    <td class="task-isCompleted">-->
+              <!--                      <div style="width: 100px">-->
+              <!--                        <input style="width: 13px" type="checkbox" disabled="true">-->
+              <!--                        <label style="width: 42px">미완료</label>-->
+              <!--                      </div>-->
+              <!--                    </td>-->
+              <!--                    <td>-->
+              <!--                      <MaterialButton class="custom-button" style="width: 60px" @click="addTask">추가</MaterialButton>-->
+              <!--                    </td>-->
+              <!--                  </tr>-->
+              <!--                  </tbody>-->
+              <!--                </table>-->
+              <!--              </div>-->
 
 
             </div>
 
             <!--  요구사항 검색 및 선택 탭      -->
-            <div v-show="currentTab === 'requirement'">
-              <!-- 선택된 요구사항   -->
-              <h5>&nbsp;선택된 요구사항 </h5>
-              <hr class="modal-divider">
-              <div class="modal-tasks-container">
-                <table class="modal-sheet">
-                  <thead>
-                  <tr>
-                    <th style="width: 30%">요구사항명</th>
-                    <th style="width: 50%">내용</th>
-                    <th>
-                      <div style="width: 60px">
-                        자세히
-                      </div>
-                    </th>
-                  </tr>
-                  </thead>
-                  <tbody>
-                  <tr v-for="(requirement, index) in requirements" :key="index">
-                    <td style="width: 50%">{{ requirement.requirementName }}</td>
-                    <td style="width: 50%">{{ requirement.requirementContent.slice(0, 30) }}...</td>
-                    <td>
-                      <MaterialButton class="custom-button" style="width: 60px"
-                                      @click="viewRequirement(requirement.requirementId)">link
-                      </MaterialButton>
-                    </td>
-                    <td>
-                      <MaterialButton class="delete-button" style="width: 60px"
-                                      @click="deleteRequirement(requirements, index)">삭제
-                      </MaterialButton>
-                    </td>
-                  </tr>
-                  </tbody>
-                </table>
-              </div>
+            <!--            <div v-show="currentTab === 'requirement'">-->
+            <!--              &lt;!&ndash; 선택된 요구사항   &ndash;&gt;-->
+            <!--              <h5>&nbsp;선택된 요구사항 </h5>-->
+            <!--              <hr class="modal-divider">-->
+            <!--              <div class="modal-tasks-container">-->
+            <!--                <table class="modal-sheet">-->
+            <!--                  <thead>-->
+            <!--                  <tr>-->
+            <!--                    <th style="width: 30%">요구사항명</th>-->
+            <!--                    <th style="width: 50%">내용</th>-->
+            <!--                    <th>-->
+            <!--                      <div style="width: 60px">-->
+            <!--                        자세히-->
+            <!--                      </div>-->
+            <!--                    </th>-->
+            <!--                  </tr>-->
+            <!--                  </thead>-->
+            <!--                  <tbody>-->
+            <!--                  <tr v-for="(requirement, index) in requirements" :key="index">-->
+            <!--                    <td style="width: 50%">{{ requirement.requirementName }}</td>-->
+            <!--                    <td style="width: 50%">{{ requirement.requirementContent.slice(0, 30) }}...</td>-->
+            <!--                    <td>-->
+            <!--                      <MaterialButton class="custom-button" style="width: 60px"-->
+            <!--                                      @click="viewRequirement(requirement.requirementId)">link-->
+            <!--                      </MaterialButton>-->
+            <!--                    </td>-->
+            <!--                    <td>-->
+            <!--                      <MaterialButton class="delete-button" style="width: 60px"-->
+            <!--                                      @click="deleteRequirement(requirements, index)">삭제-->
+            <!--                      </MaterialButton>-->
+            <!--                    </td>-->
+            <!--                  </tr>-->
+            <!--                  </tbody>-->
+            <!--                </table>-->
+            <!--              </div>-->
 
-              <h5>요구사항 검색</h5>
-              <div style="display: flex; align-items: flex-start;">
-                <MaterialInput label="요구사항명을 입력하세요." type="text" v-model="requirementSearchValue"
-                               @keyup.enter="searchRequirement"/>
-                <MaterialButton class="custom-button" style="margin: 1em;" @click="searchRequirement">검색
-                </MaterialButton>
-              </div>
-              <hr class="modal-divider">
-              <table class="modal-sheet">
-                <thead>
-                <tr>
-                  <th style="width: 30%">요구사항명</th>
-                  <th style="width: 50%">내용</th>
-                  <th>
-                    <div style="
-                    width: 60px">
-                      자세히
-                    </div>
-                  </th>
-                  <th>
-                    <div style="width: 60px">
-                      추가
-                    </div>
-                  </th>
-                </tr>
-                </thead>
-                <tbody v-if="isRequirementSearchModal">
-                <tr v-for="(requirement, index) in searchRequirements" :key="index">
-                  <td style="width: 30%">{{ requirement.requirementName }}</td>
-                  <td style="width: 50%">{{ requirement.requirementContent.slice(0, 30) }}...</td>
-                  <td>
-                    <MaterialButton class="custom-button" style="width: 60px"
-                                    @click="viewRequirement(requirement.requirementId)">link
-                    </MaterialButton>
-                  </td>
-                  <td>
-                    <MaterialButton class="custom-button" style="width: 60px"
-                                    @click="selectRequirement(requirement)">추가
-                    </MaterialButton>
-                  </td>
-                </tr>
-                </tbody>
-                <tbody v-else>
-                <tr v-for="(requirement, index) in requirementList" :key="index">
-                  <td style="width: 50%">{{ requirement.requirementName }}</td>
-                  <td style="width: 50%">{{ requirement.requirementContent.slice(0, 30) }}...</td>
-                  <td>
-                    <MaterialButton class="custom-button" style="width: 60px"
-                                    @click="viewRequirement(requirement.requirementId)">link
-                    </MaterialButton>
-                  </td>
-                  <td>
-                    <MaterialButton class="custom-button" style="width: 60px"
-                                    @click="selectRequirement(requirement)">추가
-                    </MaterialButton>
-                  </td>
-                </tr>
-                </tbody>
-              </table>
-              <!-- 페이징 처리 -->
-              <div>
-                <button @click="previousPage">Previous</button>
-                <span>Page {{ page }} of {{ totalPages }}</span>
-                <button @click="nextPage">Next</button>
-              </div>
-            </div>
+            <!--              <h5>요구사항 검색</h5>-->
+            <!--              <div style="display: flex; align-items: flex-start;">-->
+            <!--                <MaterialInput label="요구사항명을 입력하세요." type="text" v-model="requirementSearchValue"-->
+            <!--                               @keyup.enter="searchRequirement"/>-->
+            <!--                <MaterialButton class="custom-button" style="margin: 1em;" @click="searchRequirement">검색-->
+            <!--                </MaterialButton>-->
+            <!--              </div>-->
+            <!--              <hr class="modal-divider">-->
+            <!--              <table class="modal-sheet">-->
+            <!--                <thead>-->
+            <!--                <tr>-->
+            <!--                  <th style="width: 30%">요구사항명</th>-->
+            <!--                  <th style="width: 50%">내용</th>-->
+            <!--                  <th>-->
+            <!--                    <div style="-->
+            <!--                    width: 60px">-->
+            <!--                      자세히-->
+            <!--                    </div>-->
+            <!--                  </th>-->
+            <!--                  <th>-->
+            <!--                    <div style="width: 60px">-->
+            <!--                      추가-->
+            <!--                    </div>-->
+            <!--                  </th>-->
+            <!--                </tr>-->
+            <!--                </thead>-->
+            <!--                <tbody v-if="isRequirementSearchModal">-->
+            <!--                <tr v-for="(requirement, index) in searchRequirements" :key="index">-->
+            <!--                  <td style="width: 30%">{{ requirement.requirementName }}</td>-->
+            <!--                  <td style="width: 50%">{{ requirement.requirementContent.slice(0, 30) }}...</td>-->
+            <!--                  <td>-->
+            <!--                    <MaterialButton class="custom-button" style="width: 60px"-->
+            <!--                                    @click="viewRequirement(requirement.requirementId)">link-->
+            <!--                    </MaterialButton>-->
+            <!--                  </td>-->
+            <!--                  <td>-->
+            <!--                    <MaterialButton class="custom-button" style="width: 60px"-->
+            <!--                                    @click="selectRequirement(requirement)">추가-->
+            <!--                    </MaterialButton>-->
+            <!--                  </td>-->
+            <!--                </tr>-->
+            <!--                </tbody>-->
+            <!--                <tbody v-else>-->
+            <!--                <tr v-for="(requirement, index) in requirementList" :key="index">-->
+            <!--                  <td style="width: 50%">{{ requirement.requirementName }}</td>-->
+            <!--                  <td style="width: 50%">{{ requirement.requirementContent.slice(0, 30) }}...</td>-->
+            <!--                  <td>-->
+            <!--                    <MaterialButton class="custom-button" style="width: 60px"-->
+            <!--                                    @click="viewRequirement(requirement.requirementId)">link-->
+            <!--                    </MaterialButton>-->
+            <!--                  </td>-->
+            <!--                  <td>-->
+            <!--                    <MaterialButton class="custom-button" style="width: 60px"-->
+            <!--                                    @click="selectRequirement(requirement)">추가-->
+            <!--                    </MaterialButton>-->
+            <!--                  </td>-->
+            <!--                </tr>-->
+            <!--                </tbody>-->
+            <!--              </table>-->
+            <!--              &lt;!&ndash; 페이징 처리 &ndash;&gt;-->
+            <!--              <div>-->
+            <!--                <button @click="previousPage">Previous</button>-->
+            <!--                <span>Page {{ page }} of {{ totalPages }}</span>-->
+            <!--                <button @click="nextPage">Next</button>-->
+            <!--              </div>-->
+            <!--            </div>-->
 
             <hr class="modal-divider">
             <div class="modal-actions">
@@ -298,68 +298,68 @@
         </div>
 
         <!--  부모, 선행 일정 검색 모달  -->
-        <div v-if="isSearchModal">
-          <!-- 검색 모달 창 -->
-          <div id="searchScheduleModal" class="modal fade show" style="display: block;" tabindex="-1" role="dialog">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title">일정 검색</h5>
+                <div v-if="isSearchModal">
+                  <!-- 검색 모달 창 -->
+                  <div id="searchScheduleModal" class="modal fade show" style="display: block;" tabindex="-1" role="dialog">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title">일정 검색</h5>
+                        </div>
+                        <div class="modal-body">
+                          <MaterialInput
+                              label="일정 제목을 입력하세요."
+                              v-model="searchScheduleTitleValue"
+                          >
+                          </MaterialInput>
+                          <MaterialButton @click="searchSchedule">검색</MaterialButton>
+                        </div>
+                        <table>
+                          <thead>
+                          <tr>
+                            <th>ID</th>
+                            <th>제목</th>
+                            <th>내용</th>
+                          </tr>
+                          </thead>
+                          <tbody>
+                          <tr v-for="(schedule, id) in searchSchedules" :key="id">
+                            <td>{{ schedule.id }}</td>
+                            <td>{{ schedule.title }}</td>
+                            <td>{{ schedule.content }}</td>
+                            <td>
+                              <material-button variant="fill" color="info" @click="selectSchedule(schedule)">선택
+                              </material-button>
+                            </td>
+                          </tr>
+                          </tbody>
+                        </table>
+                        <div class="modal-footer">
+                          <material-button variant="fill" color="info" @click="closeSearchModal">닫기</material-button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div class="modal-body">
-                  <MaterialInput
-                      label="일정 제목을 입력하세요."
-                      v-model="searchScheduleTitleValue"
-                  >
-                  </MaterialInput>
-                  <MaterialButton @click="searchSchedule">검색</MaterialButton>
-                </div>
-                <table>
-                  <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>제목</th>
-                    <th>내용</th>
-                  </tr>
-                  </thead>
-                  <tbody>
-                  <tr v-for="(schedule, id) in searchSchedules" :key="id">
-                    <td>{{ schedule.id }}</td>
-                    <td>{{ schedule.title }}</td>
-                    <td>{{ schedule.content }}</td>
-                    <td>
-                      <material-button variant="fill" color="info" @click="selectSchedule(schedule)">선택
-                      </material-button>
-                    </td>
-                  </tr>
-                  </tbody>
-                </table>
-                <div class="modal-footer">
-                  <material-button variant="fill" color="info" @click="closeSearchModal">닫기</material-button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
-    <AddProjectMemberToScheduleModal
-        v-if="isEditProjectMemberVisible"
-        @close="isEditProjectMemberVisible = false" @add-members="addStakeholders">
-    </AddProjectMemberToScheduleModal>
+    <!--    <AddProjectMemberToScheduleModal-->
+    <!--        v-if="isEditProjectMemberVisible"-->
+    <!--        @close="isEditProjectMemberVisible = false" @add-members="addStakeholders">-->
+    <!--    </AddProjectMemberToScheduleModal>-->
   </div>
 </template>
 
 <script>
 import MaterialButton from "@/components/MaterialButton.vue";
 import MaterialInput from "@/components/MaterialInput.vue";
-import AddProjectMemberToScheduleModal from "@/views/components/AddProjectMemberToScheduleModal.vue";
+// import AddProjectMemberToScheduleModal from "@/views/components/AddProjectMemberToScheduleModal.vue";
 import {defaultInstance} from "@/axios/axios-instance";
 import router from "@/router";
 
 export default {
   components: {
-    AddProjectMemberToScheduleModal,
+    // AddProjectMemberToScheduleModal,
     MaterialButton,
     MaterialInput,
   },
@@ -442,9 +442,9 @@ export default {
   methods: {
     changeTab(tabName) {
       this.currentTab = tabName;
-      if (tabName === 'requirement') {
-        this.getRequirements();
-      }
+      // if (tabName === 'requirement') {
+      //   this.getRequirements();
+      // }
     },
     calculateTotalDays(startDate, endDate) {
       const start = new Date(startDate);
@@ -453,191 +453,191 @@ export default {
       const dayDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
       return dayDiff >= 0 ? dayDiff : '유효하지 않은 날짜';
     },
-    addTask() {
-      if (this.newTaskTitle.trim() !== '') {
-        this.tasks.push({title: this.newTaskTitle, isCompleted: false});
-        this.newTaskTitle = '';
-      }
-    },
-    deleteTask(index) {
-      this.tasks.splice(index, 1);
-    },
-    async saveTask() {
-      // 업무 저장 로직 구현
-      try {
-        /* 복수의 업무 저장 메소드 제작해야함 */
-        const requestBody = this.tasks.map(task => ({
-          taskTitle: task.title,
-          taskScheduleId: this.scheduleId,
-        }));
-        const response = await defaultInstance.post('/tasks/creates', {
-          taskList: requestBody,
-        });
+    // addTask() {
+    //   if (this.newTaskTitle.trim() !== '') {
+    //     this.tasks.push({title: this.newTaskTitle, isCompleted: false});
+    //     this.newTaskTitle = '';
+    //   }
+    // },
+    // deleteTask(index) {
+    //   this.tasks.splice(index, 1);
+    // },
+    // async saveTask() {
+    //   // 업무 저장 로직 구현
+    //   try {
+    //     /* 복수의 업무 저장 메소드 제작해야함 */
+    //     const requestBody = this.tasks.map(task => ({
+    //       taskTitle: task.title,
+    //       taskScheduleId: this.scheduleId,
+    //     }));
+    //     const response = await defaultInstance.post('/tasks/creates', {
+    //       taskList: requestBody,
+    //     });
+    //
+    //     if (!response.ok) {
+    //       throw new Error(`HTTP error! status: ${response.status}`);
+    //     }
+    //
+    //     /* 새로 저장한 스케쥴 아이디 리스트를 출력하는 메소드(확인용) */
+    //
+    //     return response.ok;
+    //   } catch (error) {
+    //     console.error('error :', error);
+    //   }
+    // },
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
+    // viewRequirement(requirementId) {
+    //   // 요구사항 자세히 보기 로직 구현
+    //   console.log('requirementId :', requirementId);
+    // },
+    // deleteRequirement(requirements, index) {
+    //   requirements.splice(index, 1);
+    // },
+    // async getRequirements() {
+    //   // 요구사항 목록 조회 로직 구현
+    //   try {
+    //     const projectId = 1;
+    //     const response = await defaultInstance.get(`/requirements/list/${projectId}/${this.page}/${this.size}`);
+    //     const data = response.data.result.viewRequirementsByProjectIdByPage;
+    //     console.log(data);
+    //     this.requirementList = data.content.map(requirement => ({
+    //       requirementId: requirement.requirementsId,
+    //       requirementName: requirement.requirementsName,
+    //       requirementContent: requirement.requirementsContent,
+    //     }))
+    //     console.log('requirementList :', this.requirementList);
+    //
+    //   } catch (error) {
+    //     console.log(error);
+    //   }
+    // },
+    // async searchRequirement() {
+    //   // 요구사항 검색 로직 구현
+    //   try {
+    //     if (this.requirementSearchValue === '') {
+    //       this.isRequirementSearchModal = false;
+    //       return;
+    //     }
+    //     const projectId = 1;
+    //     console.log(`requirementSearchValue` + this.requirementSearchValue);
+    //     const response = await defaultInstance.get(`/requirements/search/${projectId}/${this.requirementSearchValue}`);
+    //     const data = response.data.result.searchRequirementsByName;
+    //     console.log(data);
+    //     this.searchRequirements = data.map(requirement => ({
+    //       requirementId: requirement.requirementsId,
+    //       requirementName: requirement.requirementsName,
+    //       requirementContent: requirement.requirementsContent,
+    //     }))
+    //     this.isRequirementSearchModal = true;
+    //   } catch (error) {
+    //     console.log(error);
+    //   }
+    // },
+    // selectRequirement(requirement) {
+    //   // 요구사항 선택 로직 구현
+    //   console.log('requirementId :', requirement.requirementId);
+    //   this.requirements.push({
+    //     requirementId: requirement.requirementId,
+    //     requirementName: requirement.requirementName,
+    //     requirementContent: requirement.requirementContent,
+    //   });
+    // },
+    // async saveRequirement() {
+    //   // 요구사항 저장 로직 구현
+    //   try {
+    //     const requestBody = this.requirements.map(requirement => ({
+    //       scheduleRequirementMapScheduleId: this.scheduleId,
+    //       scheduleRequirementMapRequirementId: requirement.requirementId,
+    //     }));
+    //     /* backend에서 복수개의 요구사항맵을 저장하는 메소드 구현해야함. */
+    //     const response = await defaultInstance.post('scheduleRequirementsMaps/creates', {
+    //       requirementList: requestBody,
+    //     });
+    //
+    //     if (!response.ok) {
+    //       throw new Error(`HTTP error! status: ${response.status}`);
+    //     }
+    //
+    //     /* 새로 저장한 일정요구사항맵 아이디 리스트를 출력하는 메소드(확인용) */
+    //
+    //     return response.ok;
+    //   } catch (error) {
+    //     console.error('error :', error);
+    //   }
+    // },
 
-        /* 새로 저장한 스케쥴 아이디 리스트를 출력하는 메소드(확인용) */
+    // editStakeholders() {
+    //   // 일정 이해관계자 수정 로직 구현
+    //   this.isEditProjectMemberVisible = true;
+    // },
+    // addStakeholders(selectedMembers) {
+    //   // 일정 이해관계자 추가 로직 구현
+    //   this.newStakeholders = selectedMembers;
+    //   console.log('newStakeholders : ', this.newStakeholders);
+    //   console.log('selectedMembers : ', selectedMembers);
+    //   this.newStakeholders.forEach(member => this.stakeholders.push(
+    //       {
+    //         employeeId: member.employeeId,
+    //         id: null,
+    //         name: member.name,
+    //         projectMemberId: member.projectMemberId,
+    //         roleName: member.roleName,
+    //         type: 10402 // TODO. PA와 PL 모두 담당자로 기록됨(?) 확인 필요
+    //       }
+    //   ));
+    //   /* TODO. stakeholders가 갱신된 후, 화면의 이해관계자 부분이 갱신된 데이터로 출력하게끔 구현해야함. */
+    //   console.log('stakeholders : ', this.stakeholders);
+    // },
+    // async saveStakeholders() {
+    //   // 이해관계자 저장 로직 구현
+    //   try {
+    //     const requestBody = this.stakeholders.map(stakeholder => ({
+    //       stakeholdersType: stakeholder.type,
+    //       stakeholdersScheduleId: this.scheduleId,
+    //       stakeholdersProjectMemberId: stakeholder.projectMemberId,
+    //     }));
+    //     /* backend에서 복수개의 이해관계자를 저장하는 메소드 구현해야함. */
+    //     const response = await defaultInstance.post('stakeholders/creates', {
+    //       stakeholdersList: requestBody,
+    //     });
+    //
+    //     if (!response.ok) {
+    //       throw new Error(`HTTP error! status: ${response.status}`);
+    //     }
+    //
+    //     /* 새로 저장한 이해관계자 아이디 리스트를 출력하는 메소드(확인용) */
+    //
+    //     return response.ok;
+    //   } catch (error) {
+    //     console.error('error :', error);
+    //   }
+    // },
+    // async savePermissions() {
+    //   // 권한 저장 로직 구현
+    //   try {
+    //     const requestBody = this.stakeholders.map(stakeholder => ({
+    //       permissionRoleName: stakeholder.roleName,
+    //       permissionProjectMemberId: stakeholder.projectMemberId,
+    //       permissionScheduleId: this.scheduleId,
+    //     }));
+    //     /* backend에서 복수개의 권한을 저장하는 메소드 구현해야함. */
+    //     const response = await defaultInstance.post('permissions/creates', {
+    //       permissionList: requestBody,
+    //     });
+    //
+    //     if (!response.ok) {
+    //       throw new Error(`HTTP error! status: ${response.status}`);
+    //     }
+    //
+    //     /* 새로 저장한 권한 아이디 리스트를 출력하는 메소드(확인용) */
+    //
+    //     return response.ok;
+    //   } catch (error) {
+    //     console.error('error :', error);
+    //   }
+    // },
 
-        return response.ok;
-      } catch (error) {
-        console.error('error :', error);
-      }
-    },
-
-    viewRequirement(requirementId) {
-      // 요구사항 자세히 보기 로직 구현
-      console.log('requirementId :', requirementId);
-    },
-    deleteRequirement(requirements, index) {
-      requirements.splice(index, 1);
-    },
-    async getRequirements() {
-      // 요구사항 목록 조회 로직 구현
-      try {
-        const projectId = 1;
-        const response = await defaultInstance.get(`/requirements/list/${projectId}/${this.page}/${this.size}`);
-        const data = response.data.result.viewRequirementsByProjectIdByPage;
-        console.log(data);
-        this.requirementList = data.content.map(requirement => ({
-          requirementId: requirement.requirementsId,
-          requirementName: requirement.requirementsName,
-          requirementContent: requirement.requirementsContent,
-        }))
-        console.log('requirementList :', this.requirementList);
-
-      } catch (error) {
-        console.log(error);
-      }
-    },
-    async searchRequirement() {
-      // 요구사항 검색 로직 구현
-      try {
-        if (this.requirementSearchValue === '') {
-          this.isRequirementSearchModal = false;
-          return;
-        }
-        const projectId = 1;
-        console.log(`requirementSearchValue` + this.requirementSearchValue);
-        const response = await defaultInstance.get(`/requirements/search/${projectId}/${this.requirementSearchValue}`);
-        const data = response.data.result.searchRequirementsByName;
-        console.log(data);
-        this.searchRequirements = data.map(requirement => ({
-          requirementId: requirement.requirementsId,
-          requirementName: requirement.requirementsName,
-          requirementContent: requirement.requirementsContent,
-        }))
-        this.isRequirementSearchModal = true;
-      } catch (error) {
-        console.log(error);
-      }
-    },
-    selectRequirement(requirement) {
-      // 요구사항 선택 로직 구현
-      console.log('requirementId :', requirement.requirementId);
-      this.requirements.push({
-        requirementId: requirement.requirementId,
-        requirementName: requirement.requirementName,
-        requirementContent: requirement.requirementContent,
-      });
-    },
-    async saveRequirement() {
-      // 요구사항 저장 로직 구현
-      try {
-        const requestBody = this.requirements.map(requirement => ({
-          scheduleRequirementMapScheduleId: this.scheduleId,
-          scheduleRequirementMapRequirementId: requirement.requirementId,
-        }));
-        /* backend에서 복수개의 요구사항맵을 저장하는 메소드 구현해야함. */
-        const response = await defaultInstance.post('scheduleRequirementsMaps/creates', {
-          requirementList: requestBody,
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        /* 새로 저장한 일정요구사항맵 아이디 리스트를 출력하는 메소드(확인용) */
-
-        return response.ok;
-      } catch (error) {
-        console.error('error :', error);
-      }
-    },
-
-    editStakeholders() {
-      // 일정 이해관계자 수정 로직 구현
-      this.isEditProjectMemberVisible = true;
-    },
-    addStakeholders(selectedMembers) {
-      // 일정 이해관계자 추가 로직 구현
-      this.newStakeholders = selectedMembers;
-      console.log('newStakeholders : ', this.newStakeholders);
-      console.log('selectedMembers : ', selectedMembers);
-      this.newStakeholders.forEach(member => this.stakeholders.push(
-          {
-            employeeId: member.employeeId,
-            id: null,
-            name: member.name,
-            projectMemberId: member.projectMemberId,
-            roleName: member.roleName,
-            type: 10402 // TODO. PA와 PL 모두 담당자로 기록됨(?) 확인 필요
-          }
-      ));
-      /* TODO. stakeholders가 갱신된 후, 화면의 이해관계자 부분이 갱신된 데이터로 출력하게끔 구현해야함. */
-      console.log('stakeholders : ', this.stakeholders);
-    },
-    async saveStakeholders() {
-      // 이해관계자 저장 로직 구현
-      try {
-        const requestBody = this.stakeholders.map(stakeholder => ({
-          stakeholdersType: stakeholder.type,
-          stakeholdersScheduleId: this.scheduleId,
-          stakeholdersProjectMemberId: stakeholder.projectMemberId,
-        }));
-        /* backend에서 복수개의 이해관계자를 저장하는 메소드 구현해야함. */
-        const response = await defaultInstance.post('stakeholders/creates', {
-          stakeholdersList: requestBody,
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        /* 새로 저장한 이해관계자 아이디 리스트를 출력하는 메소드(확인용) */
-
-        return response.ok;
-      } catch (error) {
-        console.error('error :', error);
-      }
-    },
-    async savePermissions() {
-      // 권한 저장 로직 구현
-      try {
-        const requestBody = this.stakeholders.map(stakeholder => ({
-          permissionRoleName: stakeholder.roleName,
-          permissionProjectMemberId: stakeholder.projectMemberId,
-          permissionScheduleId: this.scheduleId,
-        }));
-        /* backend에서 복수개의 권한을 저장하는 메소드 구현해야함. */
-        const response = await defaultInstance.post('permissions/creates', {
-          permissionList: requestBody,
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        /* 새로 저장한 권한 아이디 리스트를 출력하는 메소드(확인용) */
-
-        return response.ok;
-      } catch (error) {
-        console.error('error :', error);
-      }
-    },
-
-    async saveScheduleChanges() {
+    async saveSchedule() {
       // 업무 저장 로직 구현
       try {
         const response = await defaultInstance.post('schedules/create', {
@@ -645,21 +645,21 @@ export default {
           scheduleContent: this.schedule.content,
           scheduleStartDate: this.schedule.startDate,
           scheduleEndDate: this.schedule.endDate,
-          scheduleDepth: null, // Assuming this.schedule.depth exists
+          scheduleDepth: 1, // TODO. null로 보내고 backend에서 실제 depth를 계산하는 기능 구현 필요
           schedulePriority: this.schedule.priority,
           scheduleParentScheduleId: this.schedule.parentId,
           schedulePrecedingScheduleId: this.schedule.precedingId,
           scheduleProjectId: this.projectId // Assuming this.schedule.projectId exists
         });
 
-        if (!response.ok) {
+        if (!(response.status >= 200 && response.status < 300)) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
 
         this.scheduleId = response.data.result.viewSchedule.scheduleId;
         console.log('생성된 scheduleId :', this.scheduleId);
 
-        return response.ok;
+        return true;
       } catch (error) {
         console.error('error :', error);
       }
@@ -672,7 +672,7 @@ export default {
       console.log('requirements: ', this.requirements);
       // 유효성 검사 로직 구현
       if (this.schedule.title.trim() === '' || this.schedule.startDate === '' || this.schedule.endDate === ''
-          || this.schedule.content.trim() === '' || this.stakeholders.length === 0) {
+          || this.schedule.content.trim() === '') {
         this.showInfoMessage = true;
       } else {
         this.showInfoMessage = false;
@@ -681,29 +681,30 @@ export default {
     },
     async saveAll() {
       /* TODO. backend 코드 완성 시, if문 삭제 */
-      if (this.alwaysTrue) {
-        await alert('저장 메소드 구현 시, 이 코드를 삭제할 것.');
-        router.push({name: 'Billing'});
-      } else {
-        const scheduleSaveResult = await this.saveScheduleChanges();
-        const taskSaveResult = await this.saveTask();
-        const requirementSaveResult = await this.saveRequirement();
-        const stakeholdersSaveResult = await this.saveStakeholders();
-        const permissionsSaveResult = await this.savePermissions();
+      // const scheduleSaveResult =
+          await this.saveSchedule();
+      // const taskSaveResult = await this.saveTask();
+      // const requirementSaveResult = await this.saveRequirement();
+      // const stakeholdersSaveResult = await this.saveStakeholders();
+      // const permissionsSaveResult = await this.savePermissions();
 
-        const message =
-            '일정 등록에' + (scheduleSaveResult ? '성공했습니다.\n' : '실패했습니다.\n') +
-            '업무 등록에' + (taskSaveResult ? '성공했습니다.\n' : '실패했습니다.\n') +
-            '요구사항 등록에' + (requirementSaveResult ? '성공했습니다.\n' : '실패했습니다.\n') +
-            '이해관계자 등록에' + (stakeholdersSaveResult ? '성공했습니다.\n' : '실패했습니다.\n') +
-            '권한 등록에' + (permissionsSaveResult ? '성공했습니다.\n' : '실패했습니다.\n');
-
-        alert(message);
-        if (scheduleSaveResult && taskSaveResult && requirementSaveResult && stakeholdersSaveResult && permissionsSaveResult) {
-          /* TODO. 해당 Project의 ScheduleSheet 페이지로 이동하도록 구현 */
-          router.push({name: 'Billing'});
-        }
-      }
+      // const message =
+      //     '일정 등록에 ' + (scheduleSaveResult ? '성공했습니다.\n' : '실패했습니다.\n')
+      //     // + '업무 등록에' + (taskSaveResult ? '성공했습니다.\n' : '실패했습니다.\n')
+      //     // + '요구사항 등록에' + (requirementSaveResult ? '성공했습니다.\n' : '실패했습니다.\n')
+      //     // + '이해관계자 등록에' + (stakeholdersSaveResult ? '성공했습니다.\n' : '실패했습니다.\n')
+      //     // + '권한 등록에' + (permissionsSaveResult ? '성공했습니다.\n' : '실패했습니다.\n')
+      // ;
+      //
+      // alert(message);
+      // if (scheduleSaveResult
+      //     // && taskSaveResult
+      //     // && requirementSaveResult
+      //     // && stakeholdersSaveResult
+      //     // && permissionsSaveResult
+      // ) {
+        await router.push({name: 'Billing'});
+      // }
     },
     openSearchScheduleModal(type) {
       this.isSearchModal = true;
@@ -744,19 +745,19 @@ export default {
       this.searchScheduleTitleValue = '';
       this.searchSchedules = [];
     },
-    // 요구사항 페이징 처리
-    previousPage() {
-      if (this.page > 1) {
-        this.page--;
-        this.getRequirements();
-      }
-    },
-    nextPage() {
-      if (this.page < this.totalPages) {
-        this.page++;
-        this.getRequirements();
-      }
-    },
+    // // 요구사항 페이징 처리
+    // previousPage() {
+    //   if (this.page > 1) {
+    //     this.page--;
+    //     this.getRequirements();
+    //   }
+    // },
+    // nextPage() {
+    //   if (this.page < this.totalPages) {
+    //     this.page++;
+    //     this.getRequirements();
+    //   }
+    // },
   },
 };
 </script>

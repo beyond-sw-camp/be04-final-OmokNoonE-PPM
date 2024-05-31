@@ -485,7 +485,6 @@ import MaterialButton from "@/components/MaterialButton.vue";
 import {defaultInstance} from "@/axios/axios-instance";
 import MaterialInput from "@/components/MaterialInput.vue";
 import AddProjectMemberToScheduleModal from "@/views/components/AddProjectMemberToScheduleModal.vue";
-import router from "@/router";
 
 export default {
   components: {AddProjectMemberToScheduleModal, MaterialInput, MaterialButton},
@@ -945,37 +944,6 @@ export default {
           .catch(error => {
             console.error(error);
           });
-    },
-    async saveAll() {
-      /* TODO. backend 코드 완성 시, if문 삭제 */
-      if (this.alwaysTrue) {
-        await alert('저장 메소드 구현 시, 이 코드를 삭제할 것.');
-        router.push({name: 'Billing'});
-      } else {
-        const scheduleSaveResult = await this.saveSchedule();
-        const taskSaveResult = await this.saveTask();
-        const requirementSaveResult = await this.saveRequirement();
-        const stakeholdersSaveResult = await this.saveStakeholders();
-
-        const permissionsSaveResult = await this.savePermissions();
-
-        const message =
-            '일정 등록에' + (scheduleSaveResult ? '성공했습니다.\n' : '실패했습니다.\n') +
-            '업무 등록에' + (taskSaveResult ? '성공했습니다.\n' : '실패했습니다.\n') +
-            '요구사항 등록에' + (requirementSaveResult ? '성공했습니다.\n' : '실패했습니다.\n') +
-            '이해관계자 등록에' + (stakeholdersSaveResult ? '성공했습니다.\n' : '실패했습니다.\n') +
-            '권한 등록에' + (permissionsSaveResult ? '성공했습니다.\n' : '실패했습니다.\n');
-
-        alert(message);
-        if (scheduleSaveResult && taskSaveResult && requirementSaveResult && stakeholdersSaveResult && permissionsSaveResult) {
-          /* TODO. 해당 Project의 ScheduleSheet 페이지로 이동하도록 구현 */
-          router.push({name: 'Billing'});
-        }
-      }
-    },
-    async saveSchedule() {
-      /* TODO. try 구현해야함 */
-      return true;
     },
   },
 };
