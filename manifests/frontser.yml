@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ppm-front
+  namespace: default
+spec:
+  selector:
+    app: ppm-front
+  ports:
+    - protocol: TCP
+      port: 8887
+      targetPort: 8887
+  type: LoadBalancer
