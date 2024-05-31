@@ -6,8 +6,8 @@
         <span class="close" @click="closeModal">&times;</span>
 
         <!--  일정 제목    -->
-        <div v-if="isEditing">
-          <p class="importance">{{ isEditing ? '*' : '' }}</p>
+        <div v-if="isScheduleEditing">
+          <p class="importance">{{ isScheduleEditing ? '*' : '' }}</p>
           <input id="title" v-model="schedule.title"/>
         </div>
         <h2 v-else>
@@ -20,8 +20,10 @@
         <!--   탭     -->
         <div class="modal-actions">
           <button class="modal-action-button" @click="changeTab('details')">세부사항</button>
-          <button class="modal-action-button" @click="changeTab('history')">수정내역</button>
+          <button class="modal-action-button" @click="changeTab('task')">업무</button>
+          <button class="modal-action-button" @click="changeTab('stakeholders')">이해관계자</button>
           <button class="modal-action-button" @click="changeTab('requirement')">요구사항</button>
+          <button class="modal-action-button" @click="changeTab('history')">수정내역</button>
         </div>
 
         <!-- 가로선 -->
@@ -30,7 +32,7 @@
         <!-- 탭 내용 -->
         <div v-show="currentTab === 'details'">
           <!-- 생성 일시, 수정 일시 -->
-          <div v-show="!isEditing" class="modal-info">
+          <div v-show="!isScheduleEditing" class="modal-info">
             <div class="modal-info-item">
               <span class="modal-info-label">생성 일시:</span>
               <span class="modal-info-value">{{ schedule.createdDate }}</span>
@@ -44,23 +46,23 @@
           <!-- 시작일, 종료일, 공수 -->
           <div class="modal-info">
             <div class="modal-info-item">
-              <p class="importance">{{ isEditing ? '*' : '' }}</p>
+              <p class="importance">{{ isScheduleEditing ? '*' : '' }}</p>
               <span class="modal-info-label">시작일:</span>
-              <div v-if="isEditing">
-                <input id="startDate" type="date" v-model="schedule.startDate">
+              <div v-if="isScheduleEditing">
+                <MaterialInput id="startDate" type="date" v-model="schedule.startDate"></MaterialInput>
               </div>
               <span v-else class="modal-info-value">{{ schedule.startDate }}</span>
             </div>
             <div class="modal-info-item">
-              <p class="importance">{{ isEditing ? '*' : '' }}</p>
+              <p class="importance">{{ isScheduleEditing ? '*' : '' }}</p>
               <span class="modal-info-label">종료일:</span>
-              <div v-if="isEditing">
-                <input id="endDate" type="date" v-model="schedule.endDate">
+              <div v-if="isScheduleEditing">
+                <MaterialInput id="endDate" type="date" v-model="schedule.endDate"></MaterialInput>
               </div>
               <span v-else class="modal-info-value">{{ schedule.endDate }}</span>
             </div>
             <div class="modal-info-item">
-              <div v-if="isEditing">
+              <div v-if="isScheduleEditing">
                 <span class="modal-info-label">총 소요일:</span>
                 <span class="modal-info-value">{{ calculateTotalDays(schedule.startDate, schedule.endDate) }}</span>
               </div>
@@ -75,26 +77,26 @@
           <div class="modal-info">
             <div class="modal-info-item">
               <span class="modal-info-label">가중치:</span>
-              <div v-if="isEditing">
+              <div v-if="isScheduleEditing">
                 <MaterialInput id="weight" type="number" label="가중치를 입력하세요."
                                v-model="schedule.priority"></MaterialInput>
               </div>
               <span v-else class="modal-info-value">{{ schedule.priority }}</span>
             </div>
             <div class="modal-info-item">
-              <p class="importance">{{ isEditing ? '*' : '' }}</p>
+              <p class="importance">{{ isScheduleEditing ? '*' : '' }}</p>
               <span class="modal-info-label">진행률:</span>
               <!--   향후 조건문에 하위 업무가 없을 때를 추가해야함 -->
-              <div v-if="isEditing">
+              <div v-if="isScheduleEditing">
                 <MaterialInput id="progress" type="number" label="진행률을 입력하세요."
                                v-model="schedule.progress"></MaterialInput>
               </div>
               <span v-else class="modal-info-value">{{ schedule.progress }}%</span>
             </div>
             <div class="modal-info-item">
-              <p class="importance">{{ isEditing ? '*' : '' }}</p>
+              <p class="importance">{{ isScheduleEditing ? '*' : '' }}</p>
               <span class="modal-info-label">상태:</span>
-              <div v-if="isEditing">
+              <div v-if="isScheduleEditing">
                 <select id="status" v-model="schedule.status">
                   <option v-for="status in statusItems" :key="status" :value="status">
                     {{
@@ -118,75 +120,58 @@
             <div class="modal-info-item">
               <span class="modal-info-label">부모 일정:</span>
               <span class="modal-info-value">{{ schedule.parentTitle }}</span>
-              <div v-if="isEditing">
+              <div v-if="isScheduleEditing">
                 <MaterialButton @click="openSearchScheduleModal('parent')">검색</MaterialButton>
               </div>
             </div>
             <div class="modal-info-item">
               <span class="modal-info-label">선행 일정:</span>
               <span class="modal-info-value">{{ schedule.precedingTitle }}</span>
-              <div v-if="isEditing">
+              <div v-if="isScheduleEditing">
                 <MaterialButton @click="openSearchScheduleModal('preceding')">검색</MaterialButton>
               </div>
             </div>
           </div>
 
-          <!--  PM, PL 잘못된 view   -->
-          <div class="modal-info">
-            <div class="modal-info-item">
-              <span class="modal-info-label">PM:</span>
-              <template v-for="(stakeholder, index) in stakeholders" :key="index">
-                <span v-if="stakeholder.roleName === 10601" class="modal-info-value">
-                  {{ stakeholder.name }}({{ stakeholder.employeeId }})
-                </span>
-              </template>
-            </div>
-            <div class="modal-info-item">
-              <span class="modal-info-label">PL:</span>
-              <template v-for="(stakeholder, index) in stakeholders" :key="index">
-                <span v-if="stakeholder.roleName === 10602" class="modal-info-value">
-                  {{ stakeholder.name }}({{ stakeholder.employeeId }})
-                </span>
-              </template>
-            </div>
-          </div>
-
-          <!-- 담당자 -->
-          <div class="modal-info">
-            <div class="modal-info-item">
-              <p class="modal-info-label">담당자:</p>
-              <div class="modal-info-value">
-                <p class="modal-responsible">
-                  <template v-for="(stakeholder, index) in stakeholders" :key="index">
-                  <span v-if="stakeholder.type === 10402" class="modal-info-value">
-                      {{ stakeholder.name }} ({{ stakeholder.employeeId }})
-                      <span v-if="index !== stakeholder.length - 1">,</span>
-                    </span>
-                  </template>
-                </p>
-              </div>
-            </div>
-          </div>
-          <div v-if="isEditing" class="modal-actions">
-            <MaterialButton class="custom-button" @click="editStakeholders">수정</MaterialButton>
-          </div>
-
           <!-- 내용 -->
           <div class="modal-info-item">
-            <h5 v-if="isEditing" class="importance">*</h5>
+            <h5 v-if="isScheduleEditing" class="importance">*</h5>
             <h5>일정 내용</h5>
           </div>
           <hr class="modal-divider">
           <div class="modal-description-container">
             <div class="modal-description">
-              <textarea v-if="!isEditing" class="textarea-description" v-model="schedule.content"
-                        disabled="{{ !isEditing }}"
+              <textarea v-if="!isScheduleEditing" class="textarea-description" v-model="schedule.content"
+                        disabled="{{ !isScheduleEditing }}"
                         rows="8"></textarea>
-              <textarea v-if="isEditing" class="textarea-description" v-model="schedule.content"
+              <textarea v-if="isScheduleEditing" class="textarea-description" v-model="schedule.content"
                         rows="8"></textarea>
             </div>
           </div>
 
+          <!-- 수정 사유 -->
+          <div class="modal-info" v-if="isScheduleEditing">
+            <div class="modal-info-item">
+              <p class="importance">{{ isScheduleEditing ? '*' : '' }}</p>
+              <p class="modal-info-label">수정 사유:</p>
+              <MaterialInput type="text" label="수정 사유를 입력하세요." v-model="reason"></MaterialInput>
+            </div>
+          </div>
+
+          <!-- 수정 -->
+          <div class="modal-actions">
+            <p v-if="showInfoMessage" class="info-message">* 표시된 항목을 채워주세요. </p>
+            <MaterialButton v-if="!isScheduleEditing" class="modal-action-button" @click="isScheduleEditing = true">수정
+            </MaterialButton>
+            <div v-else>
+              <MaterialButton class="modal-action-button" @click="saveScheduleChanges">저장</MaterialButton>
+              <MaterialButton class="modal-action-button delete-button" @click="isScheduleEditing = false">취소
+              </MaterialButton>
+            </div>
+          </div>
+        </div>
+
+        <div v-show="currentTab === 'task'">
           <!-- 업무 -->
           <div class="modal-tasks-container">
             <h5 class="modal-sheet-title">업무 목록</h5>
@@ -197,7 +182,7 @@
                 <th style="width: 100px">수행 여부</th>
               </tr>
               </thead>
-              <tbody v-if="isEditing">
+              <tbody v-if="isTaskEditing">
               <tr v-for="(task, index) in tasks" :key="task.id">
                 <td v-if="tasks.length > 0" class="task-title">
                   <div style="width: 80%">
@@ -230,7 +215,7 @@
                 </td>
               </tr>
               </tbody>
-              <tbody v-else-if="!isEditing&tasks.length > 0">
+              <tbody v-else-if="!isTaskEditing&tasks.length > 0">
               <tr v-for="task in tasks" :key="task.id">
                 <td class="task-title">{{ task.title }}</td>
                 <td class="task-isCompleted">
@@ -247,14 +232,173 @@
             </table>
           </div>
 
-          <!-- 수정 사유 -->
-          <div class="modal-info" v-if="isEditing">
-            <div class="modal-info-item">
-              <p class="importance">{{ isEditing ? '*' : '' }}</p>
-              <p class="modal-info-label">수정 사유:</p>
-              <MaterialInput type="text" label="수정 사유를 입력하세요." v-model="reason"></MaterialInput>
+          <!-- 수정 -->
+          <div class="modal-actions">
+            <MaterialButton v-if="!isTaskEditing" class="modal-action-button" @click="isTaskEditing = true">수정
+            </MaterialButton>
+            <div v-else>
+              <MaterialButton class="modal-action-button delete-button" @click="isTaskEditing = false">완료
+              </MaterialButton>
             </div>
           </div>
+        </div>
+
+        <div v-show="currentTab === 'stakeholders'">
+          <!--   작성자, 담당자    -->
+          <div class="modal-info">
+            <!-- 작성자 -->
+            <div class="modal-info-item">
+              <p class="modal-info-label">작성자:</p>
+              <div class="modal-info-value">
+                <p class="modal-responsible">
+                  <template v-for="(stakeholder, index) in stakeholders" :key="index">
+                  <span v-if="stakeholder.type === 10401" class="modal-info-value">
+                      {{ stakeholder.name }} ({{ stakeholder.employeeId }})
+                      <span v-if="index !== stakeholder.length - 1">,</span>
+                    </span>
+                  </template>
+                </p>
+              </div>
+            </div>
+
+            <!-- 담당자 -->
+            <div class="modal-info-item">
+              <p class="modal-info-label">담당자:</p>
+              <div class="modal-info-value">
+                <p class="modal-responsible">
+                  <template v-for="(stakeholder, index) in stakeholders" :key="index">
+                  <span v-if="stakeholder.type === 10402" class="modal-info-value">
+                      {{ stakeholder.name }} ({{ stakeholder.employeeId }})
+                      <span v-if="index !== stakeholder.length - 1">,</span>
+                    </span>
+                  </template>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- 수정 -->
+          <div class="modal-actions">
+            <MaterialButton v-if="!isStakeholdersEditing" class="modal-action-button"
+                            @click="isStakeholdersEditing = true">수정
+            </MaterialButton>
+            <div v-else>
+              <MaterialButton class="modal-action-button" @click="editStakeholders">검색</MaterialButton>
+              <MaterialButton class="modal-action-button delete-button" @click="isStakeholdersEditing = false">완료
+              </MaterialButton>
+            </div>
+          </div>
+        </div>
+
+        <div v-show="currentTab === 'requirement'">
+
+          <!-- 요구사항 탭 내용 -->
+          <h3>요구사항</h3>
+          <table class="modal-sheet">
+            <thead>
+            <tr>
+              <th style="width: 30%">요구사항명</th>
+              <th style="width: 50%">내용</th>
+              <th>
+                <div style="width: 100px"> 자세히</div>
+              </th>
+            </tr>
+            </thead>
+            <tbody v-if="requirements.length > 0">
+            <tr v-for="(requirement, index) in requirements" :key="index">
+              <td style="width: 50%">{{ requirement.requirementName }}</td>
+              <td style="width: 50%">{{ requirement.requirementContent.slice(0, 30) }}...</td>
+              <td>
+                <MaterialButton class="custom-button" style="width: 100px"
+                                @click="viewRequirement(requirement.requirementId)">link
+                </MaterialButton>
+              </td>
+              <td v-if="isScheduleRequirementsEditing">
+                <MaterialButton class="delete-button" style="width: 100px"
+                                @click="deleteRequirement(requirement.scheduleRequirementMapId, index)">삭제
+                </MaterialButton>
+              </td>
+            </tr>
+            </tbody>
+            <tbody v-else>
+            <tr>
+              <td colspan="3">등록된 요구사항이 존재하지 않습니다.</td>
+            </tr>
+            </tbody>
+          </table>
+
+          <!-- 수정 -->
+          <div class="modal-actions">
+            <MaterialButton v-if="!isScheduleRequirementsEditing" class="modal-action-button"
+                            @click="isScheduleRequirementsEditing = true">수정
+            </MaterialButton>
+            <div v-else>
+              <MaterialButton class="modal-action-button delete-button" @click="isScheduleRequirementsEditing = false">
+                완료
+              </MaterialButton>
+            </div>
+          </div>
+
+          <div v-if="isScheduleRequirementsEditing">
+            <br>
+            <h5>요구사항 검색</h5>
+            <div style="display: flex; align-items: flex-start;">
+              <MaterialInput label="요구사항명을 입력하세요." type="text" v-model="requirementSearchValue"
+                             @keyup.enter="searchRequirement"/>
+              <MaterialButton class="modal-action-button" style="margin: 1em;" @click="searchRequirement">검색
+              </MaterialButton>
+            </div>
+            <hr class="modal-divider">
+            <table class="modal-sheet">
+              <thead>
+              <tr>
+                <th style="width: 30%">요구사항명</th>
+                <th style="width: 50%">내용</th>
+                <th>
+                  <div style="width: 100px"> 자세히</div>
+                </th>
+                <th>
+                  <div style="width: 100px"> 추가</div>
+                </th>
+              </tr>
+              </thead>
+
+              <tbody v-if="isRequirementSearchModal">
+              <tr v-for="(requirement, index) in searchRequirements" :key="index">
+                <td style="width: 30%">{{ requirement.requirementName }}</td>
+                <td style="width: 50%">{{ requirement.requirementContent.slice(0, 30) }}...</td>
+                <td>
+                  <MaterialButton class="custom-button" style="width: 100px"
+                                  @click="viewRequirement(requirement.requirementId)">link
+                  </MaterialButton>
+                </td>
+                <td>
+                  <MaterialButton class="custom-button" style="width: 100px"
+                                  @click="addRequirement(requirement)">추가
+                  </MaterialButton>
+                </td>
+              </tr>
+              </tbody>
+              <tbody v-else>
+              <tr v-for="(requirement, index) in requirementList" :key="index">
+                <td style="width: 50%">{{ requirement.requirementName }}</td>
+                <td style="width: 50%">{{ requirement.requirementContent.slice(0, 30) }}...</td>
+                <td>
+                  <MaterialButton class="custom-button" style="width: 100px"
+                                  @click="viewRequirement(requirement.requirementId)">link
+                  </MaterialButton>
+                </td>
+                <td>
+                  <MaterialButton class="custom-button" style="width: 100px"
+                                  @click="addRequirement(requirement)">추가
+                  </MaterialButton>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+
+
         </div>
 
         <div v-show="currentTab === 'history'">
@@ -280,117 +424,6 @@
           </table>
         </div>
 
-        <div v-show="currentTab === 'requirement'">
-          <!-- 요구사항 탭 내용 -->
-          <h3>요구사항</h3>
-          <table class="modal-sheet">
-            <thead>
-            <tr>
-              <th style="width: 30%">요구사항명</th>
-              <th style="width: 50%">내용</th>
-              <th>
-                <div style="width: 60px">
-                  자세히
-                </div>
-              </th>
-            </tr>
-            </thead>
-            <tbody v-if="requirements.length > 0">
-            <tr v-for="(requirement, index) in requirements" :key="index">
-              <td style="width: 50%">{{ requirement.requirementName }}</td>
-              <td style="width: 50%">{{ requirement.requirementContent.slice(0, 30) }}...</td>
-              <td>
-                <MaterialButton class="custom-button" style="width: 60px"
-                                @click="viewRequirement(requirement.requirementId)">link
-                </MaterialButton>
-              </td>
-              <td v-if="isEditing">
-                <MaterialButton class="delete-button" style="width: 60px"
-                                @click="deleteRequirement(requirements, index)">삭제
-                </MaterialButton>
-              </td>
-            </tr>
-            </tbody>
-            <tbody v-else>
-            <tr>
-              <td colspan="3">등록된 요구사항이 존재하지 않습니다.</td>
-            </tr>
-            </tbody>
-          </table>
-
-          <div v-if="isEditing">
-            <br>
-            <h5>요구사항 검색</h5>
-            <div style="display: flex; align-items: flex-start;">
-              <MaterialInput label="요구사항명을 입력하세요." type="text" v-model="requirementSearchValue"
-                             @keyup.enter="searchRequirement"/>
-              <MaterialButton class="custom-button" style="margin: 1em;" @click="searchRequirement">검색
-              </MaterialButton>
-            </div>
-            <hr class="modal-divider">
-            <table class="modal-sheet">
-              <thead>
-              <tr>
-                <th style="width: 30%">요구사항명</th>
-                <th style="width: 50%">내용</th>
-                <th>
-                  <div style="width: 60px">
-                    자세히
-                  </div>
-                </th>
-                <th>
-                  <div style="width: 60px">
-                    추가
-                  </div>
-                </th>
-              </tr>
-              </thead>
-
-              <tbody v-if="isRequirementSearchModal">
-              <tr v-for="(requirement, index) in searchRequirements" :key="index">
-                <td style="width: 30%">{{ requirement.requirementName }}</td>
-                <td style="width: 50%">{{ requirement.requirementContent.slice(0, 30) }}...</td>
-                <td>
-                  <MaterialButton class="custom-button" style="width: 60px"
-                                  @click="viewRequirement(requirement.requirementId)">link
-                  </MaterialButton>
-                </td>
-                <td>
-                  <MaterialButton class="custom-button" style="width: 60px"
-                                  @click="selectRequirement(requirement)">추가
-                  </MaterialButton>
-                </td>
-              </tr>
-              </tbody>
-              <tbody v-else>
-              <tr v-for="(requirement, index) in requirementList" :key="index">
-                <td style="width: 50%">{{ requirement.requirementName }}</td>
-                <td style="width: 50%">{{ requirement.requirementContent.slice(0, 30) }}...</td>
-                <td>
-                  <MaterialButton class="custom-button" style="width: 60px"
-                                  @click="viewRequirement(requirement.requirementId)">link
-                  </MaterialButton>
-                </td>
-                <td>
-                  <MaterialButton class="custom-button" style="width: 60px"
-                                  @click="selectRequirement(requirement)">추가
-                  </MaterialButton>
-                </td>
-              </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- 수정 -->
-        <div v-if="!(currentTab === 'history')" class="modal-actions">
-          <p v-if="showInfoMessage" class="info-message">* 표시된 항목을 채워주세요. </p>
-          <button v-if="!isEditing" class="modal-action-button" @click="toggleEdit">수정</button>
-          <div v-else>
-            <button class="modal-action-button" @click="saveScheduleChanges">저장</button>
-            <material-button class="delete-button" @click="toggleEdit">취소</material-button>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -425,19 +458,21 @@
                 <td>{{ schedule.title }}</td>
                 <td>{{ schedule.content }}</td>
                 <td>
-                  <material-button variant="fill" color="info" @click="selectSchedule(schedule)">선택
-                  </material-button>
+                  <MaterialButton variant="fill" color="info" @click="selectSchedule(schedule)">선택
+                  </MaterialButton>
                 </td>
               </tr>
               </tbody>
             </table>
             <div class="modal-footer">
-              <material-button variant="fill" color="info" @click="closeSearchModal">닫기</material-button>
+              <MaterialButton variant="fill" color="info" @click="closeSearchModal">닫기</MaterialButton>
             </div>
           </div>
         </div>
       </div>
     </div>
+
+    <!--  이해관계자 추가 모달  -->
     <AddProjectMemberToScheduleModal
         v-if="isEditProjectMemberVisible"
         @close="isEditProjectMemberVisible = false" @add-members="addStakeholders">
@@ -509,7 +544,12 @@ export default {
       isSearchModal: false,
       searchScheduleType: '',
       searchScheduleTitleValue: '',
-      isEditing: false,
+
+      // 수정 상태값
+      isScheduleEditing: false,
+      isTaskEditing: false,
+      isStakeholdersEditing: false,
+      isScheduleRequirementsEditing: false,
       reason: '',     // 수정 사유
       newTaskTitle: '',
       newPermission: {name: '', id: '', role_name: ''},
@@ -536,6 +576,7 @@ export default {
       await this.getStakeholderData();
       await this.getScheduleHistoryData();
       await this.getProjectRequirements();
+      await this.getScheduleRequirement()
       await this.getScheduleRequirements();
     }
   },
@@ -608,7 +649,7 @@ export default {
             name: member.name,
             projectMemberId: member.projectMemberId,
             roleName: member.roleName,
-            type: 10402 // TODO. PA와 PL 모두 담당자로 기록됨(?) 확인 필요
+            type: 10402,    // 모두 담당자로 추가
           }
       ));
       /* TODO. stakeholders가 갱신된 후, 화면의 이해관계자 부분이 갱신된 데이터로 출력하게끔 구현해야함. */
@@ -652,10 +693,7 @@ export default {
       }
     }
     ,
-    toggleEdit() {
-      this.isEditing = !this.isEditing;
-    },
-    saveScheduleChanges() {
+    async saveScheduleChanges() {
       if (!(
           this.schedule.title &&
           this.schedule.startDate &&
@@ -669,16 +707,38 @@ export default {
           this.showInfoMessage = false;
         }, 2000);
       } else {
-        /* 수정 사유 갱신 */
-        this.history.push({
-          reason: this.reason,
-          name: '당신의 이름', // 수정자 이름을 실제 값으로 대체해야 합니다.
-          employeeId: '당신의 ID', // 수정자 ID를 실제 값으로 대체해야 합니다.
-          modifiedDate: new Date().toISOString().slice(0, -5) // 현재 시간을 ISO 형식의 문자열로 변환 (초의 소수점 아래 밀리초와 시간대 제외)
-        });
-        this.reason = '';
-        this.toggleEdit();
-        this.saveAll();
+        try {
+          const response = await defaultInstance.put(`/schedules/modify/${this.scheduleId}`, {
+            scheduleId: this.scheduleId,
+            scheduleTitle: this.schedule.title,
+            scheduleContent: this.schedule.content,
+            scheduleStartDate: this.schedule.startDate,
+            scheduleEndDate: this.schedule.endDate,
+            schedulePriority: this.schedule.priority,
+            scheduleProgress: this.schedule.progress,     // TODO. 진행률 전달 여부 확인할 것.
+            scheduleStatus: this.schedule.status,
+            scheduleHistoryReason: this.reason,           // 일정 수정내역
+            scheduleHistoryProjectMemberId: 1,  // TODO. 수정자 ID를 실제 사용자의 값으로 대체해야 함.
+            scheduleParentScheduleId: this.schedule.parentId,       // TODO. backend 코드에 실제로 값을 받아줘야함.
+            schedulePrecedingScheduleId: this.schedule.precedingId, // TODO. backend 코드에 실제로 값을 받아줘야함.
+          });
+          if (!(response.status >= 200 && response.status < 300)) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          alert('일정이 정상적으로 수정되었습니다.');
+          /* 수정 사유 갱신 */
+          this.history.push({
+            reason: this.reason,
+            name: '당신의 이름', // 수정자 이름을 실제 값으로 대체해야 합니다.
+            employeeId: '당신의 ID', // 수정자 ID를 실제 값으로 대체해야 합니다.
+            modifiedDate: new Date().toISOString().slice(0, -5) // 현재 시간을 ISO 형식의 문자열로 변환 (초의 소수점 아래 밀리초와 시간대 제외)
+          });
+          this.reason = '';
+          this.isScheduleEditing = false;
+          return response.ok;
+        } catch (error) {
+          console.error('error :', error);
+        }
       }
     },
     async getScheduleRequirements() {
@@ -722,11 +782,29 @@ export default {
       // 요구사항 자세히 보기 로직 구현
       console.log('requirementId :', requirementId);
     },
-    async deleteRequirement(index) {
-      /* TODO. 먼저먼저 */
-        this.requirements.splice(index, 1);
+    async getScheduleRequirement() {
       try {
-        const response = await defaultInstance.delete(`/scheduleRequirementsMaps/remove/${this.requirements[index].scheduleRequirementMapId}`);
+        const response = await defaultInstance.get(`/scheduleRequirementsMaps/view/${this.scheduleId}`);
+        const data = response.data.result.viewScheduleRequirementsMap;
+        console.log(data);
+
+        data.forEach(item => {
+          const matchingRequirement = this.requirementList.find(r => r.requirementId === item.scheduleRequirementMapRequirementId);
+
+          this.requirements.push({
+            scheduleRequirementMapId: item.scheduleRequirementMapId,
+            requirementId: item.scheduleRequirementMapRequirementId,
+            requirementName: matchingRequirement ? matchingRequirement.requirementName : '불러오기 오류 발생',
+            requirementContent: matchingRequirement ? matchingRequirement.requirementContent : '불러오기 오류 발생',
+          });
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    async deleteRequirement(scheduleRequirementMapId, index) {
+      try {
+        const response = await defaultInstance.delete(`/scheduleRequirementsMaps/remove/${scheduleRequirementMapId}`);
         if (!(response.status >= 200 && response.status < 300)) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -759,7 +837,7 @@ export default {
         console.log(error);
       }
     },
-    async selectRequirement(requirement) {
+    async addRequirement(requirement) {
       console.log('requirementId :', requirement.requirementId);
       if (requirement) {
         try {
@@ -774,10 +852,11 @@ export default {
           alert('요구사항이 정상적으로 추가되었습니다.');
           this.requirements.push({
             scheduleRequirementMapId: data.scheduleRequirementMapId,
-            requirementId: requirement.scheduleRequirementMapRequirementId,
+            requirementId: requirement.requirementId,
             requirementName: requirement.requirementName,
             requirementContent: requirement.requirementContent
           });
+          console.log('추가 후', this.requirements);
           return response.ok;
         } catch (error) {
           console.error('error :', error);
@@ -832,12 +911,16 @@ export default {
             console.log("getStakeholderData")
             const data = response.data.result.viewStakeholders;
             console.log(data)
-            this.stakeholders = data.map(stakeholder => ({
-              id: stakeholder.stakeholdersId,
-              name: stakeholder.stakeholdersName,
-              type: stakeholder.stakeholdersType,
-              roleName: stakeholder.stakeholdersRoleName,
-            }));
+
+            data.forEach(item => {
+              this.stakeholders = item.map(stakeholder => ({
+                id: stakeholder.stakeholdersId,
+                type: stakeholder.stakeholdersType,
+                roleName: 10603,     // TODO. Replace with actual value. Currently set to PA
+                name: '아무개', // TODO. Replace with actual value.
+                employeeId: 'EP???', // TODO. Replace with actual value.
+              }));
+            });
 
           })
           .catch(error => {

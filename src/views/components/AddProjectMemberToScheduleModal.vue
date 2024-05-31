@@ -44,14 +44,15 @@
                     </div>
                   </div>
                 </td>
-                <!-- 구성원 직책 선택 드롭다운 -->
+                <!-- 구성원 직책 -->
                 <td class="text-left">
-                  <select v-model="member.roleName" class="form-select form-select-sm">
-                    <option :value="10603">PA</option>
-                    <option :value="10602">PL</option>
-                    <!--   PM은 선택 불가     -->
-                    <!--                    <option :value=10601>PM</option>-->
-                  </select>
+                  <div class="d-flex px-2 py-1">
+                    <div class="d-flex flex-column justify-content-center">
+                      <h6 class="mb-0 text-sm">{{
+                          member.roleName === 10601 ? 'PM' : ( member.roleName === 10602 ? 'PL' : 'PA')
+                        }}</h6>
+                    </div>
+                  </div>
                 </td>
               </tr>
               <tr v-if="!(searchState && searchResults.length > 0)">
@@ -101,14 +102,16 @@ onMounted(async () => {
     const response = await defaultInstance.get(`projectMembers/list/${projectId}`);
     projectMembers.value = response.data.result.viewProjectMembersByProject;
     for (let i = 0; i < projectMembers.value.length; i++) {
-      // const emplyoeeName = projedctMembers.value[i].employeeName;
+      // const projectMemberEmployeeName = projectMembers.value[i].projectMemberEmployeeName;
       const projectMemberEmployeeId = projectMembers.value[i].projectMemberEmployeeId;
       const projectMemberId = projectMembers.value[i].projectMemberId;
+      // const projectMemberRoleName = projectMembers.value[i].projectMemberRoleName;
 
       copyProjectMembers.value[i] = {
         name: '데이터 필요',
         employeeId: projectMemberEmployeeId,
         projectMemberId: projectMemberId,
+        roleName : 10603, // 실제 값을 넣어야 함. 지금은 다 PA로 표시
         isChecked: false, // 체크박스에 활용될 Value 추가
       };
     }
