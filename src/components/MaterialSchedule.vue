@@ -436,13 +436,14 @@
             <div class="modal-header">
               <h5 class="modal-title">일정 검색</h5>
             </div>
-            <div class="modal-body">
+            <div class="modal-actions">
               <MaterialInput
                   label="일정 제목을 입력하세요."
                   v-model="searchScheduleTitleValue"
+                  @keyup.enter="searchSchedule"
               >
               </MaterialInput>
-              <MaterialButton @click="searchSchedule">검색</MaterialButton>
+              <MaterialButton @click="searchSchedule" >검색</MaterialButton>
             </div>
             <table>
               <thead>
@@ -780,7 +781,9 @@ export default {
     viewRequirement(requirementId) {
       // 요구사항 자세히 보기 로직 구현
       console.log('requirementId :', requirementId);
+      alert('요구사항 자세히 보기 구현 예정');
     },
+
     async getScheduleRequirement() {
       try {
         const response = await defaultInstance.get(`/scheduleRequirementsMaps/view/${this.scheduleId}`);
