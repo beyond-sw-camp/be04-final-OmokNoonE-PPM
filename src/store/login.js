@@ -35,6 +35,9 @@ const getters = {
     employeeName(state) {
         return state.employeeName;
     },
+    accessToken(state) {
+        return state.accessToken;
+    }
 };
 
 export default {
