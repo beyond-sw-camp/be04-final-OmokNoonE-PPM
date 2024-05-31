@@ -1,6 +1,6 @@
-import axios from 'axios';
 import SockJS from 'sockjs-client';
 import {Stomp} from '@stomp/stompjs';
+import {defaultInstance} from "@/axios/axios-instance";
 
 const state = {
     notifications: [],
@@ -35,7 +35,7 @@ const mutations = {
 const actions = {
     async fetchNotifications({commit}, employeeId) {
         try {
-            const response = await axios.get(`/api/notifications/recent/${employeeId}`);
+            const response = await defaultInstance.get(`/notifications/recent/${employeeId}`);
             const notifications = response.data.getRecentNotifications;
             commit('SET_NOTIFICATIONS', notifications);
             notifications.forEach(notification => {
@@ -47,7 +47,7 @@ const actions = {
     },
     async markAsRead({commit}, {notificationId, employeeId}) {
         try {
-            await axios.put(`/api/notifications/read/${notificationId}`, {employeeId});
+            await defaultInstance.put(`/notifications/read/${notificationId}`, {employeeId});
             commit('MARK_AS_READ', notificationId);
         } catch (error) {
             commit('SET_ERROR_MESSAGE', `알림을 읽음으로 표시하는 중 오류 발생: ${error.response ? error.response.status : error.message}`);

@@ -1,9 +1,11 @@
 import { createStore } from "vuex";
 import notifications  from "./notifications";
+import login from "@/store/login";
 
 export default createStore({
   modules: {
     notifications,
+    login,
   },
   state: {
     hideConfigButton: false,
@@ -23,11 +25,6 @@ export default createStore({
     navbarFixed:
       "position-sticky blur shadow-blur left-auto top-1 z-index-sticky px-0 mx-4",
     absolute: "position-absolute px-4 mx-0 w-100 z-index-2",
-    // 로그인 관련
-    needLogin: true,
-    employeeId: "",
-    employeeName: "",
-    accessToken: localStorage.getItem("accessToken") || null,
   },
   mutations: {
     toggleConfigurator(state) {
@@ -62,19 +59,7 @@ export default createStore({
     color(state, payload) {
       state.color = payload;
     },
-    needLogin(state, data) {
-      state.needLogin = data;
-    },
-    employeeId(state, data) {
-      state.employeeId = data;
-    },
-    employeeName(state, data) {
-      state.employeeName = data;
-    },
-    accessToken(state, data) {
-      state.accessToken = data;
-      localStorage.setItem('accessToken', data);
-    },
+
   },
   actions: {
     setColor({ commit }, payload) {
@@ -82,14 +67,6 @@ export default createStore({
     },
   },
   getters: {
-    needLogin(state) {
-      return state.needLogin;
-    },
-    employeeId(state) {
-      return state.employeeId;
-    },
-    employeeName(state) {
-      return state.employeeName;
-    },
+
   },
 });
