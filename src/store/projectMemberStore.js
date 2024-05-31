@@ -1,4 +1,4 @@
-import axios from 'axios';
+import {defaultInstance} from "@/axios/axios-instance";
 
 const state = {
     projectMembers: [],
@@ -47,7 +47,7 @@ const actions = {
     async fetchProjectMembers({commit, state}) {
         commit('SET_PROJECT_MEMBERS_LOADING', true);
         try {
-            const response = await axios.get(`/projectMembers/list/${state.projectId}`);
+            const response = await defaultInstance.get(`/projectMembers/list/${state.projectId}`);
             commit('SET_PROJECT_MEMBERS', response.data.viewProjectMembersByProject);
         } catch (err) {
             console.error('프로젝트 구성원을 가져오는 중 오류 발생:', err);
@@ -60,7 +60,8 @@ const actions = {
         commit('SET_AVAILABLE_MEMBERS_LOADING', true);
         commit('SET_SEARCH_QUERY', query);
         try {
-            const response = await axios.get(`/projectMembers/available/${state.projectId}?query=${query}`);
+            const response = await defaultInstance.get(
+                                                    `/projectMembers/available/${state.projectId}?query=${query}`);
             commit('SET_SEARCH_RESULTS', response.data.viewAvailableMembers);
         } catch (err) {
             console.error('구성원 목록을 가져오는 중 오류 발생:', err);
@@ -71,7 +72,7 @@ const actions = {
     },
     async addProjectMember({commit, state}, {memberId}) {
         try {
-            const response = await axios.post('/projectMembers/create', {
+            const response = await defaultInstance.post('/projectMembers/create', {
                 projectMemberProjectId: state.projectId,
                 projectMemberEmployeeId: memberId,
             });
@@ -83,7 +84,7 @@ const actions = {
     },
     async removeProjectMember({commit}, {memberId, reason}) {
         try {
-            await axios.delete(`/projectMembers/remove/${memberId}`, {
+            await defaultInstance.delete(`/projectMembers/remove/${memberId}`, {
                 data: {
                     projectMemberHistoryReason: reason
                 }
