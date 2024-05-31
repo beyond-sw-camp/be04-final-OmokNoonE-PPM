@@ -2,11 +2,8 @@ import { createRouter, createWebHistory } from "vue-router";
 import Dashboard from "../views/Dashboard.vue";
 import ProjectMember from "../views/ProjectMember.vue";
 import Billing from "../views/Billing.vue";
-import RTL from "../views/Rtl.vue";
 import Notifications from "../views/Notifications.vue";
-import Profile from "../views/Profile.vue";
 import SignIn from "../views/SignIn.vue";
-import SignUp from "../views/SignUp.vue";
 import Requirements from "@/views/Requirements.vue";
 import RegisterRequirement from "@/views/RegisterRequirement.vue";
 import store from '../store/index.js';
@@ -37,29 +34,14 @@ const routes = [
     component: Billing,
   },
   {
-    path: "/rtl-page",
-    name: "RTL",
-    component: RTL,
-  },
-  {
     path: "/notifications",
     name: "Notifications",
     component: Notifications,
   },
   {
-    path: "/profile",
-    name: "Profile",
-    component: Profile,
-  },
-  {
     path: "/sign-in",
     name: "SignIn",
     component: SignIn,
-  },
-  {
-    path: "/sign-up",
-    name: "SignUp",
-    component: SignUp,
   },
   {
     path: "/requirements",
