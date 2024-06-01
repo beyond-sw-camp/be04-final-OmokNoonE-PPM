@@ -5,6 +5,7 @@ RUN apk add --no-cache curl
 
 WORKDIR /app
 COPY . ./
-# RUN npm install
+RUN pwd
+RUN npm install
 
 CMD ["npm", "run", "serve", "--", "--host", "0.0.0.0"]
