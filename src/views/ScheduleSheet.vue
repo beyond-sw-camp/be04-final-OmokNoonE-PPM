@@ -23,7 +23,8 @@
         </div>
       </div>
     </div>
-    <MaterialSchedule :isOpen="modalOpen" :modalUrl="modalUrl" :requirementList="copyRequirementList"
+    <MaterialSchedule :isOpen="modalOpen" :modalUrl="modalUrl"
+                      :requirementList="copyRequirementList" :projectMembers="copyProjectMembers"
                       @close="modalOpen = false"></MaterialSchedule>
     <!--    <StakeholderModal-->
     <!--        :isOpen="stakeholderModalOpen"-->
@@ -67,11 +68,15 @@ export default defineComponent({
     const requirementList = ref([]);
     const copyRequirementList = ref([]);
 
+    const projectMembers = ref([]);
+    const copyProjectMembers = ref([]);
+
     const loadingState = ref(true);
 
     onMounted(async () => {
       await getProjectSchedules();
       await getProjectRequirements();
+      await getProjectMembers();
     });
 
     const hotSettings = ref({
@@ -120,10 +125,19 @@ export default defineComponent({
             // td.appendChild(button);
 
             if (!value || value.length === 0) {
+              td.value = '담당자 없음';
               td.innerText = '담당자 없음';
             } else if (value.length === 1) {
+              td.value = value[0].employeeName + '(' + value[0].employeeId + ')';
               td.innerText = value[0].employeeName + '(' + value[0].employeeId + ')';
             } else {
+              for (let i = 0; i < value.length; i++) {
+                if (i === 0) {
+                  td.value = value[i].employeeName + '(' + value[i].employeeId + ')';
+                } else {
+                  td.value += ', ' + value[i].employeeName + '(' + value[i].employeeId + ')';
+                }
+              }
               td.innerText = value[0].employeeName + '(' + value[0].employeeId + ') 등 ' + (value.length) + '명';
             }
 
@@ -156,18 +170,35 @@ export default defineComponent({
       className: 'htCenter',
       licenseKey: 'non-commercial-and-evaluation',
       rowHeaders: true,
-      dropdownMenu: true,
+      dropdownMenu: {
+        items: {
+          // 필터 메뉴에서 'readOnly' 항목 제거
+          'filter_by_condition': {},
+          'filter_action_bar': {},
+          'filter_by_condition2': {},
+          'filter_by_value': {},
+          'filter_operators': {},
+        },
+        condition: function (column) {
+          // 'scheduleId' 열의 인덱스가 0이라고 가정
+          if (column === 8 || column === 9) {
+            return false; // 'scheduleId' 열에는 필터링을 적용하지 않음
+          }
+          return true; // 다른 열에는 필터링을 적용
+        },
+      },
       hiddenColumns: {indicators: true},
       nestedRows: true,
       contextMenu: false,
       bindRowsWithHeaders: true,
       autoWrapRow: true,
       autoWrapCol: true,
-      filters: {readOnly: false},
+      filters: true,
       search: true,
       multiColumnSorting: true,
       readOnly: true,
       colWidths: [250, 100, 100, 70, 70, 70, 50, 175, 70, 50],
+
       // afterChange(changes) {
       //   console.log('afterChange');
       //   hotSettings.value.data = [...copySchedules.value]; // 트리거를 위한 데이터 갱신
@@ -381,6 +412,34 @@ export default defineComponent({
       }
     };
 
+    const getProjectMembers = async () => {
+      try {
+        // const projectId = store.getters['project/getProjectId'];
+        const projectId = 1;
+        /* 실질적인 API 주소 확인해야함. Controller 메소드 확인 */
+        const response = await defaultInstance.get(`projectMembers/list/${projectId}`);
+        projectMembers.value = response.data.result.viewProjectMembersByProject;
+        for (let i = 0; i < projectMembers.value.length; i++) {
+          const employeeName = projectMembers.value[i].employeeName;
+          const projectMemberEmployeeId = projectMembers.value[i].projectMemberEmployeeId;      // TODO. projectId로 구성원 조회할때 같이 받아오도록 수정 요청
+          const projectMemberId = projectMembers.value[i].projectMemberId;                      // TODO. projectId로 구성원 조회할때 같이 받아오도록 수정 요청
+          const projectMemberRoleName = projectMembers.value[i].projectMemberRoleName;
+
+          copyProjectMembers.value[i] = {
+            name: employeeName,
+            employeeId: projectMemberEmployeeId,
+            projectMemberId: projectMemberId,
+            roleName: projectMemberRoleName,
+            isChecked: false, // 체크박스에 활용될 Value 추가
+          };
+        }
+        console.log('copySchedule.value : ', copyProjectMembers.value);
+
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
     /* 일괄 편집 기능 추후 개발 예정 */
     // const editableHotSettings = ref({
     //   ...hotSettings.value,
@@ -398,12 +457,15 @@ export default defineComponent({
 
 
     return {
-      getProjectSechedule: getProjectSchedules,
+      getProjectSchedules,
+      getProjectMembers,
       getProjectRequirements,
       projectId,
       employeeId,
       requirementList,
       copyRequirementList,
+      projectMembers,
+      copyProjectMembers,
       hotSettings,
       modalOpen,
       modalUrl,
