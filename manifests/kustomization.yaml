@@ -5,4 +5,4 @@ resources:
 - frontser.yml
 images:
 - name: orlzll/ppm-front
-  newTag: "0.3"
+  newTag: "0.4"
