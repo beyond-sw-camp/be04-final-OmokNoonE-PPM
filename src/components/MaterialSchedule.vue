@@ -426,8 +426,7 @@
     <div v-if="isSearchModal">
       <!-- 검색 모달 창 -->
       <div id="searchScheduleModal" class="modal fade show" style="display: block;" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-          <div class="modal-content">
+          <div class="modal-content" style="z-index: 12000">
             <div class="modal-header">
               <h5 class="modal-title">일정 검색</h5>
             </div>
@@ -464,7 +463,7 @@
               <MaterialButton variant="fill" color="info" @click="closeSearchModal">닫기</MaterialButton>
             </div>
           </div>
-        </div>
+
       </div>
     </div>
 
@@ -757,7 +756,7 @@ export default {
             reason: this.reason,
             name: '당신의 이름', // 수정자 이름을 실제 값으로 대체해야 합니다.
             employeeId: '당신의 ID', // 수정자 ID를 실제 값으로 대체해야 합니다.
-            modifiedDate: new Date().toISOString().slice(0, -5) // 현재 시간을 ISO 형식의 문자열로 변환 (초의 소수점 아래 밀리초와 시간대 제외)
+            modifiedDate: new Date().toISOString().slice(0, -5).replace('T', ' ') // 현재 시간을 ISO 형식의 문자열로 변환 (초의 소수점 아래 밀리초와 시간대 제외)
           });
           this.reason = '';
           this.isScheduleEditing = false;
@@ -1109,10 +1108,10 @@ export default {
 .modal-dialog {
   background: white;
   border-radius: 5px;
-  height: 70%;
-  max-width: 800px;
   padding: 20px;
+  max-width: 800px;
   width: 70%;
+  height: 70%; /* 모달의 높이를 고정 */
 }
 
 .modal-divider {

@@ -58,6 +58,8 @@ export default defineComponent({
 
   setup() {
     const projectId = 1;      // TODO. 향후 실제 값으로 바꿔야함.
+    const employeeId = "EP001";  // TODO. 향후 실제 값으로 바꿔야함.
+    const projectMemberId = 1;  // TODO. 향후 실제 값으로 바꿔야함.
 
     const schedules = ref([]);
     const copySchedules = ref([]);
@@ -256,9 +258,23 @@ export default defineComponent({
 
     const deleteSchedule = async (id, reason) => {
       try {
-        await defaultInstance.delete(`schedules/remove/${id}`, {data: {reason}});
-        /* RequestBody 작성해야함. */
+        const requestBody = {
+          scheduleId: id,
+          scheduleTitle: null,
+          scheduleContent: null,
+          scheduleStartDate: null,
+          scheduleEndDate: null,
+          schedulePriority: null,
+          scheduleStatus: null,
+          scheduleHistoryReason: reason,
+          scheduleHistoryProjectMemberId: projectMemberId,
+        }
+        await defaultInstance.delete(`schedules/remove/${id}`, {
+          data: requestBody
+        });
         console.log(id, '삭제 요청됨');
+        showDeleteModal.value = false;
+        deleteReason.value = '';
         location.reload();
       } catch (error) {
         console.error(error);
@@ -268,8 +284,7 @@ export default defineComponent({
     const confirmDelete = () => {
       if (deleteReason.value) {
         deleteSchedule(deleteId.value, deleteReason.value);
-        showDeleteModal.value = false;
-        deleteReason.value = '';
+
       } else {
         alert('삭제 사유를 입력해주세요.');
       }
@@ -280,9 +295,7 @@ export default defineComponent({
     };
     const openDeleteModal = (id) => {
       deleteId.value = id;
-      console.log('deleteId : ', deleteId.value);
       showDeleteModal.value = true;
-      console.log('showDeleteModal : ', showDeleteModal);
     };
 
     const goToCreateSchedulePage = (projectId) => {
@@ -293,7 +306,6 @@ export default defineComponent({
     const getProjectSchedules = async () => {
       try {
         // const employeeId = store.getters['auth/getEmployeeId'];  // 로그인한 사용자의 ID, 향후 이 코드로 바꿔야함.
-        const employeeId = "EP001"
         // const projectId = store.getters['project/getProjectId'];
         const response = await defaultInstance.get(`schedules/sheet/${projectId}`, {
           headers: {
@@ -389,6 +401,7 @@ export default defineComponent({
       getProjectSechedule: getProjectSchedules,
       getProjectRequirements,
       projectId,
+      employeeId,
       requirementList,
       copyRequirementList,
       hotSettings,
@@ -430,9 +443,18 @@ export default defineComponent({
   position: absolute;
   top: 0;
   width: 100%;
-  z-index: 20000;
+  z-index: 1000;
 }
 
+.modal-overlay {
+  background-color: rgba(0, 0, 0, 0.4);
+  height: 100%;
+  left: 0;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 999;
+}
 
 .delete-reason-content {
   background-color: #fefefe;
