@@ -1,11 +1,12 @@
 <template>
   <div id="example">
     <div v-if="!loadingState" class="content-container">
-      <Handsontable v-if="!editMode" :settings="hotSettings"></Handsontable>
+      <Handsontable :settings="hotSettings"></Handsontable>
+      <!--      <Handsontable v-if="!editMode" :settings="hotSettings"></Handsontable>-->
       <!--      <Handsontable v-if="editMode" :settings="editableHotSettings"></Handsontable>-->
       <div class="edit-button-container">
         <!--        <button class="create-button" @click="goToCreateSchedulePage({{ store.getters['project/getProjectId'] }})">등록-->
-        <button class="create-button" @click="goToCreateSchedulePage(1)">등록
+        <button class="create-button" @click="goToCreateSchedulePage(projectId)">등록
         </button>
         <!--      일괄 편집 기능 추후 개발 예정-->
         <!--        <button class="edit-button" @click="toggleEditMode">{{ editMode ? '수정 완료' : '수정' }}</button>-->
@@ -17,12 +18,13 @@
         <h5>삭제 사유</h5>
         <textarea v-model="deleteReason" placeholder="삭제 사유를 입력하세요." rows="4"></textarea>
         <div class="delete-reason-actions">
-        <MaterialButton @click="confirmDelete">확인</MaterialButton>
-        <MaterialButton @click="cancelDelete">취소</MaterialButton>
+          <MaterialButton @click="confirmDelete">확인</MaterialButton>
+          <MaterialButton @click="cancelDelete">취소</MaterialButton>
         </div>
       </div>
     </div>
-    <MaterialSchedule :isOpen="modalOpen" :modalUrl="modalUrl" @close="modalOpen = false"></MaterialSchedule>
+    <MaterialSchedule :isOpen="modalOpen" :modalUrl="modalUrl" :requirementList="copyRequirementList"
+                      @close="modalOpen = false"></MaterialSchedule>
     <!--    <StakeholderModal-->
     <!--        :isOpen="stakeholderModalOpen"-->
     <!--        :selectedStakeholders="selectedStakeholders"-->
@@ -55,66 +57,19 @@ export default defineComponent({
   },
 
   setup() {
+    const projectId = 1;      // TODO. 향후 실제 값으로 바꿔야함.
 
     const schedules = ref([]);
     const copySchedules = ref([]);
 
+    const requirementList = ref([]);
+    const copyRequirementList = ref([]);
+
     const loadingState = ref(true);
 
     onMounted(async () => {
-      try {
-        // const employeeId = store.getters['auth/getEmployeeId'];  // 로그인한 사용자의 ID, 향후 이 코드로 바꿔야함.
-        const employeeId = "EP001"
-        // const projectId = store.getters['project/getProjectId'];
-        const projectId = 1;
-        const response = await defaultInstance.get(`schedules/sheet/${projectId}`, {
-          headers: {
-            'employeeId': employeeId
-          }
-        });
-        schedules.value = response.data.result.SheetData;
-        for (let i = 0; i < schedules.value.length; i++) {
-          const scheduleId = schedules.value[i].scheduleId;
-          const scheduleTitle = schedules.value[i].scheduleTitle;
-          const scheduleStartDate = formatDate(schedules.value[i].scheduleStartDate);
-          const scheduleEndDate = formatDate(schedules.value[i].scheduleEndDate);
-          const scheduleDepth = schedules.value[i].scheduleDepth;
-          const schedulePriority = schedules.value[i].schedulePriority;
-          const scheduleProgress = schedules.value[i].scheduleProgress;
-          const scheduleStatus = schedules.value[i].scheduleStatus === 10303 ? '완료' : (schedules.value[i].scheduleStatus === 10302 ? '진행' : '준비');
-          const scheduleManHours = schedules.value[i].scheduleManHours;
-          const scheduleEmployeeInfoList = schedules.value[i].scheduleEmployeeInfoList;
-          const scheduleParentScheduleId = schedules.value[i].scheduleParentScheduleId;
-          const schedulePrecedingScheduleId = schedules.value[i].schedulePrecedingScheduleId;
-          const __children = schedules.value[i].__children;
-
-          copySchedules.value[i] = {
-            scheduleId: scheduleId,
-            scheduleTitle: scheduleTitle,
-            scheduleStartDate: scheduleStartDate,
-            scheduleEndDate: scheduleEndDate,
-            scheduleDepth: scheduleDepth,
-            schedulePriority: schedulePriority,
-            scheduleProgress: scheduleProgress,
-            scheduleStatus: scheduleStatus,
-            scheduleManHours: scheduleManHours,
-            scheduleEmployeeInfoList: scheduleEmployeeInfoList,
-            scheduleParentScheduleId: scheduleParentScheduleId,
-            schedulePrecedingScheduleId: schedulePrecedingScheduleId,
-          };
-
-          if (__children) {
-            copySchedules.value[i].__children = __children;
-            formatChildrenAttributes(copySchedules.value[i].__children);
-          }
-        }
-
-        loadingState.value = false;
-        console.log('copySchedule.value : ', copySchedules.value);
-
-      } catch (error) {
-        console.error(error);
-      }
+      await getProjectSchedules();
+      await getProjectRequirements();
     });
 
     const hotSettings = ref({
@@ -138,29 +93,37 @@ export default defineComponent({
         {data: 'scheduleManHours', type: 'numeric'},
         {
           data: 'scheduleEmployeeInfoList', type: 'text', renderer(instance, td, row, col, prop, value) {
-            const button = document.createElement('button');
+            // const button = document.createElement('button');
+            // if (!value || value.length === 0) {
+            //   button.innerText = '담당자 없음';
+            // } else if (value.length === 1) {
+            //   button.innerText = value[0].employeeName + '(' + value[0].employeeId + ')';
+            // } else {
+            //   button.innerText = value[0].employeeName + '(' + value[0].employeeId + ') 등 ' + (value.length) + '명';
+            // }
+            // button.style.cssText = 'background-color: #4CAF50; color: white; border: none; padding: 8px 22px; cursor: pointer;';
+            // button.addEventListener('click', () => openStakeholderModal(row, value));
+            // button.addEventListener('change', () => {
+            //       console.log('change value');
+            //       if (!value || value.length === 0) {
+            //         button.innerText = '담당자 없음';
+            //       } else if (value.length === 1) {
+            //         button.innerText = value[0].employeeName + '(' + value[0].employeeId + ')';
+            //       } else {
+            //         button.innerText = value[0].employeeName + '(' + value[0].employeeId + ') 등 ' + (value.length) + '명';
+            //       }
+            //     }
+            // );
+            // td.innerHTML = '';
+            // td.appendChild(button);
+
             if (!value || value.length === 0) {
-              button.innerText = '담당자 없음';
+              td.innerText = '담당자 없음';
             } else if (value.length === 1) {
-              button.innerText = value[0].employeeName + '(' + value[0].employeeId + ')';
+              td.innerText = value[0].employeeName + '(' + value[0].employeeId + ')';
             } else {
-              button.innerText = value[0].employeeName + '(' + value[0].employeeId + ') 등 ' + (value.length) + '명';
+              td.innerText = value[0].employeeName + '(' + value[0].employeeId + ') 등 ' + (value.length) + '명';
             }
-            button.style.cssText = 'background-color: #4CAF50; color: white; border: none; padding: 8px 22px; cursor: pointer;';
-            button.addEventListener('click', () => openStakeholderModal(row, value));
-            button.addEventListener('change', () => {
-                  console.log('change value');
-                  if (!value || value.length === 0) {
-                    button.innerText = '담당자 없음';
-                  } else if (value.length === 1) {
-                    button.innerText = value[0].employeeName + '(' + value[0].employeeId + ')';
-                  } else {
-                    button.innerText = value[0].employeeName + '(' + value[0].employeeId + ') 등 ' + (value.length) + '명';
-                  }
-                }
-            );
-            td.innerHTML = '';
-            td.appendChild(button);
 
             return td;
           }
@@ -213,7 +176,7 @@ export default defineComponent({
     const selectedRow = ref(null);
     const modalOpen = ref(false);
     const modalUrl = ref('');
-    const editMode = ref(false);
+    // const editMode = ref(false);
     const stakeholderModalOpen = ref(false);
     const selectedStakeholders = ref([]);
     const showDeleteModal = ref(false);
@@ -226,13 +189,13 @@ export default defineComponent({
       modalOpen.value = true;
     };
 
-    const openStakeholderModal = (rowIndex, value) => {
-      if (editMode.value) {
-        stakeholderModalOpen.value = true;
-        selectedStakeholders.value = value.split(',').map(str => str.trim());
-        selectedRow.value = rowIndex;
-      }
-    };
+    // const openStakeholderModal = (rowIndex, value) => {
+    //   if (editMode.value) {
+    //     stakeholderModalOpen.value = true;
+    //     selectedStakeholders.value = value.split(',').map(str => str.trim());
+    //     selectedRow.value = rowIndex;
+    //   }
+    // };
 
     const closeStakeholderModal = () => {
       stakeholderModalOpen.value = false;
@@ -263,33 +226,33 @@ export default defineComponent({
       }
     };
 
-    const toggleEditMode = () => {
-      /* 일괄 편집 시 사용할 변화 감지 코드, 추후 개발 예정 */
-      // if (editMode.value) { // editMode가 true에서 false로 변경될 때
-      //   const changeList = [];
-      //
-      //   copySchedules.value.forEach((schedule, index) => {
-      //     const initialSchedule = initialCopySchedules[index];
-      //
-      //     Object.keys(schedule).forEach(key => {
-      //       if (JSON.stringify(schedule[key]) !== JSON.stringify(initialSchedule[key])) {
-      //         changeList.push({
-      //           row: index,
-      //           prop: key,
-      //           oldVal: initialSchedule[key],
-      //           newVal: schedule[key]
-      //         });
-      //       }
-      //     });
-      //   });
-      //
-      //   console.log('Change List:', changeList);
-      // } else { // editMode가 false에서 true로 변경될 때
-      //   initialCopySchedules = JSON.parse(JSON.stringify(copySchedules.value)); // copySchedules의 현재 상태 저장
-      // }
-
-      editMode.value = !editMode.value;
-    };
+    // const toggleEditMode = () => {
+    //   /* 일괄 편집 시 사용할 변화 감지 코드, 추후 개발 예정 */
+    //   // if (editMode.value) { // editMode가 true에서 false로 변경될 때
+    //   //   const changeList = [];
+    //   //
+    //   //   copySchedules.value.forEach((schedule, index) => {
+    //   //     const initialSchedule = initialCopySchedules[index];
+    //   //
+    //   //     Object.keys(schedule).forEach(key => {
+    //   //       if (JSON.stringify(schedule[key]) !== JSON.stringify(initialSchedule[key])) {
+    //   //         changeList.push({
+    //   //           row: index,
+    //   //           prop: key,
+    //   //           oldVal: initialSchedule[key],
+    //   //           newVal: schedule[key]
+    //   //         });
+    //   //       }
+    //   //     });
+    //   //   });
+    //   //
+    //   //   console.log('Change List:', changeList);
+    //   // } else { // editMode가 false에서 true로 변경될 때
+    //   //   initialCopySchedules = JSON.parse(JSON.stringify(copySchedules.value)); // copySchedules의 현재 상태 저장
+    //   // }
+    //
+    //   editMode.value = !editMode.value;
+    // };
 
     const deleteSchedule = async (id, reason) => {
       try {
@@ -327,6 +290,85 @@ export default defineComponent({
       router.push({name: 'CreateSchedule', params: {projectId: projectId}});
     }
 
+    const getProjectSchedules = async () => {
+      try {
+        // const employeeId = store.getters['auth/getEmployeeId'];  // 로그인한 사용자의 ID, 향후 이 코드로 바꿔야함.
+        const employeeId = "EP001"
+        // const projectId = store.getters['project/getProjectId'];
+        const response = await defaultInstance.get(`schedules/sheet/${projectId}`, {
+          headers: {
+            'employeeId': employeeId
+          }
+        });
+        schedules.value = response.data.result.SheetData;
+        for (let i = 0; i < schedules.value.length; i++) {
+          const scheduleId = schedules.value[i].scheduleId;
+          const scheduleTitle = schedules.value[i].scheduleTitle;
+          const scheduleStartDate = formatDate(schedules.value[i].scheduleStartDate);
+          const scheduleEndDate = formatDate(schedules.value[i].scheduleEndDate);
+          const scheduleDepth = schedules.value[i].scheduleDepth;
+          const schedulePriority = schedules.value[i].schedulePriority;
+          const scheduleProgress = schedules.value[i].scheduleProgress;
+          const scheduleStatus = schedules.value[i].scheduleStatus === 10303 ? '완료' : (schedules.value[i].scheduleStatus === 10302 ? '진행' : '준비');
+          const scheduleManHours = schedules.value[i].scheduleManHours;
+          const scheduleEmployeeInfoList = schedules.value[i].scheduleEmployeeInfoList;
+          const scheduleParentScheduleId = schedules.value[i].scheduleParentScheduleId;
+          const schedulePrecedingScheduleId = schedules.value[i].schedulePrecedingScheduleId;
+          const __children = schedules.value[i].__children;
+
+          copySchedules.value[i] = {
+            scheduleId: scheduleId,
+            scheduleTitle: scheduleTitle,
+            scheduleStartDate: scheduleStartDate,
+            scheduleEndDate: scheduleEndDate,
+            scheduleDepth: scheduleDepth,
+            schedulePriority: schedulePriority,
+            scheduleProgress: scheduleProgress,
+            scheduleStatus: scheduleStatus,
+            scheduleManHours: scheduleManHours,
+            scheduleEmployeeInfoList: scheduleEmployeeInfoList,
+            scheduleParentScheduleId: scheduleParentScheduleId,
+            schedulePrecedingScheduleId: schedulePrecedingScheduleId,
+          };
+
+          if (__children) {
+            copySchedules.value[i].__children = __children;
+            formatChildrenAttributes(copySchedules.value[i].__children);
+          }
+        }
+
+        loadingState.value = false;
+        console.log('copySchedule.value : ', copySchedules.value);
+
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    const getProjectRequirements = async () => {
+      // 요구사항 목록 조회 로직 구현
+      try {
+        const response = await defaultInstance.get(`/requirements/list/${projectId}`);
+        requirementList.value = response.data.result.viewRequirementsList.projectRequirementsList;
+        for (let i = 0; i < requirementList.value.length; i++) {
+          const requirementId = requirementList.value[i].requirementsId;
+          const requirementName = requirementList.value[i].requirementsName;
+          const requirementContent = requirementList.value[i].requirementsContent;
+
+          copyRequirementList.value[i] = {
+            requirementId: requirementId,
+            requirementName: requirementName,
+            requirementContent: requirementContent,
+          };
+        }
+
+        console.log('requirementList :', requirementList);
+        console.log('copyRequirementList :', copyRequirementList);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
     /* 일괄 편집 기능 추후 개발 예정 */
     // const editableHotSettings = ref({
     //   ...hotSettings.value,
@@ -344,19 +386,24 @@ export default defineComponent({
 
 
     return {
+      getProjectSechedule: getProjectSchedules,
+      getProjectRequirements,
+      projectId,
+      requirementList,
+      copyRequirementList,
       hotSettings,
       modalOpen,
       modalUrl,
       openModal,
-      editMode,
-      toggleEditMode,
+      // editMode,
+      // toggleEditMode,
       stakeholderModalOpen,
       closeStakeholderModal,
       selectedStakeholders,
       updateStakeholder,
       // editableHotSettings,
       selectedRow,
-      openStakeholderModal,
+      // openStakeholderModal,
       loadingState,
       // checkCopySchedules,
       deleteSchedule,
@@ -403,9 +450,9 @@ export default defineComponent({
   z-index: 21000;
 }
 
-.delete-reason-content textarea{
+.delete-reason-content textarea {
   width: 300px;
-  padding : 10px;
+  padding: 10px;
   overflow-y: auto;
   white-space: pre-wrap;
 }
