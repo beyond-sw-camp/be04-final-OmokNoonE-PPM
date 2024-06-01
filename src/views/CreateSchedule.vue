@@ -306,13 +306,15 @@
                         <div class="modal-header">
                           <h5 class="modal-title">일정 검색</h5>
                         </div>
-                        <div class="modal-body">
+                        <div class="modal-actions">
                           <MaterialInput
                               label="일정 제목을 입력하세요."
                               v-model="searchScheduleTitleValue"
+                              @keyup.enter="searchSchedule"
                           >
                           </MaterialInput>
-                          <MaterialButton @click="searchSchedule">검색</MaterialButton>
+                          <MaterialButton @click="searchSchedule"
+                          >검색</MaterialButton>
                         </div>
                         <table>
                           <thead>
