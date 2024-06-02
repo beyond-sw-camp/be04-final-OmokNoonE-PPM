@@ -5,7 +5,8 @@
         <div class="card my-4">
           <!-- 카드 헤더 -->
           <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-            <div class="bg-gradient-success shadow-success border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
+            <div
+                class="bg-gradient-success shadow-success border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
               <div class="d-flex align-items-center ps-3">
                 <i class="material-icons text-white me-2">notifications</i>
                 <h6 class="text-white text-capitalize mb-0">알림</h6>
@@ -17,7 +18,8 @@
             <div v-for="notification in notifications" :key="notification.id" class="clickable-alert">
               <material-alert class="font-weight-light" color="success">
                 <span class="text-sm d-flex align-items-center justify-content-between w-100">
-                  <a href="#" class="d-flex align-items-center text-decoration-none text-white w-100" @click.prevent="handleContainerClick(notification)">
+                  <a href="#" class="d-flex align-items-center text-decoration-none text-white w-100"
+                     @click.prevent="handleContainerClick(notification)">
                     <button v-if="notification.read" class="mark-read-button">
                       <i class="material-icons text-info">done</i>
                     </button>
@@ -30,7 +32,7 @@
                 </span>
               </material-alert>
             </div>
-            <p v-if="notifications.length === 0 && !errorMessage" class="text-muted">알림이 없습니다.</p>
+            <p v-if="notifications.length === 0 && !errorMessage" class="no-notifications-text">알림이 없습니다.</p>
             <p v-if="errorMessage" class="text-danger">{{ errorMessage }}</p>
           </div>
         </div>
@@ -54,46 +56,21 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, computed } from 'vue';
-import { useStore } from 'vuex';
-import { useToast } from 'vue-toastification';
+import {ref, onMounted, computed, onUnmounted} from 'vue';
+import {useStore} from 'vuex';
+import {useToast} from 'vue-toastification';
 import MaterialAlert from "@/components/MaterialAlert.vue";
 import MaterialSnackbar from "@/components/MaterialSnackbar.vue";
-
-// 더미 알림 데이터
-const dummyNotifications = [
-  {
-    id: 1,
-    notificationTitle: "Notification 1",
-    notificationCreatedDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
-    notificationContent: "This is the content of notification 1",
-    read: false,
-  },
-  {
-    id: 2,
-    notificationTitle: "Notification 2",
-    notificationCreatedDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-    notificationContent: "This is the content of notification 2",
-    read: false,
-  },
-  {
-    id: 3,
-    notificationTitle: "Notification 3",
-    notificationCreatedDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
-    notificationContent: "This is the content of notification 3",
-    read: false,
-  },
-];
 
 const snackbar = ref(null);
 const store = useStore();
 const toast = useToast();
 const employeeId = ref(1); // 실제로는 로그인 정보를 기반으로 설정
 
-const handleContainerClick = (notification) => {
+const handleContainerClick = async (notification) => {
   snackbar.value = notification;
   if (!notification.read) {
-    markAsRead(notification.id);
+    await markAsRead(notification.id);
   }
 };
 
@@ -101,16 +78,16 @@ const closeSnackbar = () => {
   snackbar.value = null;
 };
 
-const markAsRead = (id) => {
+const markAsRead = async (id) => {
   const notification = notifications.value.find((n) => n.id === id);
   if (notification) {
     notification.read = true;
   }
-  store
-      .dispatch("notifications/markAsRead", { notificationId: id, employeeId: employeeId.value })
-      .catch((error) => {
-        toast.error(`알림을 읽음으로 표시하는 중 오류 발생: ${error.message}`);
-      });
+  try {
+    store.dispatch("notifications/markAsRead", {notificationId: id, employeeId: employeeId.value});
+  } catch (error) {
+    toast.error(`알림을 읽음으로 표시하는 중 오류 발생: ${error.message}`);
+  }
 };
 
 const removeNotification = (id) => {
@@ -135,31 +112,56 @@ const formatTime = (createdDate) => {
 };
 
 onMounted(async () => {
-  // 더미 알림 데이터를 사용하도록 설정
-  notifications.value = dummyNotifications;
-
-  // 실제 데이터 페칭을 비활성화
-  /*
-  try {
-    await store.dispatch('notifications/fetchNotifications', employeeId.value);
-    await store.dispatch('notifications/connectWebSocket', employeeId.value);
-  } catch (error) {
-    toast.error(`데이터를 가져오거나 웹소켓을 연결하는 중 오류 발생: ${error.message}`);
+  if (process.env.NODE_ENV === 'development') {
+    notifications.value = [
+      {
+        id: 1,
+        notificationTitle: "Notification 1",
+        notificationCreatedDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
+        notificationContent: "This is the content of notification 1",
+        read: false,
+      },
+      {
+        id: 2,
+        notificationTitle: "Notification 2",
+        notificationCreatedDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+        notificationContent: "This is the content of notification 2",
+        read: false,
+      },
+      {
+        id: 3,
+        notificationTitle: "Notification 3",
+        notificationCreatedDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+        notificationContent: "This is the content of notification 3",
+        read: false,
+      },
+    ];
+  } else {
+    try {
+      await store.dispatch('notifications/fetchNotifications', employeeId.value);
+    } catch (error) {
+      toast.error(`데이터를 가져오는 중 오류 발생: ${error.message}`);
+    }
   }
-  */
 
-  const interval = setInterval(() => {
-    notifications.value = [...notifications.value];
-  }, 60000);
+  const stopPolling = store.dispatch('notifications/startPolling', employeeId.value);
+  console.log("Polling started successfully");
 
+  // 컴포넌트 언마운트 시 폴링 중지
   onUnmounted(() => {
-    clearInterval(interval);
+    console.log("Polling stopped");
+    if (typeof stopPolling === 'function') {
+      stopPolling();
+    } else {
+      console.error("stopPolling is not a function");
+    }
   });
 });
 
-const notifications = ref(dummyNotifications);
+const notifications = ref([]);
 const errorMessage = computed(() => store.getters["notifications/errorMessage"] || "");
 </script>
+
 
 <style scoped>
 .card-header {
@@ -221,9 +223,14 @@ const errorMessage = computed(() => store.getters["notifications/errorMessage"] 
   overflow-y: auto;
 }
 
-.no-members-text {
-  opacity: 0.5;
-  font-size: 1.2rem;
+.no-notifications-text {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%; /* 부모 컨테이너의 전체 높이 */
+  color: rgba(0, 0, 0, 0.5); /* 반투명 텍스트 */
+  font-size: 1.2rem; /* 글씨 크기 조절 */
+  text-align: center;
 }
 
 .snackbar-overlay {
@@ -254,12 +261,12 @@ const errorMessage = computed(() => store.getters["notifications/errorMessage"] 
 .time {
   margin-left: 10px;
   font-size: 0.875rem;
-  color: gray;
+  color: #fff; /* 알림 제목과 동일한 색상 */
 }
 
 /* Add the same container style as in ProjectMember.vue */
 .container-fluid {
-  max-width: 1200px;
+  max-width: 800px;
   margin: 0 auto;
 }
 </style>

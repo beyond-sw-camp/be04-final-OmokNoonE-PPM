@@ -55,6 +55,7 @@ const routes = [
     name: "Todo",
     component: Todo,
   },
+  {
     path: "/shcedules",
     name: "일정",
     component: Schedules,
