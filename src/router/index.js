@@ -7,6 +7,7 @@ import SignIn from "../views/SignIn.vue";
 import MaterialSchedule from "@/components/MaterialSchedule.vue";
 import Requirements from "@/views/Requirements.vue";
 import RegisterRequirement from "@/views/RegisterRequirement.vue";
+import Todo from "@/views/Todo.vue";
 import store from '../store/index.js';
 import { refreshToken } from '../services/auth.js';
 import { useCookies } from 'vue3-cookies';
@@ -50,6 +51,10 @@ const routes = [
     component: RegisterRequirement,
   },
   {
+    path: "/todo",
+    name: "Todo",
+    component: Todo,
+  },
     path: "/shcedules",
     name: "일정",
     component: Schedules,
