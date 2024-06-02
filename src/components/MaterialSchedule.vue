@@ -951,7 +951,6 @@ export default {
           });
     },
     async getStakeholderData() {
-      /* 전부 수정 해야될 수도 */
       this.searchProjectMemberResults = this.projectMembers;
       await defaultInstance.get(`stakeholders/view/${this.scheduleId}`)
           .then(response => {
@@ -960,10 +959,10 @@ export default {
             this.stakeholders = data.map(stakeholder => ({
               id: stakeholder.stakeholdersId,
               type: stakeholder.stakeholdersType,
-              roleName: 10603,     // TODO. Replace with actual value. Currently set to PA
-              name: '아무개', // TODO. Replace with actual value.
+              roleName: stakeholder.projectMemberRoleName,
+              name: stakeholder.projectMemberEmployeeName,
               projectMemberId: stakeholder.stakeholdersProjectMemberId,
-              employeeId: 'EP???', // TODO. Replace with actual value.
+              employeeId: stakeholder.projectMemberEmployeeId,
             }));
 
           })
@@ -999,8 +998,8 @@ export default {
             console.log(data)
             this.history = data.map(item => ({
               id: item.scheduleHistoryId,
-              name: item.scheduleHistoryName,
-              employeeId: item.scheduleHistoryEmployeeId,
+              name: item.projectMemberEmployeeName,
+              employeeId: item.projectMemberEmployeeId,
               reason: item.scheduleHistoryReason,
               modifiedDate: `${item.scheduleHistoryModifiedDate.slice(0, 3).map(part => String(part).padStart(2, '0')).join('-')} ${item.scheduleHistoryModifiedDate.slice(3, 6).map(part => String(part).padStart(2, '0')).join(':')}`,
             }));
