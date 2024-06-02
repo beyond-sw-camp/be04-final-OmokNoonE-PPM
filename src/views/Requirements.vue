@@ -58,10 +58,10 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import axios from 'axios';
 import { useRoute } from "vue-router";
 import RegisterRequirement from '@/views/RegisterRequirement.vue';
-import ModifyRequirement from '@/views/ModifyRequirement.vue';  // 경로 확인 및 수정
+import ModifyRequirement from '@/views/components/ModifyRequirement.vue';
+import {defaultInstance} from "@/axios/axios-instance";
 
 const requirements = ref([]);
 const route = useRoute();
@@ -73,7 +73,7 @@ const currentUserId = ref(1);
 
 const fetchRequirements = async () => {
   try {
-    const response = await axios.get(`http://localhost:8888/requirements/list/${projectId}`);
+    const response = await defaultInstance.get(`/requirements/list/${projectId}`);
     const data = response.data;
     console.log(data.result.viewRequirementsList.projectRequirementsList);
     requirements.value = data.result.viewRequirementsList.projectRequirementsList;
@@ -93,7 +93,7 @@ const deleteRequirement = async (requirementsId) => {
   }
 
   try {
-    const response = await axios.delete(`http://localhost:8888/requirements/remove/${requirementsId}`, {
+    const response = await defaultInstance.delete(`/requirements/remove/${requirementsId}`, {
       data: {
         requirementHistoryReason: reason,
         requirementHistoryProjectMemberId: currentUserId.value

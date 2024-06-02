@@ -34,7 +34,7 @@
 
 <script setup>
 import { ref, defineProps, defineEmits, watch } from 'vue';
-import axios from 'axios';
+import {defaultInstance} from "@/axios/axios-instance";
 
 const props = defineProps({
   isVisible: Boolean,
@@ -61,7 +61,7 @@ const close = () => {
 
 const updateRequirement = async () => {
   try {
-    await axios.put(`http://localhost:8888/requirements/modify/${props.requirement.requirementsId}`, {
+    await defaultInstance.put(`/requirements/modify/${props.requirement.requirementsId}`, {
       requirementsName: requirementsName.value,
       requirementsContent: requirementsContent.value,
       requirementHistoryReason: requirementHistoryReason.value,

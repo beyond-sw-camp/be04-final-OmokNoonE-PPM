@@ -1,3 +1,4 @@
+<!-- AddProjectMemberCard.vue -->
 <template>
   <div class="modal" tabindex="-1" role="dialog" style="display: block;">
     <div class="modal-dialog" role="document">
@@ -24,12 +25,12 @@
               <thead>
               <tr>
                 <!-- 각 컬럼 헤더 -->
-                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-left ps-3">선택</th>
-                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-left ps-3">이름</th>
-                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-left ps-1">직책</th>
-                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center ps-2">연락처
-                </th>
-                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-left ps-4">가입일</th>
+                <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-left ps-3">선택</th>
+                <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-left ps-3">사원번호</th>
+                <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-left ps-3">이름</th>
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-left ps-1">권한</th>
+                <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-center ps-2">연락처</th>
+                <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-left ps-4">가입일</th>
               </tr>
               </thead>
               <tbody>
@@ -182,10 +183,6 @@ watch(() => props.availableMembers, async (newVal, oldVal) => {
 // 컴포넌트가 처음 마운트될 때 선택된 구성원을 초기화
 onMounted(async () => {
   await store.dispatch('fetchAvailableMembers');
-  selectedMembers.value = props.availableMembers.map(member => ({
-    ...member,
-    role: 'PA', // 기본 직책을 PA로 설정
-  }));
 });
 </script>
 
@@ -263,10 +260,6 @@ onMounted(async () => {
   .modal-footer {
     display: flex;
     flex-direction: column;
-  }
-
-  .btn {
-    margin-bottom: 10px;
   }
 
   .search-container {

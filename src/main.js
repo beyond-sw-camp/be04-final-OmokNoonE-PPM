@@ -1,7 +1,8 @@
 import { createApp } from "vue";
 import App from "./App.vue";
-import store from "./store";
 import router from "./router";
+import store from "./store";
+import 'handsontable/dist/handsontable.full.css';
 import "./assets/css/nucleo-icons.css";
 import "./assets/css/nucleo-svg.css";
 import MaterialDashboard from "./material-dashboard";
@@ -10,7 +11,6 @@ import "vue-toastification/dist/index.css";
 import vueCookie from "vue3-cookies";
 
 const appInstance = createApp(App);
-
 const toastOptions = {
     position: POSITION.TOP_RIGHT,
     timeout: 5000,
@@ -26,8 +26,8 @@ const toastOptions = {
     rtl: false,
 };
 
-appInstance.use(store);
 appInstance.use(router);
+appInstance.use(store);
 appInstance.use(MaterialDashboard);
 appInstance.use(Toast, toastOptions);
 appInstance.use(vueCookie);

@@ -10,7 +10,7 @@
           :aria-controls="''"
           v-bind:collapse="false"
           collapseRef="dashboard"
-          navText="Dashboard"
+          navText="대시보드"
         >
           <template v-slot:icon>
             <i class="material-icons-round opacity-10 fs-5">dashboard</i>
@@ -22,11 +22,11 @@
           url="#"
           :aria-controls="''"
           v-bind:collapse="false"
-          collapseRef="tables"
-          navText="Tables"
+          collapseRef="project-member"
+          navText="프로젝트 구성원"
         >
           <template v-slot:icon>
-            <i class="material-icons-round opacity-10 fs-5">table_view</i>
+            <i class="material-icons-round opacity-10 fs-5">groups</i>
           </template>
         </sidenav-collapse>
       </li>
@@ -35,8 +35,21 @@
           url="#"
           :aria-controls="''"
           v-bind:collapse="false"
-          collapseRef="billing"
-          navText="Billing"
+          collapseRef="shcedules"
+          navText="일정"
+        >
+          <template v-slot:icon>
+            <i class="material-icons-round opacity-10 fs-5">table_view</i>
+          </template>
+        </sidenav-collapse>
+      </li>
+      <li class="nav-item">
+        <sidenav-collapse
+            url="#"
+            :aria-controls="''"
+            v-bind:collapse="false"
+            collapseRef="requirements"
+            navText="요구사항"
         >
           <template v-slot:icon>
             <i class="material-icons-round opacity-10 fs-5">receipt_long</i>
@@ -48,23 +61,8 @@
           url="#"
           :aria-controls="''"
           v-bind:collapse="false"
-          collapseRef="rtl-page"
-          navText="Rtl"
-        >
-          <template v-slot:icon>
-            <i class="material-icons-round opacity-10 fs-5"
-              >format_textdirection_r_to_l</i
-            >
-          </template>
-        </sidenav-collapse>
-      </li>
-      <li class="nav-item">
-        <sidenav-collapse
-          url="#"
-          :aria-controls="''"
-          v-bind:collapse="false"
           collapseRef="notifications"
-          navText="Notifications"
+          navText="알림"
         >
           <template v-slot:icon>
             <i class="material-icons-round opacity-10 fs-5">notifications</i>
@@ -78,19 +76,6 @@
         >
           ACCOUNT PAGES
         </h6>
-      </li>
-      <li class="nav-item">
-        <sidenav-collapse
-          url="#"
-          :aria-controls="''"
-          v-bind:collapse="false"
-          collapseRef="profile"
-          navText="Profile"
-        >
-          <template v-slot:icon>
-            <i class="material-icons-round opacity-10 fs-5">person</i>
-          </template>
-        </sidenav-collapse>
       </li>
 
       <!-- 로그인 상태에 따라 Sign-In과 Logout이 보인다. -->
@@ -118,19 +103,6 @@
         >
           <template v-slot:icon>
             <i class="material-icons-round opacity-10 fs-5">logout</i>
-          </template>
-        </sidenav-collapse>
-      </li>
-      <li class="nav-item">
-        <sidenav-collapse
-            url="#"
-            :aria-controls="''"
-            v-bind:collapse="false"
-            collapseRef="`requirements/list/${projectId}`"
-            navText="Requirements"
-        >
-          <template v-slot:icon>
-            <i class="material-icons-round opacity-10 fs-5">table_view</i>
           </template>
         </sidenav-collapse>
       </li>
