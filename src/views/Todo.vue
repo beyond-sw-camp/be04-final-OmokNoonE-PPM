@@ -40,11 +40,11 @@
                 <tr>
                   <th class="text-uppercase text-secondary text-lg font-weight-bolder text-center">제목
                   </th>
-                  <th class="text-uppercase text-secondary text-lg font-weight-bolder text-center">PL
+                  <th class="text-uppercase text-secondary text-lg font-weight-bolder text-center">작성자
                   </th>
                   <th class="text-uppercase text-secondary text-lg font-weight-bolder text-center">담당자
                   </th>
-                  <th class="text-uppercase text-secondary text-lg font-weight-bolder text-center">진행상태
+                  <th class="text-uppercase text-secondary text-lg font-weight-bolder text-center">진행 상태
                   </th>
                 </tr>
                 </thead>
@@ -63,12 +63,12 @@
                     </div>
                   </td>
                   <td class="text-center">
-                    <p class="text-xs font-weight-bold mb-0">{{ todo.PL }}</p>
+                    <p class="text-xs font-weight-bold mb-0">{{ todo.authorName }}</p>
                   </td>
-                  <td class="text-left">
+                  <td class="text-center">
                     <span class="text-secondary text-xs font-weight-bold text-left d-inline-block">
                       <span v-for="(assignee, index) in todo.assignee" :key="index">
-                        {{ assignee }}<span v-if="index < todo.assignee.length - 1">, </span>
+                        {{ assignee.employeeName }}<span v-if="index < todo.assignee.length - 1">, </span>
                       </span>
                     </span>
                   </td>
@@ -99,13 +99,13 @@ const todoList = ref([
   {
     id: null,
     title: '',
-    PL: '',
-    assignee: [],
+    authorId: '',
+    authorName: '',
+    assignee: [],  // 담당자는 여러명일 수 있다
     status: null
   },
 ]);
 async function nextWeek() {
-  console.log('차주 할 일 목록 데이터를 가져옵니다.');
   const projectId = 1; // 프로젝트 ID 값도 Store에서 받아올 수 있게 설정해야 합니다.
 
   const response = await defaultInstance.get(`/schedules/nextweek/${projectId}`);
@@ -116,14 +116,14 @@ async function nextWeek() {
   todoList.value = responseData.map(item => ({
     id: item.scheduleId,
     title: item.scheduleTitle,
-    PL: item.scheduleContent, // PL 속성에 대한 정보가 없어서 scheduleContent를 사용했습니다.
-    assignee: [], // assignee 속성에 대한 정보가 없어서 빈 배열을 사용했습니다.
+    authorId: item.authorId,
+    authorName: item.authorName,
+    assignee: item.assigneeList,
     status: item.scheduleStatus
   }));
 }
 
 async function thisWeek() {
-  console.log('금주 할 일 목록 데이터를 가져옵니다.');
   const projectId = 1; // 프로젝트 ID 설정
 
   const response = await defaultInstance.get(`/schedules/thisweek/${projectId}`);
@@ -134,8 +134,9 @@ async function thisWeek() {
   todoList.value = responseData.map(item => ({
     id: item.scheduleId,
     title: item.scheduleTitle,
-    PL: item.scheduleContent, // PL 속성에 대한 정보가 없어서 scheduleContent를 사용했습니다.
-    assignee: [], // assignee 속성에 대한 정보가 없어서 빈 배열을 사용했습니다.
+    authorId: item.authorId,
+    authorName: item.authorName,
+    assignee: item.assigneeList,
     status: item.scheduleStatus
   }));
 }
