@@ -1,11 +1,12 @@
 <template>
   <div id="example">
     <div v-if="!loadingState" class="content-container">
-      <Handsontable v-if="!editMode" :settings="hotSettings"></Handsontable>
+      <Handsontable :settings="hotSettings"></Handsontable>
+      <!--      <Handsontable v-if="!editMode" :settings="hotSettings"></Handsontable>-->
       <!--      <Handsontable v-if="editMode" :settings="editableHotSettings"></Handsontable>-->
       <div class="edit-button-container">
         <!--        <button class="create-button" @click="goToCreateSchedulePage({{ store.getters['project/getProjectId'] }})">등록-->
-        <button class="create-button" @click="goToCreateSchedulePage(1)">등록
+        <button class="create-button" @click="goToCreateSchedulePage(projectId)">등록
         </button>
         <!--      일괄 편집 기능 추후 개발 예정-->
         <!--        <button class="edit-button" @click="toggleEditMode">{{ editMode ? '수정 완료' : '수정' }}</button>-->
@@ -17,12 +18,14 @@
         <h5>삭제 사유</h5>
         <textarea v-model="deleteReason" placeholder="삭제 사유를 입력하세요." rows="4"></textarea>
         <div class="delete-reason-actions">
-        <MaterialButton @click="confirmDelete">확인</MaterialButton>
-        <MaterialButton @click="cancelDelete">취소</MaterialButton>
+          <MaterialButton @click="confirmDelete">확인</MaterialButton>
+          <MaterialButton @click="cancelDelete">취소</MaterialButton>
         </div>
       </div>
     </div>
-    <MaterialSchedule :isOpen="modalOpen" :modalUrl="modalUrl" @close="modalOpen = false"></MaterialSchedule>
+    <MaterialSchedule :isOpen="modalOpen" :modalUrl="modalUrl"
+                      :requirementList="copyRequirementList" :projectMembers="copyProjectMembers"
+                      @close="modalOpen = false"></MaterialSchedule>
     <!--    <StakeholderModal-->
     <!--        :isOpen="stakeholderModalOpen"-->
     <!--        :selectedStakeholders="selectedStakeholders"-->
@@ -55,18 +58,286 @@ export default defineComponent({
   },
 
   setup() {
+    const projectId = 1;      // TODO. 향후 실제 값으로 바꿔야함.
+    const employeeId = "EP001";  // TODO. 향후 실제 값으로 바꿔야함.
+    const projectMemberId = 1;  // TODO. 향후 실제 값으로 바꿔야함.
 
     const schedules = ref([]);
     const copySchedules = ref([]);
 
+    const requirementList = ref([]);
+    const copyRequirementList = ref([]);
+
+    const projectMembers = ref([]);
+    const copyProjectMembers = ref([]);
+
     const loadingState = ref(true);
 
     onMounted(async () => {
+      await getProjectSchedules();
+      await getProjectRequirements();
+      await getProjectMembers();
+    });
+
+    const hotSettings = ref({
+      data: copySchedules.value,
+      colHeaders: [
+        '제목', '시작일', '종료일', '가중치', '진행률', '상태', '공수', '담당자', '자세히', '삭제'
+      ],
+      columns: [
+        {
+          data: 'scheduleTitle', type: 'text', renderer(instance, td, row, col, prop, value) {
+            td.title = value;
+            td.innerText = value;
+            return td;
+          }
+        },
+        {data: 'scheduleStartDate', type: 'date'},
+        {data: 'scheduleEndDate', type: 'date'},
+        {data: 'schedulePriority', type: 'numeric', validator: 'numeric'},
+        {data: 'scheduleProgress', type: 'numeric', format: 'd%'},
+        {data: 'scheduleStatus', type: 'dropdown', source: ['준비', '진행', '완료']},
+        {data: 'scheduleManHours', type: 'numeric'},
+        {
+          data: 'scheduleEmployeeInfoList', type: 'text', renderer(instance, td, row, col, prop, value) {
+            // const button = document.createElement('button');
+            // if (!value || value.length === 0) {
+            //   button.innerText = '담당자 없음';
+            // } else if (value.length === 1) {
+            //   button.innerText = value[0].employeeName + '(' + value[0].employeeId + ')';
+            // } else {
+            //   button.innerText = value[0].employeeName + '(' + value[0].employeeId + ') 등 ' + (value.length) + '명';
+            // }
+            // button.style.cssText = 'background-color: #4CAF50; color: white; border: none; padding: 8px 22px; cursor: pointer;';
+            // button.addEventListener('click', () => openStakeholderModal(row, value));
+            // button.addEventListener('change', () => {
+            //       console.log('change value');
+            //       if (!value || value.length === 0) {
+            //         button.innerText = '담당자 없음';
+            //       } else if (value.length === 1) {
+            //         button.innerText = value[0].employeeName + '(' + value[0].employeeId + ')';
+            //       } else {
+            //         button.innerText = value[0].employeeName + '(' + value[0].employeeId + ') 등 ' + (value.length) + '명';
+            //       }
+            //     }
+            // );
+            // td.innerHTML = '';
+            // td.appendChild(button);
+
+            if (!value || value.length === 0) {
+              td.value = '담당자 없음';
+              td.innerText = '담당자 없음';
+            } else if (value.length === 1) {
+              td.value = value[0].employeeName + '(' + value[0].employeeId + ')';
+              td.innerText = value[0].employeeName + '(' + value[0].employeeId + ')';
+            } else {
+              for (let i = 0; i < value.length; i++) {
+                if (i === 0) {
+                  td.value = value[i].employeeName + '(' + value[i].employeeId + ')';
+                } else {
+                  td.value += ', ' + value[i].employeeName + '(' + value[i].employeeId + ')';
+                }
+              }
+              td.innerText = value[0].employeeName + '(' + value[0].employeeId + ') 등 ' + (value.length) + '명';
+            }
+
+            return td;
+          }
+        },
+        {
+          data: 'scheduleId', renderer(instance, td, row, col, prop, value) {
+            const button = document.createElement('button');
+            button.innerText = 'link';
+            button.style.cssText = 'background-color: #4CAF50; color: white; border: none; padding: 8px 22px; cursor: pointer;';
+            button.addEventListener('click', () => openModal(`http://localhost:8887/schedule/details/${value}`));
+            td.innerHTML = '';
+            td.appendChild(button);
+            return td;
+          }
+        },
+        {
+          data: 'scheduleId', renderer(instance, td, row, col, prop, value) {
+            const button = document.createElement('button');
+            button.innerText = 'X';
+            button.style.cssText = 'background-color: #e72222; color: white; border: none; padding: 8px 22px; cursor: pointer;';
+            button.addEventListener('click', () => openDeleteModal(value));
+            td.innerHTML = '';
+            td.appendChild(button);
+            return td;
+          }
+        },
+      ],
+      className: 'htCenter',
+      licenseKey: 'non-commercial-and-evaluation',
+      rowHeaders: true,
+      dropdownMenu: {
+        items: {
+          // 필터 메뉴에서 'readOnly' 항목 제거
+          'filter_by_condition': {},
+          'filter_action_bar': {},
+          'filter_by_condition2': {},
+          'filter_by_value': {},
+          'filter_operators': {},
+        },
+        condition: function (column) {
+          // 'scheduleId' 열의 인덱스가 0이라고 가정
+          if (column === 8 || column === 9) {
+            return false; // 'scheduleId' 열에는 필터링을 적용하지 않음
+          }
+          return true; // 다른 열에는 필터링을 적용
+        },
+      },
+      hiddenColumns: {indicators: true},
+      nestedRows: true,
+      contextMenu: false,
+      bindRowsWithHeaders: true,
+      autoWrapRow: true,
+      autoWrapCol: true,
+      filters: true,
+      search: true,
+      multiColumnSorting: true,
+      readOnly: true,
+      colWidths: [250, 100, 100, 70, 70, 70, 50, 175, 70, 50],
+
+      // afterChange(changes) {
+      //   console.log('afterChange');
+      //   hotSettings.value.data = [...copySchedules.value]; // 트리거를 위한 데이터 갱신
+      //   console.log('changes : ', changes);
+      // },
+    });
+
+    const selectedRow = ref(null);
+    const modalOpen = ref(false);
+    const modalUrl = ref('');
+    // const editMode = ref(false);
+    const stakeholderModalOpen = ref(false);
+    const selectedStakeholders = ref([]);
+    const showDeleteModal = ref(false);
+    const deleteReason = ref('');
+    const deleteId = ref(0);
+
+
+    const openModal = (url) => {
+      modalUrl.value = url;
+      modalOpen.value = true;
+    };
+
+    // const openStakeholderModal = (rowIndex, value) => {
+    //   if (editMode.value) {
+    //     stakeholderModalOpen.value = true;
+    //     selectedStakeholders.value = value.split(',').map(str => str.trim());
+    //     selectedRow.value = rowIndex;
+    //   }
+    // };
+
+    const closeStakeholderModal = () => {
+      stakeholderModalOpen.value = false;
+    };
+
+    const updateStakeholder = (stakeholders) => {
+      selectedStakeholders.value = stakeholders;
+      closeStakeholderModal();
+
+      copySchedules.value[selectedRow.value]['scheduleEmployeeInfoList'] = stakeholders.join(', ');
+
+      // hotSettings.value.afterChange();
+    };
+
+    const formatDate = (date) => {
+      return format(new Date(date[0], date[1] - 1, date[2]), 'dd/MM/yyyy');
+    };
+
+    const formatChildrenAttributes = (children) => {
+      for (let i = 0; i < children.length; i++) {
+        children[i].scheduleStartDate = formatDate(children[i].scheduleStartDate);
+        children[i].scheduleEndDate = formatDate(children[i].scheduleEndDate);
+        children[i].scheduleStatus = children[i].scheduleStatus === 10303 ? '완료' : (children[i].scheduleStatus === 10302 ? '진행' : '준비');
+
+        if (children[i].__children) {
+          formatChildrenAttributes(children[i].__children);
+        }
+      }
+    };
+
+    // const toggleEditMode = () => {
+    //   /* 일괄 편집 시 사용할 변화 감지 코드, 추후 개발 예정 */
+    //   // if (editMode.value) { // editMode가 true에서 false로 변경될 때
+    //   //   const changeList = [];
+    //   //
+    //   //   copySchedules.value.forEach((schedule, index) => {
+    //   //     const initialSchedule = initialCopySchedules[index];
+    //   //
+    //   //     Object.keys(schedule).forEach(key => {
+    //   //       if (JSON.stringify(schedule[key]) !== JSON.stringify(initialSchedule[key])) {
+    //   //         changeList.push({
+    //   //           row: index,
+    //   //           prop: key,
+    //   //           oldVal: initialSchedule[key],
+    //   //           newVal: schedule[key]
+    //   //         });
+    //   //       }
+    //   //     });
+    //   //   });
+    //   //
+    //   //   console.log('Change List:', changeList);
+    //   // } else { // editMode가 false에서 true로 변경될 때
+    //   //   initialCopySchedules = JSON.parse(JSON.stringify(copySchedules.value)); // copySchedules의 현재 상태 저장
+    //   // }
+    //
+    //   editMode.value = !editMode.value;
+    // };
+
+    const deleteSchedule = async (id, reason) => {
+      try {
+        const requestBody = {
+          scheduleId: id,
+          scheduleTitle: null,
+          scheduleContent: null,
+          scheduleStartDate: null,
+          scheduleEndDate: null,
+          schedulePriority: null,
+          scheduleStatus: null,
+          scheduleHistoryReason: reason,
+          scheduleHistoryProjectMemberId: projectMemberId,
+        }
+        await defaultInstance.delete(`schedules/remove/${id}`, {
+          data: requestBody
+        });
+        console.log(id, '삭제 요청됨');
+        showDeleteModal.value = false;
+        deleteReason.value = '';
+        location.reload();
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    const confirmDelete = () => {
+      if (deleteReason.value) {
+        deleteSchedule(deleteId.value, deleteReason.value);
+
+      } else {
+        alert('삭제 사유를 입력해주세요.');
+      }
+    };
+    const cancelDelete = () => {
+      showDeleteModal.value = false;
+      deleteReason.value = '';
+    };
+    const openDeleteModal = (id) => {
+      deleteId.value = id;
+      showDeleteModal.value = true;
+    };
+
+    const goToCreateSchedulePage = (projectId) => {
+      // router를 활용하여 페이지 이동
+      router.push({name: 'CreateSchedule', params: {projectId: projectId}});
+    }
+
+    const getProjectSchedules = async () => {
       try {
         // const employeeId = store.getters['auth/getEmployeeId'];  // 로그인한 사용자의 ID, 향후 이 코드로 바꿔야함.
-        const employeeId = "EP001"
         // const projectId = store.getters['project/getProjectId'];
-        const projectId = 1;
         const response = await defaultInstance.get(`schedules/sheet/${projectId}`, {
           headers: {
             'employeeId': employeeId
@@ -115,217 +386,59 @@ export default defineComponent({
       } catch (error) {
         console.error(error);
       }
-    });
-
-    const hotSettings = ref({
-      data: copySchedules.value,
-      colHeaders: [
-        '제목', '시작일', '종료일', '가중치', '진행률', '상태', '공수', '담당자', '자세히', '삭제'
-      ],
-      columns: [
-        {
-          data: 'scheduleTitle', type: 'text', renderer(instance, td, row, col, prop, value) {
-            td.title = value;
-            td.innerText = value;
-            return td;
-          }
-        },
-        {data: 'scheduleStartDate', type: 'date'},
-        {data: 'scheduleEndDate', type: 'date'},
-        {data: 'schedulePriority', type: 'numeric', validator: 'numeric'},
-        {data: 'scheduleProgress', type: 'numeric', format: 'd%'},
-        {data: 'scheduleStatus', type: 'dropdown', source: ['준비', '진행', '완료']},
-        {data: 'scheduleManHours', type: 'numeric'},
-        {
-          data: 'scheduleEmployeeInfoList', type: 'text', renderer(instance, td, row, col, prop, value) {
-            const button = document.createElement('button');
-            if (!value || value.length === 0) {
-              button.innerText = '담당자 없음';
-            } else if (value.length === 1) {
-              button.innerText = value[0].employeeName + '(' + value[0].employeeId + ')';
-            } else {
-              button.innerText = value[0].employeeName + '(' + value[0].employeeId + ') 등 ' + (value.length) + '명';
-            }
-            button.style.cssText = 'background-color: #4CAF50; color: white; border: none; padding: 8px 22px; cursor: pointer;';
-            button.addEventListener('click', () => openStakeholderModal(row, value));
-            button.addEventListener('change', () => {
-                  console.log('change value');
-                  if (!value || value.length === 0) {
-                    button.innerText = '담당자 없음';
-                  } else if (value.length === 1) {
-                    button.innerText = value[0].employeeName + '(' + value[0].employeeId + ')';
-                  } else {
-                    button.innerText = value[0].employeeName + '(' + value[0].employeeId + ') 등 ' + (value.length) + '명';
-                  }
-                }
-            );
-            td.innerHTML = '';
-            td.appendChild(button);
-
-            return td;
-          }
-        },
-        {
-          data: 'scheduleId', renderer(instance, td, row, col, prop, value) {
-            const button = document.createElement('button');
-            button.innerText = 'link';
-            button.style.cssText = 'background-color: #4CAF50; color: white; border: none; padding: 8px 22px; cursor: pointer;';
-            button.addEventListener('click', () => openModal(`http://localhost:8887/schedule/details/${value}`));
-            td.innerHTML = '';
-            td.appendChild(button);
-            return td;
-          }
-        },
-        {
-          data: 'scheduleId', renderer(instance, td, row, col, prop, value) {
-            const button = document.createElement('button');
-            button.innerText = 'X';
-            button.style.cssText = 'background-color: #e72222; color: white; border: none; padding: 8px 22px; cursor: pointer;';
-            button.addEventListener('click', () => openDeleteModal(value));
-            td.innerHTML = '';
-            td.appendChild(button);
-            return td;
-          }
-        },
-      ],
-      className: 'htCenter',
-      licenseKey: 'non-commercial-and-evaluation',
-      rowHeaders: true,
-      dropdownMenu: true,
-      hiddenColumns: {indicators: true},
-      nestedRows: true,
-      contextMenu: false,
-      bindRowsWithHeaders: true,
-      autoWrapRow: true,
-      autoWrapCol: true,
-      filters: {readOnly: false},
-      search: true,
-      multiColumnSorting: true,
-      readOnly: true,
-      colWidths: [250, 100, 100, 70, 70, 70, 50, 175, 70, 50],
-      // afterChange(changes) {
-      //   console.log('afterChange');
-      //   hotSettings.value.data = [...copySchedules.value]; // 트리거를 위한 데이터 갱신
-      //   console.log('changes : ', changes);
-      // },
-    });
-
-    const selectedRow = ref(null);
-    const modalOpen = ref(false);
-    const modalUrl = ref('');
-    const editMode = ref(false);
-    const stakeholderModalOpen = ref(false);
-    const selectedStakeholders = ref([]);
-    const showDeleteModal = ref(false);
-    const deleteReason = ref('');
-    const deleteId = ref(0);
-
-
-    const openModal = (url) => {
-      modalUrl.value = url;
-      modalOpen.value = true;
     };
 
-    const openStakeholderModal = (rowIndex, value) => {
-      if (editMode.value) {
-        stakeholderModalOpen.value = true;
-        selectedStakeholders.value = value.split(',').map(str => str.trim());
-        selectedRow.value = rowIndex;
-      }
-    };
-
-    const closeStakeholderModal = () => {
-      stakeholderModalOpen.value = false;
-    };
-
-    const updateStakeholder = (stakeholders) => {
-      selectedStakeholders.value = stakeholders;
-      closeStakeholderModal();
-
-      copySchedules.value[selectedRow.value]['scheduleEmployeeInfoList'] = stakeholders.join(', ');
-
-      // hotSettings.value.afterChange();
-    };
-
-    const formatDate = (date) => {
-      return format(new Date(date[0], date[1] - 1, date[2]), 'dd/MM/yyyy');
-    };
-
-    const formatChildrenAttributes = (children) => {
-      for (let i = 0; i < children.length; i++) {
-        children[i].scheduleStartDate = formatDate(children[i].scheduleStartDate);
-        children[i].scheduleEndDate = formatDate(children[i].scheduleEndDate);
-        children[i].scheduleStatus = children[i].scheduleStatus === 10303 ? '완료' : (children[i].scheduleStatus === 10302 ? '진행' : '준비');
-
-        if (children[i].__children) {
-          formatChildrenAttributes(children[i].__children);
-        }
-      }
-    };
-
-    const toggleEditMode = () => {
-      /* 일괄 편집 시 사용할 변화 감지 코드, 추후 개발 예정 */
-      // if (editMode.value) { // editMode가 true에서 false로 변경될 때
-      //   const changeList = [];
-      //
-      //   copySchedules.value.forEach((schedule, index) => {
-      //     const initialSchedule = initialCopySchedules[index];
-      //
-      //     Object.keys(schedule).forEach(key => {
-      //       if (JSON.stringify(schedule[key]) !== JSON.stringify(initialSchedule[key])) {
-      //         changeList.push({
-      //           row: index,
-      //           prop: key,
-      //           oldVal: initialSchedule[key],
-      //           newVal: schedule[key]
-      //         });
-      //       }
-      //     });
-      //   });
-      //
-      //   console.log('Change List:', changeList);
-      // } else { // editMode가 false에서 true로 변경될 때
-      //   initialCopySchedules = JSON.parse(JSON.stringify(copySchedules.value)); // copySchedules의 현재 상태 저장
-      // }
-
-      editMode.value = !editMode.value;
-    };
-
-    const deleteSchedule = async (id, reason) => {
+    const getProjectRequirements = async () => {
+      // 요구사항 목록 조회 로직 구현
       try {
-        await defaultInstance.delete(`schedules/remove/${id}`, {data: {reason}});
-        /* RequestBody 작성해야함. */
-        console.log(id, '삭제 요청됨');
-        location.reload();
+        const response = await defaultInstance.get(`/requirements/list/${projectId}`);
+        requirementList.value = response.data.result.viewRequirementsList.projectRequirementsList;
+        for (let i = 0; i < requirementList.value.length; i++) {
+          const requirementId = requirementList.value[i].requirementsId;
+          const requirementName = requirementList.value[i].requirementsName;
+          const requirementContent = requirementList.value[i].requirementsContent;
+
+          copyRequirementList.value[i] = {
+            requirementId: requirementId,
+            requirementName: requirementName,
+            requirementContent: requirementContent,
+          };
+        }
+
+        console.log('requirementList :', requirementList);
+        console.log('copyRequirementList :', copyRequirementList);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    const getProjectMembers = async () => {
+      try {
+        // const projectId = store.getters['project/getProjectId'];
+        const projectId = 1;
+        /* 실질적인 API 주소 확인해야함. Controller 메소드 확인 */
+        const response = await defaultInstance.get(`projectMembers/list/${projectId}`);
+        projectMembers.value = response.data.result.viewProjectMembersByProject;
+        for (let i = 0; i < projectMembers.value.length; i++) {
+          const employeeName = projectMembers.value[i].employeeName;
+          const projectMemberEmployeeId = projectMembers.value[i].projectMemberEmployeeId;      // TODO. projectId로 구성원 조회할때 같이 받아오도록 수정 요청
+          const projectMemberId = projectMembers.value[i].projectMemberId;                      // TODO. projectId로 구성원 조회할때 같이 받아오도록 수정 요청
+          const projectMemberRoleName = projectMembers.value[i].projectMemberRoleName;
+
+          copyProjectMembers.value[i] = {
+            name: employeeName,
+            employeeId: projectMemberEmployeeId,
+            projectMemberId: projectMemberId,
+            roleName: projectMemberRoleName,
+            isChecked: false, // 체크박스에 활용될 Value 추가
+          };
+        }
+        console.log('copySchedule.value : ', copyProjectMembers.value);
+
       } catch (error) {
         console.error(error);
       }
-    }
-
-    const confirmDelete = () => {
-      if (deleteReason.value) {
-        deleteSchedule(deleteId.value, deleteReason.value);
-        showDeleteModal.value = false;
-        deleteReason.value = '';
-      } else {
-        alert('삭제 사유를 입력해주세요.');
-      }
     };
-    const cancelDelete = () => {
-      showDeleteModal.value = false;
-      deleteReason.value = '';
-    };
-    const openDeleteModal = (id) => {
-      deleteId.value = id;
-      console.log('deleteId : ', deleteId.value);
-      showDeleteModal.value = true;
-      console.log('showDeleteModal : ', showDeleteModal);
-    };
-
-    const goToCreateSchedulePage = (projectId) => {
-      // router를 활용하여 페이지 이동
-      router.push({name: 'CreateSchedule', params: {projectId: projectId}});
-    }
 
     /* 일괄 편집 기능 추후 개발 예정 */
     // const editableHotSettings = ref({
@@ -344,19 +457,28 @@ export default defineComponent({
 
 
     return {
+      getProjectSchedules,
+      getProjectMembers,
+      getProjectRequirements,
+      projectId,
+      employeeId,
+      requirementList,
+      copyRequirementList,
+      projectMembers,
+      copyProjectMembers,
       hotSettings,
       modalOpen,
       modalUrl,
       openModal,
-      editMode,
-      toggleEditMode,
+      // editMode,
+      // toggleEditMode,
       stakeholderModalOpen,
       closeStakeholderModal,
       selectedStakeholders,
       updateStakeholder,
       // editableHotSettings,
       selectedRow,
-      openStakeholderModal,
+      // openStakeholderModal,
       loadingState,
       // checkCopySchedules,
       deleteSchedule,
@@ -383,9 +505,18 @@ export default defineComponent({
   position: absolute;
   top: 0;
   width: 100%;
-  z-index: 20000;
+  z-index: 1000;
 }
 
+.modal-overlay {
+  background-color: rgba(0, 0, 0, 0.4);
+  height: 100%;
+  left: 0;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 999;
+}
 
 .delete-reason-content {
   background-color: #fefefe;
@@ -403,9 +534,9 @@ export default defineComponent({
   z-index: 21000;
 }
 
-.delete-reason-content textarea{
+.delete-reason-content textarea {
   width: 300px;
-  padding : 10px;
+  padding: 10px;
   overflow-y: auto;
   white-space: pre-wrap;
 }

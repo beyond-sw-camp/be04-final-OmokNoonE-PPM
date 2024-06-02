@@ -6,11 +6,7 @@
           <h5 class="modal-title">이해관계자 추가</h5>
           <!-- 검색 입력 -->
           <div class="search-container">
-            <MaterialInput
-                id="search"
-                v-model="searchQuery"
-                label="이름을 입력하세요..."
-                @keyup.enter="searchMembers"
+            <MaterialInput id="search" v-model="searchQuery" label="이름을 입력하세요..." @keyup.enter="searchMembers"
             />
             <i class="material-icons search-icon" @click="searchMembers">search</i>
           </div>
@@ -49,7 +45,7 @@
                   <div class="d-flex px-2 py-1">
                     <div class="d-flex flex-column justify-content-center">
                       <h6 class="mb-0 text-sm">{{
-                          member.roleName === 10601 ? 'PM' : ( member.roleName === 10602 ? 'PL' : 'PA')
+                          member.roleName === 10601 ? 'PM' : (member.roleName === 10602 ? 'PL' : 'PA')
                         }}</h6>
                     </div>
                   </div>
@@ -68,7 +64,11 @@
           <!-- 취소 버튼 클릭 시 confirmClose 함수 호출 -->
           <MaterialButton color="secondary" size="md" variant="fill" @click="confirmClose">취소</MaterialButton>
           <!-- 추가하기 버튼 클릭 시 addMembers 함수 호출 -->
-          <MaterialButton color="info" size="md" variant="fill" @click="addMembers">추가하기</MaterialButton>
+          <MaterialButton color="info" size="md" variant="fill" @click="async () => {
+            await addMembers();
+            await confirmClose();
+          }">추가하기
+          </MaterialButton>
         </div>
       </div>
     </div>
@@ -102,16 +102,14 @@ onMounted(async () => {
     const response = await defaultInstance.get(`projectMembers/list/${projectId}`);
     projectMembers.value = response.data.result.viewProjectMembersByProject;
     for (let i = 0; i < projectMembers.value.length; i++) {
-      // const projectMemberEmployeeName = projectMembers.value[i].projectMemberEmployeeName;
       const projectMemberEmployeeId = projectMembers.value[i].projectMemberEmployeeId;
       const projectMemberId = projectMembers.value[i].projectMemberId;
-      // const projectMemberRoleName = projectMembers.value[i].projectMemberRoleName;
 
       copyProjectMembers.value[i] = {
         name: '데이터 필요',
         employeeId: projectMemberEmployeeId,
         projectMemberId: projectMemberId,
-        roleName : 10603, // 실제 값을 넣어야 함. 지금은 다 PA로 표시
+        roleName: 10603, // 실제 값을 넣어야 함. 지금은 다 PA로 표시
         isChecked: false, // 체크박스에 활용될 Value 추가
       };
     }
