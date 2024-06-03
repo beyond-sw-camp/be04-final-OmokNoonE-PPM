@@ -8,13 +8,13 @@ import MaterialSchedule from "@/components/MaterialSchedule.vue";
 import Requirements from "@/views/Requirements.vue";
 import RegisterRequirement from "@/views/RegisterRequirement.vue";
 import Todo from "@/views/Todo.vue";
-import {useStore} from "vuex";
 import { refreshToken } from '../services/auth.js';
 import { useCookies } from 'vue3-cookies';
 import CreateSchedule from "@/views/CreateSchedule.vue";
+import store from '../store/index.js';
+
 const { cookies } = useCookies();
 
-const store = useStore();
 
 const routes = [
   {
@@ -93,12 +93,12 @@ function isTokenExpired(token) {
 
 router.beforeEach(async (to, from, next) => {
   // 로그인이 필요한 경우 토큰 갱신을 건너뜀
-  if (store.getters.needLogin) {
+  if (store.state.needLogin) {
     next();
     return;
   }
 
-  const accessToken = store.getters.accessToken;
+  const accessToken = store.state.accessToken;
 
   // accessToken이 만료되었는지 확인하고 만료되었다면 refreshToken을 사용해 accessToken을 갱신
   if (accessToken && isTokenExpired(accessToken)) {
