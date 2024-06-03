@@ -81,6 +81,7 @@ import {useStore} from "vuex";
 import {useToast} from "vue-toastification";
 import MaterialAlert from "@/components/MaterialAlert.vue";
 import MaterialSnackbar from "@/components/MaterialSnackbar.vue";
+import {defaultInstance} from "@/axios/axios-instance";
 
 const snackbar = ref(null);
 const store = useStore();
@@ -110,8 +111,21 @@ const markAsRead = async (id) => {
   }
 };
 
-const removeNotification = (id) => {
-  notifications.value = notifications.value.filter((n) => n.notificationId !== id);
+const removeNotification = async (notificationId) => {
+  try {
+    const response = await defaultInstance.delete(`/notifications/remove/${notificationId}`);
+
+    if (response.status === 204) {
+      await fetchNotifications();
+      notifications.value = notifications.value.filter(notification => notification.notificationId !== notificationId);
+      alert('알림이 성공적으로 삭제되었습니다.');
+    } else {
+      alert('알림 삭제 중 오류가 발생했습니다.');
+    }
+  } catch (error) {
+    console.error('알림 삭제 중 오류 발생:', error);
+    alert('알림 삭제 중 오류가 발생했습니다.');
+  }
 };
 
 const formatTime = (createdDate) => {
@@ -130,13 +144,16 @@ const formatTime = (createdDate) => {
   return `${days}일 전`;
 };
 
-
-onMounted(async () => {
+const fetchNotifications = async () => {
   try {
     await store.dispatch("notifications/fetchNotifications", employeeId.value);
   } catch (error) {
     toast.error(`데이터를 가져오는 중 오류 발생: ${error.message}`);
   }
+};
+
+onMounted(async () => {
+  await fetchNotifications();
 
   const stopPolling = store.dispatch(
       "notifications/startPolling",
