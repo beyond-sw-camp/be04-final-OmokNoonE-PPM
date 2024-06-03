@@ -3,6 +3,9 @@ const state = {
     employeeId: "",
     employeeName: "",
     accessToken: localStorage.getItem("accessToken") || null,
+    projectId: "",
+    projectMemberId: "",
+    roleId: ""
 };
 
 const mutations = {
@@ -19,6 +22,15 @@ const mutations = {
         state.accessToken = data;
         localStorage.setItem('accessToken', data);
     },
+    projectId: (state, data) => {
+        state.projectId = data;
+    },
+    projectMemberId: (state, data) => {
+        state.projectMemberId = data;
+    },
+    roleId: (state, data) => {
+        state.roleId = data;
+    }
 };
 
 const actions = {
@@ -37,7 +49,16 @@ const getters = {
     },
     accessToken(state) {
         return state.accessToken;
-    }
+    },
+    projectId: (state) => {
+        return state.projectId;
+    },
+    projectMemberId: (state) => {
+        return state.projectMemberId;
+    },
+    roleId: (state) => {
+        return state.roleId;
+    },
 };
 
 export default {

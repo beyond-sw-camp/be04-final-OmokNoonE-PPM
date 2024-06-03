@@ -138,7 +138,7 @@ const password = ref('');
 const loginSubmit = async () => {
   try {
     await login(employeeId.value, password.value);
-    await router.push('/dashboard');
+    await router.push('/');
   } catch (error) {
     // 로그인 실패 시 처리
     console.error("로그인 실패", error);
