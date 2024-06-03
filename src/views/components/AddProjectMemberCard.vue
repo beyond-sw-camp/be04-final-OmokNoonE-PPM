@@ -110,7 +110,6 @@ const displayedMembers = computed(() => {
   if (searching.value) {
     return searchResults.value;
   }
-  console.log(availableMembersData.value)
   return availableMembersData.value || [];
 });
 
@@ -150,7 +149,6 @@ const toggleSelection = (member) => {
 
 // 구성원 추가 함수
 const addMembers = async () => {
-  console.log(selectedMembers.value)
   if (selectedMembers.value.length === 0) {
     toast.error('추가할 구성원을 선택해 주세요.');
     return;

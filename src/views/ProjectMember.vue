@@ -111,7 +111,6 @@ const isModifyModalVisible = ref(false); // 직책 변경 모달 표시 상태
 const fetchProjectMembers = async () => {
   try {
     await store.dispatch('fetchProjectMembers');
-    console.log(projectMembers.value);
   } catch (error) {
     toast.error(error.message); // 에러 메시지 처리
   }

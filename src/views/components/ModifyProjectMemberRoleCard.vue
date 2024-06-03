@@ -11,36 +11,31 @@
             <table class="table align-items-center mb-0">
               <thead>
               <tr>
-                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-left ps-3">
-                  선택
-                </th>
-                <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-left ps-3">사원번호</th>
-                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-left ps-3">이름</th>
-                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-left ps-1">권한</th>
-                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center ps-2">연락처
-                </th>
-                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-left ps-4">시작일</th>
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-left ps-3">선택</th>
+                <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-center">사원번호</th>
+                <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-center">이름</th>
+                <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-center">권한</th>
+                <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-center">연락처</th>
               </tr>
               </thead>
               <tbody>
-              <tr v-for="member in projectMembers" :key="member.id"
-                  :class="{ 'is-selected': selectedMemberIds.includes(member.id) }">
+              <tr v-for="member in projectMembers" :key="member.id">
                 <!-- 구성원 선택 체크박스 -->
                 <td class="text-left">
-                  <MaterialCheckbox v-model="selectedMemberIds" :value="member.id"/>
+                  <MaterialCheckbox :checked="isSelected(member)" @change="toggleSelection(member)"/>
+                </td>
+                <!-- 구성원 사원번호 -->
+                <td class="text-left">
+                  <h6 class="mb-0 text-sm">{{ member.projectMemberEmployeeId }}</h6>
                 </td>
                 <!-- 구성원 이름 -->
                 <td class="text-left">
-                  <div class="d-flex px-2 py-1">
-                    <div class="d-flex flex-column justify-content-center">
-                      <h6 class="mb-0 text-sm">{{ member.name }}</h6>
-                    </div>
-                  </div>
+                  <h6 class="mb-0 text-sm">{{ member.employeeName }}</h6>
                 </td>
                 <!-- 구성원 직책 드롭다운 -->
                 <td class="text-left">
-                  <select v-model="member.role" class="form-select form-select-sm"
-                          :disabled="!selectedMemberIds.includes(member.id)">
+                  <select v-model="member.codeName" class="form-select form-select-sm"
+                          :disabled="!isSelected(member)">
                     <option value="PA">PA</option>
                     <option value="PL">PL</option>
                     <option value="PM">PM</option>
@@ -49,12 +44,8 @@
                 <!-- 구성원 연락처 -->
                 <td class="align-middle text-center text-sm">
                     <span class="text-secondary text-xs font-weight-bold text-left d-inline-block">
-                      E-mail. {{ member.email }}<br/><span class="ps-1">Phone. {{ member.phone }}</span>
+                      E-mail. {{ member.employeeEmail }}<br/><span class="ps-1">Phone. {{ member.employeeContact }}</span>
                     </span>
-                </td>
-                <!-- 구성원 시작일 -->
-                <td class="align-middle text-left text-sm">
-                  <span class="text-secondary text-xs font-weight-bold">{{ member.startDate }}</span>
                 </td>
               </tr>
               </tbody>
@@ -73,39 +64,32 @@
 </template>
 
 <script setup>
-import {ref} from 'vue';
+import {computed, onMounted, ref} from 'vue';
 import MaterialButton from '@/components/MaterialButton.vue';
 import MaterialCheckbox from '@/components/MaterialCheckbox.vue';
 import {useToast} from 'vue-toastification';
+import {useStore} from "vuex";
 
-// 부모 컴포넌트로부터 전달받은 props 정의
-const props = defineProps({
-  projectMembers: {
-    type: Array,
-    default: () => [],
-  },
-});
+const store = useStore();
 
 // 이벤트를 부모 컴포넌트로 전달하기 위한 설정
-const emit = defineEmits(['close', 'save-changes']);
+const emit = defineEmits(['close']);
 
-const selectedMemberIds = ref([]); // 선택된 구성원의 ID를 저장
+const selectedMembers = ref([]); // 선택된 구성원의 ID를 저장
 const isLoading = ref(false);
 const toast = useToast(); // toast 초기화
+const projectMembers = computed(() => store.getters.projectMembers || []); // 원래의 추가 가능한 구성원 목록 가져오기
 
 // 변경 사항 저장 함수
 const saveChanges = async () => {
-  if (selectedMemberIds.value.length === 0) {
+  if (selectedMembers.value.length === 0) {
     toast.error('직책을 변경할 구성원을 선택해 주세요.');
     return;
   }
-  const selectedMembers = props.projectMembers.filter(member => selectedMemberIds.value.includes(member.id));
-  if (selectedMembers.length === 0) {
-    toast.error('유효하지 않은 구성원입니다.');
-    return;
-  }
   try {
-    emit('save-changes', selectedMembers); // 선택된 구성원 변경 사항 저장
+    for (const member of selectedMembers) {
+      await store.dispatch('modifyProjectMember', {projectMemberId: member.id, role: member.role});
+    }
     toast.success('구성원의 직책이 성공적으로 변경되었습니다.');
   } catch (error) {
     toast.error('구성원 직책 변경 중 오류가 발생했습니다.');
@@ -114,7 +98,7 @@ const saveChanges = async () => {
 
 // 모달 닫기 확인 함수
 const confirmClose = () => {
-  if (selectedMemberIds.value.length > 0) {
+  if (selectedMembers.value.length > 0) {
     if (confirm('직책 변경을 취소하시겠습니까?')) {
       emit('close');
     }
@@ -122,6 +106,27 @@ const confirmClose = () => {
     emit('close');
   }
 };
+
+const isSelected = (member) => {
+  return selectedMembers.value.includes(member);
+};
+
+// 구성원 선택/해제 토글 함수
+const toggleSelection = (member) => {
+  const index = selectedMembers.value.indexOf(member);
+  if (index > -1) {
+    selectedMembers.value.splice(index, 1); // 이미 선택된 경우 선택 해제
+  } else {
+    selectedMembers.value.push(member); // 선택되지 않은 경우 선택 추가
+  }
+};
+
+onMounted(async () => {
+  isLoading.value = true;
+  console.log('fetching project members');
+  console.log(projectMembers.value)
+  isLoading.value = false;
+});
 </script>
 
 <style scoped>
