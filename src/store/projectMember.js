@@ -40,17 +40,11 @@ const mutations = {
             projectMember.role = role;
         }
     },
-    SET_PROJECT_ID(state, projectId) {
-        state.projectId = projectId;
-    },
     SET_PROJECT_MEMBERS_LOADING(state, loading) {
         state.projectMembersLoading = loading;
     },
     SET_AVAILABLE_MEMBERS_LOADING(state, loading) {
         state.availableMembersLoading = loading;
-    },
-    SET_SEARCH_QUERY(state, query) {
-        state.searchQuery = query;
     },
     SET_SEARCH_RESULTS(state, results) {
         state.searchResults = results;
@@ -58,11 +52,12 @@ const mutations = {
 };
 
 const actions = {
-    async fetchProjectMembers({commit, state}) {
+    async fetchProjectMembers({commit}) {
+        const projectId = 2;
         commit('SET_PROJECT_MEMBERS_LOADING', true); // 로딩 상태 설정
         try {
-            const response = await defaultInstance.get(`/projectMembers/list/${state.projectId}`);
-            commit('SET_PROJECT_MEMBERS', response.data.viewProjectMembersByProject);
+            const response = await defaultInstance.get(`/projectMembers/list/${projectId}`);
+            commit('SET_PROJECT_MEMBERS', response.data.result.viewProjectMembersByProject);
         } catch (err) {
             console.error('프로젝트 구성원을 가져오는 중 오류 발생:', err);
             throw new Error('프로젝트 구성원을 가져오는 중 오류가 발생했습니다.');
@@ -70,13 +65,13 @@ const actions = {
             commit('SET_PROJECT_MEMBERS_LOADING', false); // 로딩 상태 해제
         }
     },
-    async fetchAvailableMembers({commit, state}, {query = ''} = {}) {
+    async fetchAvailableMembers({commit}, {query = ''} = {}) {
+        const projectId = 2;
         commit('SET_AVAILABLE_MEMBERS_LOADING', true); // 로딩 상태 설정
-        commit('SET_SEARCH_QUERY', query); // 검색어 설정
         try {
             const response = await defaultInstance.get(
-                `/projectMembers/available/${state.projectId}?query=${query}`);
-            commit('SET_SEARCH_RESULTS', response.data.viewAvailableMembers);
+                `/projectMembers/available/${projectId}?query=${query}`);
+            commit('SET_SEARCH_RESULTS', response.data.result.viewAvailableMembers);
         } catch (err) {
             console.error('구성원 목록을 가져오는 중 오류 발생:', err);
             throw new Error('구성원 목록을 가져오는 중 오류가 발생했습니다.');
@@ -84,13 +79,20 @@ const actions = {
             commit('SET_AVAILABLE_MEMBERS_LOADING', false); // 로딩 상태 해제
         }
     },
-    async addProjectMember({commit, state}, {memberId}) {
+    async addProjectMember({commit}, {member}) {
+        const ROLE_IDS = {
+            PA: 10603,
+            PL: 10602,
+            PM: 10601,
+        };
         try {
             const response = await defaultInstance.post('/projectMembers/create', {
-                projectMemberProjectId: state.projectId,
-                projectMemberEmployeeId: memberId,
+                projectMemberProjectId: 2,
+                projectMemberEmployeeId: member.projectMemberEmployeeId,
+                projectMemberRoleId: ROLE_IDS[member.role],
+                projectMemberEmployeeName: member.employeeName,
             });
-            commit('ADD_PROJECT_MEMBER', response.data.createProjectMember);
+            commit('ADD_PROJECT_MEMBER', response.data.result.createProjectMember);
         } catch (err) {
             console.error('프로젝트 구성원을 추가하는 중 오류 발생:', err);
             throw new Error('프로젝트 구성원을 추가하는 중 오류가 발생했습니다.');
@@ -129,8 +131,8 @@ const actions = {
 };
 
 const getters = {
-    filteredProjectMembers(state) {
-        return state.projectMembers.filter((member) => !member.isDeleted); // 삭제되지 않은 구성원 필터링
+    projectMembers(state) {
+        return state.projectMembers; // 삭제되지 않은 구성원 필터링
     },
     searchResults(state) {
         return state.searchResults;

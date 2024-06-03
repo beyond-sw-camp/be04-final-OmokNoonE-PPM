@@ -27,12 +27,12 @@
               <table class="table align-items-center mb-0">
                 <thead>
                 <tr>
-                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-left ps-5">사원번호
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-center">사원번호
                   </th>
-                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-left pe-3">이름</th>
-                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-left ">권한</th>
-                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-left pe-6">연락처</th>
-                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-left pe-6">시작일</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-center">이름</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-center">권한</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-center">연락처</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-center">시작일</th>
                   <th class="text-secondary opacity-7"></th>
                 </tr>
                 </thead>
@@ -47,32 +47,34 @@
                     <span class="no-members-text">프로젝트에 참여하는 구성원이 없습니다.</span>
                   </td>
                 </tr>
-                <tr v-else v-for="projectMember in projectMembers" :key="projectMember.id">
-                  <td class="text-left">
-                    <div class="d-flex px-2 py-1">
-                      <div class="d-flex flex-column justify-content-center">
-                        <h6 class="mb-0 text-sm">{{ projectMember.name }}</h6>
-                      </div>
+                <tr v-else v-for="projectMember in projectMembers" :key="projectMember.projectMemberId">
+                  <td class="text-center">
+                    <p class="text-xs font-weight-bold mb-0">{{ projectMember.projectMemberEmployeeId }}</p>
+                  </td>
+                  <td class="text-center">
+                    <div class="d-flex flex-column justify-content-center">
+                      <h6 class="mb-0 text-sm">{{ projectMember.employeeName }}</h6>
                     </div>
                   </td>
-                  <td class="text-left">
-                    <p class="text-xs font-weight-bold mb-0">{{ projectMember.role || '-' }}</p>
+                  <td class="text-center">
+                    <p class="text-xs font-weight-bold mb-0">{{ projectMember.codeName || '-' }}</p>
                   </td>
                   <td class="align-middle text-center text-sm">
                     <span class="text-secondary text-xs font-weight-bold text-left d-inline-block">
-                      E-mail.{{ projectMember.email }}
-                      <br><span class="ps-1">Phone.{{ projectMember.phone }}</span>
+                      E-mail. {{ projectMember.employeeEmail }}
+                      <br><span class="ps-1">Phone. {{ projectMember.employeeContact }}</span>
                     </span>
                   </td>
-                  <td class="align-middle text-left text-sm">
-                    <span class="text-secondary text-xs font-weight-bold">{{ projectMember.startDate }}</span>
+                  <td class="align-middle text-center text-sm">
+                    <span class="text-secondary text-xs font-weight-bold">{{ convertArrayToDate(projectMember.projectMemberCreatedDate) }}</span>
                   </td>
                   <td class="align-middle">
-                    <button class="btn btn-link text-secondary mb-0"
-                            @click="confirmRemoveProjectMember(projectMember.id)" data-toggle="tooltip"
+                    <material-button
+                            color="danger"
+                            @click="confirmRemoveProjectMember(projectMember.projectMemberId)" data-toggle="tooltip"
                             data-original-title="팀에서 제외">
-                      x
-                    </button>
+                      X
+                    </material-button>
                   </td>
                 </tr>
                 </tbody>
@@ -84,13 +86,11 @@
     </div>
 
     <!-- 구성원 추가 모달 -->
-    <AddProjectMemberCard v-if="isAddModalVisible" :available-members="availableMembers"
-                          @close="isAddModalVisible = false" @add-members="addMembers">
-    </AddProjectMemberCard>
+    <AddProjectMemberCard v-if="isAddModalVisible"
+                          @close="isAddModalVisible = false"/>
     <!-- 직책 변경 모달 -->
-    <ModifyProjectMemberRoleCard v-if="isModifyModalVisible" :project-members="projectMembers"
-                                 @close="isModifyModalVisible = false" @save-changes="saveChanges">
-    </ModifyProjectMemberRoleCard>
+    <ModifyProjectMemberRoleCard v-if="isModifyModalVisible"
+                                 @close="isModifyModalVisible = false"/>
   </div>
 </template>
 
@@ -101,10 +101,6 @@ import MaterialButton from '@/components/MaterialButton.vue';
 import AddProjectMemberCard from '@/views/components/AddProjectMemberCard.vue';
 import ModifyProjectMemberRoleCard from '@/views/components/ModifyProjectMemberRoleCard.vue';
 import {useToast} from 'vue-toastification';
-
-const props = defineProps({
-  projectId: Number,
-});
 
 const store = useStore();
 const toast = useToast();
@@ -120,39 +116,9 @@ const fetchProjectMembers = async () => {
   }
 };
 
-// 현재 프로젝트에 추가되지 않은 회원 데이터를 가져오는 함수
-const fetchAvailableMembers = async () => {
-  try {
-    await store.dispatch('fetchAvailableMembers');
-  } catch (error) {
-    toast.error(error.message); // 에러 메시지 처리
-  }
-};
-
 // 필터링된 프로젝트 구성원 목록을 가져오는 computed property
-const projectMembers = computed(() => store.getters.filteredProjectMembers || []);
+const projectMembers = computed(() => store.getters.projectMembers || []);
 const projectMembersLoading = computed(() => store.state.projectMembersLoading); // 프로젝트 구성원 로딩 상태
-
-// 새로운 구성원을 추가하는 함수
-const addMembers = async (selectedMembers) => {
-  if (selectedMembers.length === 0) {
-    toast.error('추가할 구성원을 선택해 주세요.');
-    return;
-  }
-
-  try {
-    for (const member of selectedMembers) {
-      await store.dispatch('addProjectMember', {memberId: member.id});
-    }
-    toast.success('구성원이 성공적으로 추가되었습니다.');
-  } catch (error) {
-    toast.error(error.message); // 에러 메시지 처리
-  } finally {
-    isAddModalVisible.value = false;
-    await fetchProjectMembers();
-    await fetchAvailableMembers();
-  }
-};
 
 // 구성원을 제외하기 전에 확인 메시지를 표시하는 함수
 const confirmRemoveProjectMember = async (projectMemberId) => {
@@ -167,7 +133,6 @@ const confirmRemoveProjectMember = async (projectMemberId) => {
         toast.error(error.message); // 에러 메시지 처리
       } finally {
         await fetchProjectMembers();
-        await fetchAvailableMembers();
       }
     }
   } else {
@@ -175,26 +140,23 @@ const confirmRemoveProjectMember = async (projectMemberId) => {
   }
 };
 
-// 직책 변경을 저장하는 함수
-const saveChanges = async (selectedMembers) => {
-  try {
-    for (const member of selectedMembers) {
-      await store.dispatch('modifyProjectMember', {projectMemberId: member.id, role: member.role});
-    }
-    toast.success('구성원의 직책이 성공적으로 변경되었습니다.');
-  } catch (error) {
-    toast.error(error.message); // 에러 메시지 처리
-  } finally {
-    isModifyModalVisible.value = false;
-    await fetchProjectMembers();
-  }
-};
+function convertArrayToDate(arr) {
+
+    let date = new Date(arr[0], arr[1] - 1, arr[2], arr[3], arr[4], arr[5]);
+
+    let formattedDate = date.getFullYear() + '-' +
+        ('0' + (date.getMonth() + 1)).slice(-2) + '-' +
+        ('0' + date.getDate()).slice(-2) + ' ' +
+        ('0' + date.getHours()).slice(-2) + ':' +
+        ('0' + date.getMinutes()).slice(-2) + ':' +
+        ('0' + date.getSeconds()).slice(-2);
+
+    return formattedDate;
+}
 
 // 컴포넌트가 마운트될 때 프로젝트 ID를 설정하고 데이터를 가져옴
 onMounted(async () => {
-  store.commit('SET_PROJECT_ID', props.projectId);
   await fetchProjectMembers();
-  await fetchAvailableMembers();
 });
 </script>
 
