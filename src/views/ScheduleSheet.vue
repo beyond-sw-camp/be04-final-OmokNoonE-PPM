@@ -46,7 +46,9 @@ import {format} from 'date-fns';
 import {defaultInstance} from "@/axios/axios-instance";
 import router from "@/router";
 import MaterialButton from "@/components/MaterialButton.vue";
-// import store from "@/store/index.js";
+import {useStore} from "vuex";
+
+const store = useStore();
 
 export default defineComponent({
   name: 'ScheduleSheet',
@@ -58,9 +60,9 @@ export default defineComponent({
   },
 
   setup() {
-    const projectId = 1;      // TODO. 향후 실제 값으로 바꿔야함.
-    const employeeId = "EP001";  // TODO. 향후 실제 값으로 바꿔야함.
-    const projectMemberId = 1;  // TODO. 향후 실제 값으로 바꿔야함.
+    const projectId = store.getters.projectId;
+    const employeeId = store.getters.employeeId;
+    const projectMemberId = store.getters.projectMemberId;
 
     const schedules = ref([]);
     const copySchedules = ref([]);
@@ -414,8 +416,6 @@ export default defineComponent({
 
     const getProjectMembers = async () => {
       try {
-        // const projectId = store.getters['project/getProjectId'];
-        const projectId = 1;
         /* 실질적인 API 주소 확인해야함. Controller 메소드 확인 */
         const response = await defaultInstance.get(`projectMembers/list/${projectId}`);
         projectMembers.value = response.data.result.viewProjectMembersByProject;

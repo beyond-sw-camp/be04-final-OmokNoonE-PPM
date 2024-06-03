@@ -510,6 +510,9 @@
 import MaterialButton from "@/components/MaterialButton.vue";
 import {defaultInstance} from "@/axios/axios-instance";
 import MaterialInput from "@/components/MaterialInput.vue";
+import {useStore} from "vuex";
+
+const store = useStore();
 
 export default {
   components: {MaterialInput, MaterialButton},
@@ -816,7 +819,7 @@ export default {
             schedulePriority: this.schedule.priority,
             scheduleStatus: this.schedule.status,
             scheduleHistoryReason: this.reason,           // 일정 수정내역
-            scheduleHistoryProjectMemberId: 1,  // TODO. 수정자 ID를 실제 사용자의 값으로 대체해야 함.
+            scheduleHistoryProjectMemberId: store.getters.projectMemberId,
             scheduleParentScheduleId: this.schedule.parentId,       // TODO. backend 코드에 실제로 값을 받아줘야함.
             schedulePrecedingScheduleId: this.schedule.precedingId, // TODO. backend 코드에 실제로 값을 받아줘야함.
           });
@@ -827,8 +830,8 @@ export default {
           /* 수정 사유 갱신 */
           this.history.push({
             reason: this.reason,
-            name: '당신의 이름', // 수정자 이름을 실제 값으로 대체해야 합니다.
-            employeeId: '당신의 ID', // 수정자 ID를 실제 값으로 대체해야 합니다.
+            name: store.getters.employeeName,     // 수정자 이름을 실제 값으로 대체해야 합니다.
+            employeeId: store.getters.employeeId, // 수정자 ID를 실제 값으로 대체해야 합니다.
             modifiedDate: new Date().toISOString().slice(0, -5).replace('T', ' ') // 현재 시간을 ISO 형식의 문자열로 변환 (초의 소수점 아래 밀리초와 시간대 제외)
           });
           this.reason = '';
@@ -865,9 +868,8 @@ export default {
           this.isRequirementSearchModal = false;
           return;
         }
-        const projectId = 1;
         console.log(`requirementSearchValue` + this.requirementSearchValue);
-        const response = await defaultInstance.get(`/requirements/search/${projectId}/${this.requirementSearchValue}`);
+        const response = await defaultInstance.get(`/requirements/search/${store.getters.projectId}/${this.requirementSearchValue}`);
         const data = response.data.result.searchRequirementsByName;
         console.log(data);
         this.searchRequirements = data.map(requirement => ({

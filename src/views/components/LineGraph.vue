@@ -5,9 +5,14 @@
 <script>
 import Chart from '@toast-ui/chart';
 import { ref, onMounted } from 'vue';
+import {useStore} from "vuex";
+import {defaultInstance} from "@/axios/axios-instance";
+
+const store = useStore();
 
 export default {
   setup() {
+    const projectId = store.getters.projectId;
     const lineRef = ref(null);
     const categories = ref([]); // categories를 반응형 변수로 선언
     const expectProgress = ref([]);
@@ -44,14 +49,10 @@ export default {
 
     const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:8888/graphs/2/line');
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const result = await response.json();
+        const response = await defaultInstance.get(`/graphs/${projectId}/line`);
 
         // 예상진행률, 실제진행률 데이터 업데이트
-        const dashboardData = result.result.viewProjectDashboardByProjectId;
+        const dashboardData = response.data.result.viewProjectDashboardByProjectId;
         const expectedProgress = dashboardData.series.find(series => series.name === '예상진행률');
         const actualProgress = dashboardData.series.find(series => series.name === '실제진행률');
 

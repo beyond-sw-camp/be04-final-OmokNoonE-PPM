@@ -8,11 +8,13 @@ import MaterialSchedule from "@/components/MaterialSchedule.vue";
 import Requirements from "@/views/Requirements.vue";
 import RegisterRequirement from "@/views/RegisterRequirement.vue";
 import Todo from "@/views/Todo.vue";
-import store from '../store/index.js';
+import {useStore} from "vuex";
 import { refreshToken } from '../services/auth.js';
 import { useCookies } from 'vue3-cookies';
 import CreateSchedule from "@/views/CreateSchedule.vue";
 const { cookies } = useCookies();
+
+const store = useStore();
 
 const routes = [
   {

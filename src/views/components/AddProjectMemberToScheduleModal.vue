@@ -81,6 +81,9 @@ import MaterialInput from '@/components/MaterialInput.vue'; // MaterialInput 컴
 import MaterialButton from '@/components/MaterialButton.vue'; // MaterialButton 컴포넌트 임포트
 // import {useToast} from 'vue-toastification';
 import {defaultInstance} from "@/axios/axios-instance";
+import {useStore} from "vuex";
+
+const store = useStore();
 
 // 이벤트를 부모 컴포넌트로 전달하기 위한 설정
 const emit = defineEmits(['close', 'add-members']);
@@ -97,7 +100,7 @@ const searchResults = ref([]); // 검색 결과를 저장
 onMounted(async () => {
   try {
     // const projectId = store.getters['project/getProjectId'];
-    const projectId = 1;
+    const projectId = store.getters.projectId;
     /* 실질적인 API 주소 확인해야함. Controller 메소드 확인 */
     const response = await defaultInstance.get(`projectMembers/list/${projectId}`);
     projectMembers.value = response.data.result.viewProjectMembersByProject;

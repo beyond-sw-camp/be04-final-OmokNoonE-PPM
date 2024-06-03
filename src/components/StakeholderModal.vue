@@ -32,7 +32,7 @@ export default {
   data() {
     return {
       searchQuery: '',
-      stakeholders: ['홍길동(EP000)', '조자룡(EP001)', '유비(EP002)'],
+      stakeholders: ['홍길동(EP000)', '조자룡(EP001)', '유비(EP002)'],  //TODO. 이해관계자 목록을 받아오도록 수정
       checkedStakeholders: [],
     };
   },

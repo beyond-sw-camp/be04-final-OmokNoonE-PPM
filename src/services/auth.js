@@ -1,6 +1,8 @@
 import { defaultInstance, authInstance } from '../axios/axios-instance.js';
-import store from '../store/index.js';
+import { useStore } from "vuex";
 import { useCookies } from "vue3-cookies";
+
+const store = useStore();
 
 const { cookies } = useCookies();
 

@@ -94,6 +94,11 @@
 import {ref, onMounted} from 'vue';
 import MaterialButton from "@/components/MaterialButton.vue";
 import {defaultInstance} from "@/axios/axios-instance";
+import {useStore} from "vuex";
+
+const store = useStore();
+
+const projectId = store.getters.projectId;
 
 const todoList = ref([
   {
@@ -106,8 +111,6 @@ const todoList = ref([
   },
 ]);
 async function nextWeek() {
-  const projectId = 1; // 프로젝트 ID 값도 Store에서 받아올 수 있게 설정해야 합니다.
-
   const response = await defaultInstance.get(`/schedules/nextweek/${projectId}`);
   const responseData = response.data.result.findSchedulesForNextWeek;
   console.log(responseData);
@@ -124,8 +127,6 @@ async function nextWeek() {
 }
 
 async function thisWeek() {
-  const projectId = 1; // 프로젝트 ID 설정
-
   const response = await defaultInstance.get(`/schedules/thisweek/${projectId}`);
   const responseData = response.data.result.findSchedulesForThisWeek;
   console.log(responseData)
