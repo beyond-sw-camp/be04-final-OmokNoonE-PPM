@@ -47,7 +47,7 @@
                     <span class="no-members-text">프로젝트에 참여하는 구성원이 없습니다.</span>
                   </td>
                 </tr>
-                <tr v-else v-for="projectMember in projectMembers" :key="projectMember.id">
+                <tr v-else v-for="projectMember in projectMembers" :key="projectMember.projectMemberId">
                   <td class="text-center">
                     <p class="text-xs font-weight-bold mb-0">{{ projectMember.projectMemberEmployeeId }}</p>
                   </td>
@@ -71,7 +71,7 @@
                   <td class="align-middle">
                     <material-button
                             color="danger"
-                            @click="confirmRemoveProjectMember(projectMember.id)" data-toggle="tooltip"
+                            @click="confirmRemoveProjectMember(projectMember.projectMemberId)" data-toggle="tooltip"
                             data-original-title="팀에서 제외">
                       X
                     </material-button>
