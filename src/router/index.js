@@ -18,7 +18,7 @@ const routes = [
   {
     path: "/",
     name: "/",
-    redirect: "/dashboard",
+    redirect: "/todo",
   },
   {
     path: "/dashboard",

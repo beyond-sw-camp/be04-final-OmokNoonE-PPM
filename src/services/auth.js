@@ -11,10 +11,18 @@ export async function login(employeeId, password) {
     });
 
     if (response.status === 200) {  // 로그인 성공 시 처리
-        store.commit("needLogin", false);                       // 로그인 필요 여부 변경
-        store.commit('accessToken', response.headers["accesstoken"]);   // accessToken 저장
-        store.commit("employeeId", response.headers["employeeid"]);     // 회원ID 저장
-        store.commit("employeeName", response.headers["employeename"]); // 이름 저장
+        let headersData = response.headers;
+
+        store.commit("needLogin", false);                                            // 로그인 필요 여부 변경
+        store.commit('accessToken', headersData["accesstoken"]);                            // accessToken 저장
+        store.commit("employeeId", headersData["employeeid"]);                              // 회원ID 저장
+        store.commit("projectId", headersData["projectid"]);                                // 프로젝트ID 저장
+        store.commit("projectMemberId", headersData["projectmemberid"]);                    // 프로젝트 멤버ID 저장
+        store.commit("roleId", headersData["roleid"]);                                      // 권한ID 저장
+
+        let encodedEmployeeName = headersData["employeename"];
+        let decodedEmployeeName = decodeURIComponent(escape(atob(encodedEmployeeName)));  // 이름 디코딩
+        store.commit("employeeName", decodedEmployeeName);                                  // 이름 저장
     }
 }
 
@@ -30,6 +38,10 @@ export async function logout() {
     cookies.remove('refreshTokenId');
     store.commit('needLogin', true);
     store.commit('employeeId', '');
+    store.commit('employeeName', '');
+    store.commit('accessToken', '');
+    store.commit('projectId', '');
+    store.commit('projectMemberId', '');
 }
 
 export async function refreshToken() {
