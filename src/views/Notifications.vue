@@ -116,6 +116,7 @@ const removeNotification = async (notificationId) => {
     const response = await defaultInstance.delete(`/notifications/remove/${notificationId}`);
 
     if (response.status === 204) {
+      await fetchNotifications();
       notifications.value = notifications.value.filter(notification => notification.notificationId !== notificationId);
       alert('알림이 성공적으로 삭제되었습니다.');
     } else {
@@ -143,13 +144,16 @@ const formatTime = (createdDate) => {
   return `${days}일 전`;
 };
 
-
-onMounted(async () => {
+const fetchNotifications = async () => {
   try {
     await store.dispatch("notifications/fetchNotifications", employeeId.value);
   } catch (error) {
     toast.error(`데이터를 가져오는 중 오류 발생: ${error.message}`);
   }
+};
+
+onMounted(async () => {
+  await fetchNotifications();
 
   const stopPolling = store.dispatch(
       "notifications/startPolling",
