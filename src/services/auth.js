@@ -1,8 +1,6 @@
 import { defaultInstance, authInstance } from '../axios/axios-instance.js';
-import { useStore } from "vuex";
+import store from "@/store";
 import { useCookies } from "vue3-cookies";
-
-const store = useStore();
 
 const { cookies } = useCookies();
 
@@ -31,7 +29,7 @@ export async function login(employeeId, password) {
 // 로그아웃 구현
 export async function logout() {
     // 로그인이 필요한 경우 로그아웃을 건너뜀
-    if (store.getters.needLogin) {
+    if (store.state.needLogin) {
         return;
     }
 
@@ -48,7 +46,7 @@ export async function logout() {
 
 export async function refreshToken() {
     // 로그인이 필요한 경우 토큰 갱신을 건너뜀
-    if (store.getters.needLogin) {
+    if (store.state.needLogin) {
         return;
     }
 
