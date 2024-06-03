@@ -4,49 +4,49 @@
       <div class="col-12">
         <div class="card my-4">
           <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-            <div class="bg-gradient-success shadow-success border-radius-lg pt-4 pb-3">
+            <div class="bg-gradient-success shadow-success border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
               <h6 class="text-white text-capitalize ps-3">요구사항</h6>
-              <button @click="goRegisterRequirement" class="btn btn-success register-btn">요구사항 등록</button>
+              <button @click="goRegisterRequirement" class="btn btn-info register-btn">요구사항 등록</button>
             </div>
           </div>
           <div class="card-body px-0 pb-2">
-              <table class="table align-items-center mb-0">
-                <thead class="sticky-header">
-                <tr>
-                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-cate">요구사항ID</th>
-                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2 text-cate">요구사항명</th>
-                  <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2 text-cate">요구사항 내용</th>
-                  <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2 text-cate">요구사항 수정일자</th>
-                  <th class="text-secondary opacity-7"></th>
-                  <th class="text-secondary opacity-7"></th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr v-for="requirement in requirements" :key="requirement.requirementsId">
-                  <td>
-                    <div class="d-flex px-2 py-1">
-                      <div class="d-flex fl ex-column justify-content-center ps-4">
-                        <h6 class="mb-0 text-sm">{{ requirement.requirementsId }}</h6>
-                      </div>
+            <table class="table align-items-center mb-0">
+              <thead class="sticky-header">
+              <tr>
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-cate">요구사항ID</th>
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2 text-cate">요구사항명</th>
+                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2 text-cate">요구사항 내용</th>
+                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2 text-cate">요구사항 수정일자</th>
+                <th class="text-secondary opacity-7"></th>
+                <th class="text-secondary opacity-7"></th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr v-for="requirement in requirements" :key="requirement.requirementsId">
+                <td>
+                  <div class="d-flex px-2 py-1">
+                    <div class="d-flex flex-column justify-content-center ps-4">
+                      <h6 class="mb-0 text-sm">{{ requirement.requirementsId }}</h6>
                     </div>
-                  </td>
-                  <td>
-                    <p class="text-xs font-weight-bold mb-0">{{ requirement.requirementsName }}</p>
-                  </td>
-                  <td class="align-middle text-center text-sm requirement-content">
-                    <p class="text-xs text-secondary mb-0">{{ requirement.requirementsContent }}</p>
-                  </td>
-                  <td class="align-middle text-center text-sm requirement-created-date">
-                    <p class="text-xs text-secondary mb-0">{{ requirement.requirementsModifiedDate }}</p>
-                  </td>
-                  <td class="align-middle text-end">
-                    <button @click="editRequirement(requirement)" class="btn btn-warning btn-sm">Edit</button>
-                    <button @click="confirmDelete(requirement)" class="btn btn-danger btn-sm">X</button>
-                  </td>
-                </tr>
-                </tbody>
-              </table>
-            </div>
+                  </div>
+                </td>
+                <td>
+                  <p class="text-xs font-weight-bold mb-0">{{ requirement.requirementsName }}</p>
+                </td>
+                <td class="align-middle text-center text-sm requirement-content">
+                  <p class="text-xs text-secondary mb-0">{{ requirement.requirementsContent }}</p>
+                </td>
+                <td class="align-middle text-center text-sm requirement-created-date">
+                  <p class="text-xs text-secondary mb-0">{{ requirement.requirementsModifiedDate }}</p>
+                </td>
+                <td class="align-middle text-end">
+                  <button @click="editRequirement(requirement)" class="btn btn-warning btn-sm">Edit</button>
+                  <button @click="confirmDelete(requirement)" class="btn btn-danger btn-sm">X</button>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
@@ -147,8 +147,8 @@ const goRegisterRequirement = () => {
 }
 
 .card{
-  width: 100%;
-  height: 80vh;
+  width: 93%;
+  height: 74vh;
   overfolow: auto;
 }
 
@@ -168,13 +168,7 @@ const goRegisterRequirement = () => {
 }
 
 .register-btn {
-  right: 60px;  /* 오른쪽에서 20픽셀 떨어진 위치에 배치합니다. */
-  transform: translateY(10%);
-  top: 10%;
-  background-color: #147e23;  /* 배경색을 추가합니다. */
-  position: fixed;
-  bottom: 20px;
-  z-index: 1000;
+  margin-right: 20px;
   padding: 5px 20px !important;  /* 위아래 패딩을 5픽셀로 줄입니다. */
   font-size: 16px;
   height: 40px;
