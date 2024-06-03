@@ -25,16 +25,15 @@
               <thead>
               <tr>
                 <!-- 각 컬럼 헤더 -->
-                <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-left ps-3">선택</th>
-                <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-left ps-3">사원번호</th>
-                <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-left ps-3">이름</th>
-                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-left ps-1">권한</th>
-                <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-center ps-2">연락처</th>
-                <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-left ps-4">가입일</th>
+                <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-center">선택</th>
+                <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-center">사원번호</th>
+                <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-center">이름</th>
+                <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-center">권한</th>
+                <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-center">연락처</th>
               </tr>
               </thead>
               <tbody>
-              <tr v-if="!searching && (availableMembers?.length ?? 0) === 0">
+              <tr v-if="!searching && (availableMembersData?.length ?? 0) === 0">
                 <td colspan="5" class="text-center text-muted" style="height: 320px;">
                   <span class="no-members-text">구성원 목록이 없습니다.</span>
                 </td>
@@ -44,18 +43,17 @@
                   <span class="no-members-text">검색 결과가 없습니다.</span>
                 </td>
               </tr>
-              <tr v-for="member in displayedMembers" :key="member.id">
+              <tr v-for="member in displayedMembers" :key="member.projectMemberEmployeeId">
                 <td class="text-left">
                   <!-- 구성원 선택 체크박스 -->
-                  <MaterialCheckbox v-model="selectedMembers" :value="member.id"/>
+                  <MaterialCheckbox :checked="isSelected(member)" @change="toggleSelection(member)"/>
                 </td>
-                <td class="text-left">
-                  <div class="d-flex px-2 py-1">
-                    <div class="d-flex flex-column justify-content-center">
-                      <!-- 구성원 이름 표시 -->
-                      <h6 class="mb-0 text-sm">{{ member.name }}</h6>
-                    </div>
-                  </div>
+                <td class="text-center">
+                  <!-- 구성원 사원번호 표시 -->
+                  <p class="text-xs font-weight-bold mb-0">{{ member.projectMemberEmployeeId }}</p>
+                </td>
+                <td class="text-center">
+                  <h6 class="mb-0 text-sm">{{ member.employeeName }}</h6>
                 </td>
                 <td class="text-left">
                   <!-- 구성원 직책 선택 드롭다운 -->
@@ -68,12 +66,8 @@
                 <td class="align-middle text-center text-sm">
                   <!-- 구성원의 이메일 및 전화번호 표시 -->
                   <span class="text-secondary text-xs font-weight-bold text-left d-inline-block">
-                      E-mail. {{ member.email }}<br><span class="ps-1">Phone. {{ member.phone }}</span>
+                      E-mail. {{ member.employeeEmail }}<br><span class="ps-1">Phone. {{ member.employeeContact }}</span>
                     </span>
-                </td>
-                <td class="align-middle text-left text-sm">
-                  <!-- 구성원의 가입일 표시 -->
-                  <span class="text-secondary text-xs font-weight-bold">{{ member.startDate }}</span>
                 </td>
               </tr>
               </tbody>
@@ -92,31 +86,23 @@
 </template>
 
 <script setup>
-import {ref, onMounted, computed, watch} from 'vue';
+import {ref, computed, watch, onMounted} from 'vue';
 import {useStore} from 'vuex';
 import MaterialInput from '@/components/MaterialInput.vue'; // MaterialInput 컴포넌트 임포트
 import MaterialButton from '@/components/MaterialButton.vue'; // MaterialButton 컴포넌트 임포트
 import MaterialCheckbox from '@/components/MaterialCheckbox.vue'; // MaterialCheckbox 컴포넌트 임포트
 import {useToast} from 'vue-toastification';
 
-// 부모 컴포넌트에서 전달된 속성 정의
-const props = defineProps({
-  availableMembers: {
-    type: Array,
-    default: () => [],
-  },
-});
-
 // 이벤트를 부모 컴포넌트로 전달하기 위한 설정
-const emit = defineEmits(['close', 'add-members']);
+const emit = defineEmits(['close']);
 
 const selectedMembers = ref([]); // 선택된 구성원 목록을 저장
 const searchQuery = ref(''); // 검색어를 저장
 const store = useStore();
 const toast = useToast();
 const availableMembersLoading = ref(false); // 추가 가능한 구성원 로딩 상태
-const searchResults = ref([]); // 검색 결과를 저장
-const availableMembersData = computed(() => store.state.availableMembers || []); // 원래의 추가 가능한 구성원 목록 가져오기
+const searchResults = ref(); // 검색 결과를 저장
+const availableMembersData = computed(() => store.getters.searchResults || []); // 원래의 추가 가능한 구성원 목록 가져오기
 
 const searching = ref(false); // 검색 여부를 저장
 
@@ -124,6 +110,7 @@ const displayedMembers = computed(() => {
   if (searching.value) {
     return searchResults.value;
   }
+  console.log(availableMembersData.value)
   return availableMembersData.value || [];
 });
 
@@ -146,16 +133,35 @@ const searchMembers = async () => {
   }
 };
 
+// 구성원 선택 상태 확인 함수
+const isSelected = (member) => {
+  return selectedMembers.value.includes(member);
+};
+
+// 구성원 선택/해제 토글 함수
+const toggleSelection = (member) => {
+  const index = selectedMembers.value.indexOf(member);
+  if (index > -1) {
+    selectedMembers.value.splice(index, 1); // 이미 선택된 경우 선택 해제
+  } else {
+    selectedMembers.value.push(member); // 선택되지 않은 경우 선택 추가
+  }
+};
+
 // 구성원 추가 함수
 const addMembers = async () => {
+  console.log(selectedMembers.value)
   if (selectedMembers.value.length === 0) {
     toast.error('추가할 구성원을 선택해 주세요.');
     return;
   }
   try {
-    emit('add-members', selectedMembers.value);
+    for (const member of selectedMembers.value) {
+      await store.dispatch('addProjectMember', {member: member});
+    }
     toast.success('구성원이 성공적으로 추가되었습니다.');
     selectedMembers.value = [];
+    emit('close');
   } catch (error) {
     toast.error('구성원 추가 중 오류가 발생했습니다.'); // 에러 메시지 처리
   }
@@ -173,17 +179,17 @@ const confirmClose = () => {
 };
 
 // 모달이 열릴 때마다 기본 데이터 로드
-watch(() => props.availableMembers, async (newVal, oldVal) => {
+watch(() => availableMembersData.value, async (newVal, oldVal) => {
   if (newVal.length === 0 && oldVal.length !== 0) {
     searching.value = false;
     await store.dispatch('fetchAvailableMembers');
   }
 });
 
-// 컴포넌트가 처음 마운트될 때 선택된 구성원을 초기화
 onMounted(async () => {
   await store.dispatch('fetchAvailableMembers');
 });
+
 </script>
 
 <style scoped>
