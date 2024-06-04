@@ -87,18 +87,17 @@
 
 <script setup>
 import {ref, computed, watch, onMounted} from 'vue';
-import {useStore} from 'vuex';
 import MaterialInput from '@/components/MaterialInput.vue'; // MaterialInput 컴포넌트 임포트
 import MaterialButton from '@/components/MaterialButton.vue'; // MaterialButton 컴포넌트 임포트
 import MaterialCheckbox from '@/components/MaterialCheckbox.vue'; // MaterialCheckbox 컴포넌트 임포트
 import {useToast} from 'vue-toastification';
+import store from '@/store';
 
 // 이벤트를 부모 컴포넌트로 전달하기 위한 설정
 const emit = defineEmits(['close']);
 
 const selectedMembers = ref([]); // 선택된 구성원 목록을 저장
 const searchQuery = ref(''); // 검색어를 저장
-const store = useStore();
 const toast = useToast();
 const availableMembersLoading = ref(false); // 추가 가능한 구성원 로딩 상태
 const searchResults = ref(); // 검색 결과를 저장

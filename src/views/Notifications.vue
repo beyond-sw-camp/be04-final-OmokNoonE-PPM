@@ -76,17 +76,16 @@
 </template>
 
 <script setup>
-import {ref, onMounted, computed, onUnmounted} from "vue";
-import {useStore} from "vuex";
-import {useToast} from "vue-toastification";
+import {ref, onMounted, computed, onUnmounted} from 'vue';
+import {useToast} from 'vue-toastification';
 import MaterialAlert from "@/components/MaterialAlert.vue";
 import MaterialSnackbar from "@/components/MaterialSnackbar.vue";
+import store from "@/store";
 import {defaultInstance} from "@/axios/axios-instance";
 
 const snackbar = ref(null);
-const store = useStore();
 const toast = useToast();
-const employeeId = ref("EP001"); // 실제로는 로그인 정보를 기반으로 설정
+const employeeId = store.getters.employeeId;
 
 const handleContainerClick = async (notification) => {
   snackbar.value = notification;
@@ -105,7 +104,7 @@ const markAsRead = async (id) => {
     notification.markAsRead = true;
   }
   try {
-    await store.dispatch("notifications/markAsRead", id);
+    await store.dispatch("markAsRead", {notificationId: id, employeeId: employeeId.value});
   } catch (error) {
     toast.error(`알림을 읽음으로 표시하는 중 오류 발생: ${error.message}`);
   }
@@ -162,10 +161,10 @@ onMounted(async () => {
   console.log("Polling started successfully");
 
   // 컴포넌트 언마운트 시 폴링 중지
-  onUnmounted(() => {
+  onUnmounted(async () => {
     console.log("Polling stopped");
-    if (typeof stopPolling === "function") {
-      stopPolling();
+    if (typeof stopPolling === 'function') {
+      (await stopPolling)();
     } else {
       console.error("stopPolling is not a function");
     }

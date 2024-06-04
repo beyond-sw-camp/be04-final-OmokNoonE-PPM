@@ -90,7 +90,6 @@ import {defaultInstance} from "@/axios/axios-instance";
 import MaterialButton from "@/components/MaterialButton.vue";
 import MaterialInput from "@/components/MaterialInput.vue";
 import store from "@/store";
-// import router from "@/router";
 
 export default {
   components: {MaterialButton, MaterialInput},
@@ -128,7 +127,7 @@ export default {
         projectEndDate: '',
         projectStatus: '계획',
         projectModifiedDate: '',
-        employeeId: store.getters.employeeId,  // 임시로 EP001로 설정
+        employeeId: store.getters.employeeId,
         isNew: true,
       });
     },

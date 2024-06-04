@@ -68,9 +68,7 @@ import {computed, onMounted, ref} from 'vue';
 import MaterialButton from '@/components/MaterialButton.vue';
 import MaterialCheckbox from '@/components/MaterialCheckbox.vue';
 import {useToast} from 'vue-toastification';
-import {useStore} from "vuex";
-
-const store = useStore();
+import store from '@/store';
 
 // 이벤트를 부모 컴포넌트로 전달하기 위한 설정
 const emit = defineEmits(['close']);

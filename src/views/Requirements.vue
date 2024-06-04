@@ -58,18 +58,17 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useRoute } from "vue-router";
 import RegisterRequirement from '@/views/RegisterRequirement.vue';
 import ModifyRequirement from '@/views/components/ModifyRequirement.vue';
 import {defaultInstance} from "@/axios/axios-instance";
+import store from "@/store";
 
 const requirements = ref([]);
-const route = useRoute();
-const projectId = route.params.projectId;
+const projectId = store.getters.projectId;
 const isModalVisible = ref(false);
 const isEditModalVisible = ref(false);
 const selectedRequirement = ref({});
-const currentUserId = ref(1);
+const currentUserId = store.getters.employeeId;
 
 const fetchRequirements = async () => {
   try {

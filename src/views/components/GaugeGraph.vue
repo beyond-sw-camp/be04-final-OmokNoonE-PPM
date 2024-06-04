@@ -5,10 +5,14 @@
 <script>
 import Chart from '@toast-ui/chart';
 import {ref, onMounted} from 'vue';
+import {defaultInstance} from "@/axios/axios-instance";
+import store from "@/store";
 
 export default {
 
   setup() {
+    const projectId = store.state.projectId;
+
     const gaugeRef = ref(null);
 
     const progress = ref({});
@@ -80,14 +84,9 @@ export default {
 
     const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:8888/graphs/2/gauge');
+        const response = await defaultInstance.get(`/graphs/${projectId}/gauge`);
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const result = await response.json();
-
-        const dashboardData = result.result.viewProjectDashboardByProjectId;
+        const dashboardData = response.data.result.viewProjectDashboardByProjectId;
         const progress = dashboardData.series.find(series => series.name === '전체진행률');
 
 

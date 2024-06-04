@@ -358,7 +358,7 @@ import MaterialInput from "@/components/MaterialInput.vue";
 // import AddProjectMemberToScheduleModal from "@/views/components/AddProjectMemberToScheduleModal.vue";
 import {defaultInstance} from "@/axios/axios-instance";
 import router from "@/router";
-
+import store from "@/store";
 export default {
   components: {
     // AddProjectMemberToScheduleModal,
@@ -383,15 +383,15 @@ export default {
         {
           // TODO. 등록하는 자의 정보로 변경해야함
           // name: store.getName(),
-          name: '홍길동',
+          name: store.getters.employeeName,
           // employeeId: store.getEmployeeId,
-          employeeId: "EP001",
+          employeeId: store.getters.employeeId,
           id: null,
           type: 10401,    // 작성자
-          roleName: 10601,  //PM
+          roleName: store.getters.roleId,  //PM
           // 값을 어디서(back? front?) 받아올지는 고민
           // projectMemberId: store.getProjectMemberId(),
-          projectMemberId: 1,
+          projectMemberId: store.getters.projectMemberId,
         }
       ],
       searchSchedules: [
@@ -435,7 +435,7 @@ export default {
       isRequirementSearchModal: false,
       //
       // projectId: store.getters['project/getProjectId'],
-      projectId: 1,
+      projectId: store.getters.projectId,
       scheduleId: null,
       /* TODO. backend 코드 완성 시, 삭제 */
       alwaysTrue: true,
@@ -660,6 +660,7 @@ export default {
 
         this.scheduleId = response.data.result.viewSchedule.scheduleId;
         console.log('생성된 scheduleId :', this.scheduleId);
+        await this.addStakeholder(this.scheduleId);
 
         return true;
       } catch (error) {
@@ -760,6 +761,24 @@ export default {
     //     this.getRequirements();
     //   }
     // },
+    async addStakeholder(scheduleId) {
+      try {
+        const requestBody = {
+          stakeholdersType: 10401,    // 일정 작성자로 추가됨
+          stakeholdersScheduleId: scheduleId,
+          projectMemberId: this.projectMemberId,
+        };
+        const response = await defaultInstance.post('/stakeholders/create', {
+          data: requestBody,
+        });
+        if (!(response.status >= 200 && response.status < 300)) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+      } catch (error) {
+        console.error('error :', error);
+      }
+    },
   },
 };
 </script>

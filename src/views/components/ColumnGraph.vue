@@ -5,9 +5,13 @@
 <script>
 import Chart from '@toast-ui/chart';
 import { ref, onMounted } from 'vue';
+import {defaultInstance} from "@/axios/axios-instance";
+import store from "@/store";
 
 export default {
   setup() {
+    const projectId = store.getters.projectId;
+
     const columnRef = ref(null);
 
     const categories = ref([]); // categories를 반응형 변수로 선언
@@ -53,14 +57,10 @@ export default {
 
     const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:8888/graphs/1/column');
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const result = await response.json();
+        const response = await defaultInstance.get(`graphs/${projectId}/column`)
 
         // 준비, 진행, 완료 데이터 업데이트
-        const dashboardData = result.result.viewProjectDashboardByProjectId;
+        const dashboardData = response.data.result.viewProjectDashboardByProjectId;
         const ready = dashboardData.series.find(series => series.name === '준비');
         const inProgress = dashboardData.series.find(series => series.name === '진행');
         const done = dashboardData.series.find(series => series.name === '완료');

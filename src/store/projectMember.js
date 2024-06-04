@@ -1,5 +1,6 @@
 // src/store/modules/projectMember.js
 import {defaultInstance} from "@/axios/axios-instance";
+import store from "@/store";
 
 // 권한 상수 정의
 const ROLES = {
@@ -53,10 +54,9 @@ const mutations = {
 
 const actions = {
     async fetchProjectMembers({commit}) {
-        const projectId = 2;
         commit('SET_PROJECT_MEMBERS_LOADING', true); // 로딩 상태 설정
         try {
-            const response = await defaultInstance.get(`/projectMembers/list/${projectId}`);
+            const response = await defaultInstance.get(`/projectMembers/list/${store.getters.projectId}`);
             commit('SET_PROJECT_MEMBERS', response.data.result.viewProjectMembersByProject);
         } catch (err) {
             console.error('프로젝트 구성원을 가져오는 중 오류 발생:', err);
@@ -66,11 +66,10 @@ const actions = {
         }
     },
     async fetchAvailableMembers({commit}, {query = ''} = {}) {
-        const projectId = 2;
         commit('SET_AVAILABLE_MEMBERS_LOADING', true); // 로딩 상태 설정
         try {
             const response = await defaultInstance.get(
-                `/projectMembers/available/${projectId}?query=${query}`);
+                `/projectMembers/available/${store.getters.projectId}?query=${query}`);
             commit('SET_SEARCH_RESULTS', response.data.result.viewAvailableMembers);
         } catch (err) {
             console.error('구성원 목록을 가져오는 중 오류 발생:', err);
@@ -87,7 +86,7 @@ const actions = {
         };
         try {
             const response = await defaultInstance.post('/projectMembers/create', {
-                projectMemberProjectId: 2,
+                projectMemberProjectId: store.getters.projectMembers,
                 projectMemberEmployeeId: member.projectMemberEmployeeId,
                 projectMemberRoleId: ROLE_IDS[member.role],
                 projectMemberEmployeeName: member.employeeName,
