@@ -14,7 +14,7 @@
     "url": "git+https://github.com/creativetimofficial/ct-vue-material-dashboard-2.git"
   },
   "scripts": {
-    "serve": "vue-cli-service serve --port 80",
+    "serve": "vue-cli-service serve --port 8887",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint"
   },
