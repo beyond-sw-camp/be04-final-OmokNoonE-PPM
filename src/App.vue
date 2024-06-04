@@ -17,6 +17,7 @@ Coded by www.creative-tim.com
     :custom_class="color"
     :class="[isRTL ? 'fixed-end' : 'fixed-start']"
     v-if="showSidenav"
+    id="sideNav"
   />
   <main
     class="main-content position-relative max-height-vh-100 h-100 overflow-x-hidden"
@@ -28,8 +29,8 @@ Coded by www.creative-tim.com
       :minNav="navbarMinimize"
       v-if="showNavbar"
     />
-<!-- sidenav-create-project-modal   -->
-    <sidenav-create-project-modal v-if="isProjectModalOpen"/>
+<!-- project-modal   -->
+    <project-modal v-if="isProjectModalOpen"/>
 
     <router-view />
     <!--    <app-footer v-show="showFooter" />-->
@@ -43,7 +44,7 @@ Coded by www.creative-tim.com
 import Sidenav from "./examples/Sidenav";
 import Configurator from "@/examples/Configurator.vue";
 import Navbar from "@/examples/Navbars/Navbar.vue";
-import SidenavCreateProjectModal from "@/views/components/ProjectModal.vue";
+import ProjectModal from "@/views/components/ProjectModal.vue";
 // import AppFooter from "@/examples/Footer.vue";
 import { mapMutations, mapState } from "vuex";
 
@@ -54,7 +55,7 @@ export default {
     Configurator,
     Navbar,
     // AppFooter,
-    SidenavCreateProjectModal,
+    ProjectModal,
   },
   methods: {
     ...mapMutations(["toggleConfigurator", "navbarMinimize"]),
@@ -86,3 +87,8 @@ export default {
   },
 };
 </script>
+<style>
+#sideNav {
+  z-index: 999;
+}
+</style>
