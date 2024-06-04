@@ -135,7 +135,7 @@
 </template>
 <script>
 import SidenavCollapse from "./SidenavCollapse.vue";
-// import SidenavCreateProjectModal from "./SidenavCreateProjectModal.vue";
+// import SidenavCreateProjectModal from "./ProjectModal.vue";
 import {logout} from "@/services/auth";
 import {mapState} from "vuex";
 import store from "@/store";

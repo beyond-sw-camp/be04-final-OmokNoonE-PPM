@@ -43,10 +43,9 @@ Coded by www.creative-tim.com
 import Sidenav from "./examples/Sidenav";
 import Configurator from "@/examples/Configurator.vue";
 import Navbar from "@/examples/Navbars/Navbar.vue";
-import SidenavCreateProjectModal from "@/examples/Sidenav/SidenavCreateProjectModal.vue";
+import SidenavCreateProjectModal from "@/views/components/ProjectModal.vue";
 // import AppFooter from "@/examples/Footer.vue";
 import { mapMutations, mapState } from "vuex";
-import store from "@/store";
 
 export default {
   name: "App",
@@ -61,9 +60,6 @@ export default {
     ...mapMutations(["toggleConfigurator", "navbarMinimize"]),
   },
   computed: {
-    store() {
-      return store
-    },
     ...mapState([
       "isRTL",
       "color",

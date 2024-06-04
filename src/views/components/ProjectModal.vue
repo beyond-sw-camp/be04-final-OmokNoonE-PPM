@@ -3,7 +3,7 @@
     <div class="py-4 container-fluid">
       <div class="modal-container">
         <!-- 헤더 추가 -->
-        <h2 class="card-header">프로젝트 목록</h2>
+        <h4 class="card-header">프로젝트 목록</h4>
         <!-- 프로젝트 목록 -->
         <table class="table">
           <thead>
@@ -161,10 +161,14 @@ export default {
 <style>
 .project_modal {
   position: absolute;
-  top: 50%;
+  top: 55%;
   left: 50%;
-  width: 800px; /* 너비 설정 */
-  height: 600px; /* 높이 설정 */
+  min-width: 700px; /* 너비 설정 */
+  min-height: 400px; /* 높이 설정 */
+  width: 100%;
+  height: 100%;
+  max-width: 170vh;
+  max-height: 83vh;
   transform: translate(-50%, -50%);
   background-color: #F0F2F5;
   border-radius: 20px;
