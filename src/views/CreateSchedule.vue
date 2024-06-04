@@ -660,7 +660,6 @@ export default {
 
         this.scheduleId = response.data.result.viewSchedule.scheduleId;
         console.log('생성된 scheduleId :', this.scheduleId);
-        await this.addStakeholder(this.scheduleId);
 
         return true;
       } catch (error) {
@@ -761,24 +760,6 @@ export default {
     //     this.getRequirements();
     //   }
     // },
-    async addStakeholder(scheduleId) {
-      try {
-        const requestBody = {
-          stakeholdersType: 10401,    // 일정 작성자로 추가됨
-          stakeholdersScheduleId: scheduleId,
-          projectMemberId: this.projectMemberId,
-        };
-        const response = await defaultInstance.post('/stakeholders/create', {
-          data: requestBody,
-        });
-        if (!(response.status >= 200 && response.status < 300)) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-      } catch (error) {
-        console.error('error :', error);
-      }
-    },
   },
 };
 </script>
