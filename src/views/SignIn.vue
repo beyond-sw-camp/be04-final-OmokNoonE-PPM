@@ -129,6 +129,7 @@ import MaterialButton from "@/components/MaterialButton.vue";
 import { login } from '@/services/auth';
 import { useRouter } from 'vue-router';
 import store from '@/store';
+import {useToast} from "vue-toastification";
 
 const router = useRouter();
 
@@ -141,7 +142,10 @@ const loginSubmit = async () => {
     await router.push('/');
   } catch (error) {
     // 로그인 실패 시 처리
-    console.error("로그인 실패", error);
+    // console.error("로그인 실패", error);
+    const toast = useToast(); // 토스트 메시지를 사용할 수 있는 toast 객체를 생성합니다.
+    toast.error("회원 정보가 일치하지 않습니다."); // projectId가 없는 경우 토스트 메시지를 표시합니다.
+
   }
 }
 
