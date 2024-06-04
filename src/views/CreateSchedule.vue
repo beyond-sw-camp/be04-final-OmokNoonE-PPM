@@ -436,9 +436,7 @@ export default {
       //
       // projectId: store.getters['project/getProjectId'],
       projectId: store.getters.projectId,
-      scheduleId: null,
-      /* TODO. backend 코드 완성 시, 삭제 */
-      alwaysTrue: true,
+      projectMemberId: store.getters.projectMemberId,
     };
   },
   methods: {
@@ -651,15 +649,13 @@ export default {
           schedulePriority: this.schedule.priority,
           scheduleParentScheduleId: this.schedule.parentId,
           schedulePrecedingScheduleId: this.schedule.precedingId,
-          scheduleProjectId: this.projectId // Assuming this.schedule.projectId exists
+          scheduleProjectId: this.projectId, // Assuming this.schedule.projectId exists
+          projectMemberId: this.projectMemberId
         });
 
         if (!(response.status >= 200 && response.status < 300)) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-
-        this.scheduleId = response.data.result.viewSchedule.scheduleId;
-        console.log('생성된 scheduleId :', this.scheduleId);
 
         return true;
       } catch (error) {
@@ -668,10 +664,6 @@ export default {
     },
 
     checkValidation() {
-      console.log('schedule: ', this.schedule);
-      console.log('stakeholders: ', this.stakeholders);
-      console.log('tasks: ', this.tasks);
-      console.log('requirements: ', this.requirements);
       // 유효성 검사 로직 구현
       if (this.schedule.title.trim() === '' || this.schedule.startDate === '' || this.schedule.endDate === ''
           || this.schedule.content.trim() === '') {
