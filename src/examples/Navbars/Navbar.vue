@@ -17,10 +17,11 @@
           class="pe-md-3 d-flex align-items-center"
           :class="isRTL ? 'me-md-auto' : 'ms-md-auto'"
         >
-          <material-input id="search" label="Search here" />
+<!-- 사용하지 않는 버튼 제거 -->
+<!--          <material-input id="search" label="Search here" />-->
         </div>
         <ul class="navbar-nav justify-content-end">
-          <li class="nav-item d-flex align-items-center">
+<!--          <li class="nav-item d-flex align-items-center">
             <router-link
               :to="{ name: 'SignIn' }"
               class="px-0 nav-link font-weight-bold lh-1"
@@ -30,8 +31,8 @@
                 account_circle
               </i>
             </router-link>
-          </li>
-          <li class="nav-item d-xl-none ps-3 d-flex align-items-center">
+          </li>-->
+<!--          <li class="nav-item d-xl-none ps-3 d-flex align-items-center">
             <a
               href="#"
               @click="toggleSidebar"
@@ -44,8 +45,8 @@
                 <i class="sidenav-toggler-line"></i>
               </div>
             </a>
-          </li>
-          <li class="px-3 nav-item d-flex align-items-center">
+          </li>-->
+<!--          <li class="px-3 nav-item d-flex align-items-center">
             <a
               class="p-0 nav-link lh-1"
               @click="toggleConfigurator"
@@ -55,8 +56,8 @@
                 settings
               </i>
             </a>
-          </li>
-          <li
+          </li>-->
+<!--          <li
             class="nav-item dropdown d-flex align-items-center"
             :class="isRTL ? 'ps-2' : 'pe-2'"
           >
@@ -178,14 +179,14 @@
                 </a>
               </li>
             </ul>
-          </li>
+          </li>-->
         </ul>
       </div>
     </div>
   </nav>
 </template>
 <script>
-import MaterialInput from "@/components/MaterialInput.vue";
+// import MaterialInput from "@/components/MaterialInput.vue";
 import Breadcrumbs from "../Breadcrumbs.vue";
 import { mapMutations, mapState } from "vuex";
 
@@ -209,7 +210,7 @@ export default {
   },
   components: {
     Breadcrumbs,
-    MaterialInput,
+    // MaterialInput,
   },
   computed: {
     ...mapState(["isRTL", "isAbsolute"]),
