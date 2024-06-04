@@ -27,7 +27,7 @@ const mutations = {
         state.projectId = data;
     },
     projectTitle: (state, data) => {
-        state.projectId = data;
+        state.projectTitle = data;
     },
     projectMemberId: (state, data) => {
         state.projectMemberId = data;
@@ -58,7 +58,7 @@ const getters = {
         return state.projectId;
     },
     projectTitle: (state) => {
-        return state.projectId;
+        return state.projectTitle;
     },
     projectMemberId: (state) => {
         return state.projectMemberId;

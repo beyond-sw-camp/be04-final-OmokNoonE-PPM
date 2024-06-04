@@ -32,6 +32,7 @@
               </i>
             </router-link>
           </li>-->
+          <li><h6>{{ projectTitle }}</h6></li>
           <li class="nav-item d-xl-none ps-3 d-flex align-items-center">
             <a
               href="#"
@@ -189,12 +190,15 @@
 // import MaterialInput from "@/components/MaterialInput.vue";
 import Breadcrumbs from "../Breadcrumbs.vue";
 import { mapMutations, mapState } from "vuex";
+import store from "@/store";
 
 export default {
   name: "navbar",
   data() {
     return {
       showMenu: false,
+      // projectTitle: "테스트 텍스트",
+      projectTitle: store.getters.projectTitle,
     };
   },
   props: ["minNav", "color"],
