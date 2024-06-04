@@ -30,7 +30,7 @@
                   :label="editMode === 'modify' ? '' : '제목'"
                   required
               ></material-input>
-              <span v-else>{{ project.projectTitle }}</span>
+              <span v-else @click="selectProject(project)" style="cursor: pointer;">{{ project.projectTitle }}</span>
             </td>
             <td>
               <material-input
@@ -205,6 +205,7 @@ export default {
       this.selectedProject = null;
       this.showReasonModal = false;
       this.modifyReason = '';
+      this.removeReason = '';
     },
     create() {
       this.isEditing = true;
@@ -223,7 +224,6 @@ export default {
     },
     async saveNewProject() {
       try {
-        console.log('Saving project:', this.projects[0])
         const requestBody = {
           projectTitle: this.projects[0].projectTitle,
           projectStartDate: this.projects[0].projectStartDate,
@@ -232,7 +232,7 @@ export default {
           employeeId: store.getters.employeeId,
           employeeName: store.getters.employeeName
         }
-        console.log('requestBody : ', requestBody);
+
         const response = await defaultInstance.post('/projects/create', requestBody);
         if (!(response.status >= 200 && response.status < 300)) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -279,14 +279,14 @@ export default {
       try {
         const requestBody = {
           projectId: this.selectedProject.projectId,
-          projectMemberId: 1,
+          projectMemberId: store.getters.projectMemberId,
           projectTitle: this.selectedProject.projectTitle,
           projectStartDate: this.selectedProject.projectStartDate,
           projectEndDate: this.selectedProject.projectEndDate,
           projectStatus: this.projectStatus[this.selectedProject.projectStatus],
           projectHistoryReason: this.modifyReason
         }
-        console.log('requestBody : ', requestBody);
+
         const response = await defaultInstance.put('/projects/modify', requestBody);
         if (!(response.status >= 200 && response.status < 300)) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -304,7 +304,7 @@ export default {
       try {
         const requestBody = {
           projectId: this.selectedProject.projectId,
-          projectMemberId: 1,
+          projectMemberId: store.getters.projectMemberId,
           projectHistoryReason: this.removeReason,
           projectHistoryProjectId: this.selectedProject.projectId
         }
@@ -328,7 +328,29 @@ export default {
     },
     closeModal() {
       this.close();
-    }
+    },
+    async selectProject(project) {
+      try{
+
+        const response = await defaultInstance.get(`/projectMembers/view/${project.projectId}`, {
+          params: {
+            employeeId: store.getters.employeeId
+          }
+        });
+
+        const projectDetail = response.data.result.viewProjectMemberByProjectId;
+
+        store.commit('projectId', projectDetail.projectId);
+        store.commit('projectTitle', projectDetail.projectTitle);
+        store.commit('projectMemberId', projectDetail.projectMemberId);
+        store.commit('roleId', projectDetail.roleId);
+
+        await this.close();
+        window.location.reload(); // 새로고침하여 상단바 프로젝트 이름 변경
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+      }
+    },
   },
 };
 </script>
