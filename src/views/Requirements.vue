@@ -62,7 +62,9 @@ import RegisterRequirement from '@/views/RegisterRequirement.vue';
 import ModifyRequirement from '@/views/components/ModifyRequirement.vue';
 import {defaultInstance} from "@/axios/axios-instance";
 import store from "@/store";
+import { useToast } from 'vue-toastification';
 
+const toast = useToast();
 const requirements = ref([]);
 const projectId = store.getters.projectId;
 const isModalVisible = ref(false);
@@ -81,6 +83,7 @@ const fetchRequirements = async () => {
 
   } catch (error) {
     console.error('Error fetching requirements:', error);
+    toast.warning("표시할 요구사항이 없습니다.")
   }
 };
 
