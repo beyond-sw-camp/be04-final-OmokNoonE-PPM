@@ -134,7 +134,20 @@ export default {
     async saveProject() {
       try {
         console.log('Saving project:', this.projects[0])
-        await defaultInstance.post(`projects/create`, this.projects[0]);
+        const requestBody = {
+          projectTitle: this.projects[0].projectTitle,
+          projectStartDate: this.projects[0].projectStartDate,
+          projectEndDate: this.projects[0].projectEndDate,
+          projectStatus: this.projects[0].projectStatus,
+          employeeId: store.getters.employeeId,
+          employeeName: store.getters.employeeName
+        }
+        console.log('requestBody : ', requestBody);
+        const response = await defaultInstance.post('/projects/create', requestBody);
+        if (!(response.status >= 200 && response.status < 300)) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         this.projects[0].isNew = false;
         this.isEditing = false;
         await this.open();
