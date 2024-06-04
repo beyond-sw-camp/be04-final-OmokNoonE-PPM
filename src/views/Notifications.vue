@@ -6,7 +6,8 @@
           <!-- 카드 헤더 -->
           <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
             <div
-                class="bg-gradient-success shadow-success border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
+                class="bg-gradient-success shadow-success border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center"
+            >
               <div class="d-flex align-items-center ps-3">
                 <i class="material-icons text-white me-2">notifications</i>
                 <h6 class="text-white text-capitalize mb-0">알림</h6>
@@ -15,24 +16,43 @@
           </div>
           <!-- 카드 본문 -->
           <div class="card-body p-3 pb-2 alert-container">
-            <div v-for="notification in notifications" :key="notification.id" class="clickable-alert">
+            <div
+                v-for="notification in notifications"
+                :key="notification.notificationId"
+                class="clickable-alert"
+            >
               <material-alert class="font-weight-light" color="success">
-                <span class="text-sm d-flex align-items-center justify-content-between w-100">
-                  <a href="#" class="d-flex align-items-center text-decoration-none text-white w-100"
-                     @click.prevent="handleContainerClick(notification)">
-                    <button v-if="notification.read" class="mark-read-button">
+                <span
+                    class="text-sm d-flex align-items-center justify-content-between w-100"
+                >
+                  <a
+                      href="#"
+                      class="d-flex align-items-center text-decoration-none text-white w-100"
+                      @click.prevent="handleContainerClick(notification)"
+                  >
+                    <button v-if="notification.markAsRead" class="mark-read-button">
                       <i class="material-icons text-info">done</i>
                     </button>
                     <span>{{ notification.notificationTitle }}</span>
-                    <span class="time">{{ formatTime(notification.notificationCreatedDate) }}</span>
+                    <span class="time">
+                      {{ formatTime(notification.notificationCreatedDate) }}
+                    </span>
                   </a>
-                  <button @click.stop="removeNotification(notification.id)" class="btn btn-link p-0 m-0 text-secondary">
+                  <button
+                      @click.stop="removeNotification(notification.notificationId)"
+                      class="btn btn-link p-0 m-0 text-secondary"
+                  >
                     <i class="material-icons text-danger">close</i>
                   </button>
                 </span>
               </material-alert>
             </div>
-            <p v-if="notifications.length === 0 && !errorMessage" class="no-notifications-text">알림이 없습니다.</p>
+            <p
+                v-if="notifications.length === 0 && !errorMessage"
+                class="no-notifications-text"
+            >
+              알림이 없습니다.
+            </p>
             <p v-if="errorMessage" class="text-danger">{{ errorMessage }}</p>
           </div>
         </div>
@@ -46,7 +66,7 @@
           :title="snackbar.notificationTitle"
           :date="snackbar.notificationCreatedDate"
           :description="snackbar.notificationContent"
-          :icon="{ component: 'notifications', color: 'white' }"
+          :icon="snackbarIcon"
           color="info"
           :close-handler="closeSnackbar"
           @click.stop
@@ -61,6 +81,7 @@ import {useToast} from 'vue-toastification';
 import MaterialAlert from "@/components/MaterialAlert.vue";
 import MaterialSnackbar from "@/components/MaterialSnackbar.vue";
 import store from "@/store";
+import {defaultInstance} from "@/axios/axios-instance";
 
 const snackbar = ref(null);
 const toast = useToast();
@@ -68,8 +89,8 @@ const employeeId = store.getters.employeeId;
 
 const handleContainerClick = async (notification) => {
   snackbar.value = notification;
-  if (!notification.read) {
-    await markAsRead(notification.id);
+  if (!notification.markAsRead) {
+    await markAsRead(notification.notificationId);
   }
 };
 
@@ -78,9 +99,9 @@ const closeSnackbar = () => {
 };
 
 const markAsRead = async (id) => {
-  const notification = notifications.value.find((n) => n.id === id);
+  const notification = notifications.value.find((n) => n.notificationId === id);
   if (notification) {
-    notification.read = true;
+    notification.markAsRead = true;
   }
   try {
     await store.dispatch("markAsRead", {notificationId: id, employeeId: employeeId.value});
@@ -89,14 +110,26 @@ const markAsRead = async (id) => {
   }
 };
 
-const removeNotification = (id) => {
-  notifications.value = notifications.value.filter((n) => n.id !== id);
+const removeNotification = async (notificationId) => {
+  try {
+    const response = await defaultInstance.delete(`/notifications/remove/${notificationId}`);
+
+    if (response.status === 204) {
+      await fetchNotifications();
+      notifications.value = notifications.value.filter(notification => notification.notificationId !== notificationId);
+      alert('알림이 성공적으로 삭제되었습니다.');
+    } else {
+      alert('알림 삭제 중 오류가 발생했습니다.');
+    }
+  } catch (error) {
+    console.error('알림 삭제 중 오류 발생:', error);
+    alert('알림 삭제 중 오류가 발생했습니다.');
+  }
 };
 
 const formatTime = (createdDate) => {
   const now = new Date();
-  const created = new Date(createdDate);
-  const diff = now - created;
+  const diff = now - createdDate;
 
   const minutes = Math.floor(diff / 60000);
   if (minutes < 60) {
@@ -110,40 +143,21 @@ const formatTime = (createdDate) => {
   return `${days}일 전`;
 };
 
-onMounted(async () => {
-  if (process.env.NODE_ENV === 'development') {
-    notifications.value = [
-      {
-        id: 1,
-        notificationTitle: "Notification 1",
-        notificationCreatedDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
-        notificationContent: "This is the content of notification 1",
-        read: false,
-      },
-      {
-        id: 2,
-        notificationTitle: "Notification 2",
-        notificationCreatedDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-        notificationContent: "This is the content of notification 2",
-        read: false,
-      },
-      {
-        id: 3,
-        notificationTitle: "Notification 3",
-        notificationCreatedDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
-        notificationContent: "This is the content of notification 3",
-        read: false,
-      },
-    ];
-  } else {
-    try {
-      await store.dispatch('fetchNotifications', employeeId.value);
-    } catch (error) {
-      toast.error(`데이터를 가져오는 중 오류 발생: ${error.message}`);
-    }
+const fetchNotifications = async () => {
+  try {
+    await store.dispatch("notifications/fetchNotifications", employeeId.value);
+  } catch (error) {
+    toast.error(`데이터를 가져오는 중 오류 발생: ${error.message}`);
   }
+};
 
-  const stopPolling = store.dispatch('startPolling', employeeId.value);
+onMounted(async () => {
+  await fetchNotifications();
+
+  const stopPolling = store.dispatch(
+      "notifications/startPolling",
+      employeeId.value
+  );
   console.log("Polling started successfully");
 
   // 컴포넌트 언마운트 시 폴링 중지
@@ -157,10 +171,11 @@ onMounted(async () => {
   });
 });
 
-const notifications = ref([]);
-const errorMessage = computed(() => store.getters["errorMessage"] || "");
+// 여기서 notifications를 기본값으로 빈 배열로 초기화합니다.
+const notifications = computed(() => store.state.notifications.notifications || []);
+const errorMessage = computed(() => store.getters["notifications/errorMessage"] || "");
+const snackbarIcon = computed(() => snackbar.value ? {component: "notifications", color: "white"} : null);
 </script>
-
 
 <style scoped>
 .card-header {
