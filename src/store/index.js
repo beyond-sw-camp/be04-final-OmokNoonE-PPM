@@ -2,6 +2,7 @@ import {createStore} from "vuex";
 import notifications from "./notifications";
 import projectMember from "./projectMember";
 import login from "@/store/login";
+import createPersistedState from "vuex-persistedstate";
 
 export default createStore({
     modules: {
@@ -79,4 +80,5 @@ export default createStore({
             return state.isProjectModalOpen;
         },
     },
+    plugins: [createPersistedState()],
 });
