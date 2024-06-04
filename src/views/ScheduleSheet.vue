@@ -64,6 +64,7 @@ import {defaultInstance} from "@/axios/axios-instance";
 import router from "@/router";
 import MaterialButton from "@/components/MaterialButton.vue";
 import store from "@/store";
+import {useToast} from "vue-toastification";
 
 export default defineComponent({
   name: 'ScheduleSheet',
@@ -232,7 +233,7 @@ export default defineComponent({
     const showDeleteModal = ref(false);
     const deleteReason = ref('');
     const deleteId = ref(0);
-
+    const toast = useToast();
 
     const openModal = (url) => {
       modalUrl.value = url;
@@ -334,7 +335,7 @@ export default defineComponent({
         deleteSchedule(deleteId.value, deleteReason.value);
 
       } else {
-        alert('삭제 사유를 입력해주세요.');
+        toast.error('삭제 사유를 입력해주세요.');
       }
     };
     const cancelDelete = () => {

@@ -288,7 +288,6 @@
 
             <hr class="modal-divider">
             <div class="modal-actions">
-              <p v-if="showInfoMessage" class="info-message">* 표시된 항목을 채워주세요. </p>
               <div>
                 <MaterialButton class="custom-button" style="margin: 1em;" @click="checkValidation">일정 등록
                 </MaterialButton>
@@ -359,6 +358,8 @@ import MaterialInput from "@/components/MaterialInput.vue";
 import {defaultInstance} from "@/axios/axios-instance";
 import router from "@/router";
 import store from "@/store";
+import {useToast} from "vue-toastification";
+
 export default {
   components: {
     // AddProjectMemberToScheduleModal,
@@ -423,7 +424,6 @@ export default {
       tasks: [],
       newTaskTitle: '',
       currentTab: 'details',
-      showInfoMessage: false,
       requirementSearchValue: '',
       isEditProjectMemberVisible: false,
       isSearchModal: false,
@@ -437,6 +437,7 @@ export default {
       // projectId: store.getters['project/getProjectId'],
       projectId: store.getters.projectId,
       projectMemberId: store.getters.projectMemberId,
+      toast: useToast(),
     };
   },
   methods: {
@@ -667,9 +668,8 @@ export default {
       // 유효성 검사 로직 구현
       if (this.schedule.title.trim() === '' || this.schedule.startDate === '' || this.schedule.endDate === ''
           || this.schedule.content.trim() === '') {
-        this.showInfoMessage = true;
+        this.toast.error('* 표시된 항목을 채워주세요.');
       } else {
-        this.showInfoMessage = false;
         this.saveAll();
       }
     },
@@ -890,12 +890,6 @@ export default {
 
 .delete-button:hover {
   background: #e70a0a;
-}
-
-.info-message {
-  color: red;
-  font-size: 0.875rem;
-  margin-top: 0.5rem;
 }
 
 #searchScheduleModal {

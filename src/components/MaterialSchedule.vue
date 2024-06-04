@@ -17,7 +17,7 @@
         <!-- TODO. 프로젝트 이름 -->
         <!--        <p class="modal-project-name">{{ schedule.projectName }}</p>-->
         <!--   스케쥴에서 가져올 때, 프로젝트 이름까지 같이 가져오도록     -->
-        <p class="modal-project-name">한화SW 부트캠프 Project Name</p>
+        <p class="modal-project-name">{{ projectTitle }}</p>
 
         <!--   탭     -->
         <div class="modal-actions">
@@ -97,16 +97,16 @@
                 <select id="status" v-model="schedule.status">
                   <option v-for="status in statusItems" :key="status" :value="status">
                     {{
-                      status == 10401 ? '준비' :
-                          status == 10402 ? '진행' : '완료'
+                      status === 10303 ? '완료' :
+                          status === 10302 ? '진행' : '준비'
                     }}
                   </option>
                 </select>
               </div>
               <span v-else class="modal-info-value">
                 {{
-                  schedule.status == 10401 ? '준비' :
-                      schedule.status == 10402 ? '진행' : '완료'
+                  schedule.status === 10303 ? '완료' :
+                      schedule.status === 10302 ? '진행' : '준비'
                 }}
               </span>
             </div>
@@ -462,7 +462,7 @@
     <div v-if="isSearchModal">
       <!-- 검색 모달 창 -->
       <div id="searchScheduleModal" class="modal fade show" style="display: block;" tabindex="-1" role="dialog">
-        <div class="modal-content" style="z-index: 12000">
+        <div class="modal-content" style="z-index: 1200">
           <div class="modal-header">
             <h5 class="modal-title">일정 검색</h5>
           </div>
@@ -511,6 +511,7 @@ import MaterialButton from "@/components/MaterialButton.vue";
 import {defaultInstance} from "@/axios/axios-instance";
 import MaterialInput from "@/components/MaterialInput.vue";
 import store from "@/store";
+import {useToast} from "vue-toastification";
 
 export default {
   components: {MaterialInput, MaterialButton},
@@ -564,7 +565,7 @@ export default {
       requirements: [],
       searchRequirements: [],
       projectMember: [],
-      statusItems: [10401, 10402, 10403],
+      statusItems: [10301, 10302, 10303],
       isSearchModal: false,
       searchScheduleType: '',
       searchScheduleTitleValue: '',
@@ -590,6 +591,8 @@ export default {
       searchProjectMemberState: false,
       searchProjectMemberResults: [],
       loadingState: true,
+      projectTitle: store.getters.projectTitle,
+      toast: useToast(),
     };
   },
   watch: {
@@ -680,7 +683,7 @@ export default {
 
     async addStakeholder(member) {
       if (this.stakeholders.find(stakeholder => stakeholder.projectMemberId === member.projectMemberId)) {
-        alert('이미 추가된 프로젝트 구성원입니다.');
+        this.toast.warning('이미 추가된 프로젝트 구성원입니다.');
         return;
       }
       try {
@@ -718,7 +721,8 @@ export default {
           if (!(response.status >= 200 && response.status < 300)) {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
-          alert('이해관계자가 정상적으로 삭제되었습니다.');
+
+          this.toast.success('이해관계자가 정상적으로 삭제되었습니다.');
           this.stakeholders.splice(index, 1);
           return response.ok;
         } catch (error) {
@@ -750,7 +754,7 @@ export default {
           if (!(response.status >= 200 && response.status < 300)) {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
-          alert('업무가 정상적으로 추가되었습니다.');
+          this.toast.success('업무가 정상적으로 추가되었습니다.');
           this.tasks.push({id: response.data.result.createTask.taskId, title: this.newTaskTitle, completed: false});
           this.newTaskTitle = '';
           return response.ok;
@@ -784,7 +788,7 @@ export default {
             if (!(response.status >= 200 && response.status < 300)) {
               throw new Error(`HTTP error! status: ${response.status}`);
             }
-            alert('업무가 정상적으로 삭제되었습니다.');
+            this.toast.success('업무가 정상적으로 삭제되었습니다.');
             this.tasks.splice(index, 1);
             return response.ok;
           } catch (error) {
@@ -824,7 +828,7 @@ export default {
           if (!(response.status >= 200 && response.status < 300)) {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
-          alert('일정이 정상적으로 수정되었습니다.');
+          this.toast.success('일정이 정상적으로 수정되었습니다.');
           /* 수정 사유 갱신 */
           this.history.push({
             reason: this.reason,
@@ -844,7 +848,7 @@ export default {
     viewRequirement(requirementId) {
       // 요구사항 자세히 보기 로직 구현
       console.log('requirementId :', requirementId);
-      alert('요구사항 자세히 보기 구현 예정');
+      this.toast.warning('요구사항 자세히 보기 구현 예정');
     },
     async deleteRequirement(scheduleRequirementMapId, index) {
       try {
@@ -852,7 +856,7 @@ export default {
         if (!(response.status >= 200 && response.status < 300)) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        alert('요구사항이 정상적으로 삭제되었습니다.');
+        this.toast.success('요구사항이 정상적으로 삭제되었습니다.');
         this.requirements.splice(index, 1);
         return response.ok;
       } catch (error) {
@@ -892,7 +896,7 @@ export default {
           if (!(response.status >= 200 && response.status < 300)) {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
-          alert('요구사항이 정상적으로 추가되었습니다.');
+          this.toast.success('요구사항이 정상적으로 추가되었습니다.');
           this.requirements.push({
             scheduleRequirementMapId: data.scheduleRequirementMapId,
             requirementId: requirement.requirementId,
@@ -1093,7 +1097,7 @@ export default {
   position: fixed;
   top: 0;
   width: 100%;
-  z-index: 10000;
+  z-index: 1010;
 }
 
 .modal-action-button {
@@ -1142,7 +1146,7 @@ export default {
   top: 50%;
   transform: translate(-50%, -50%);
   width: 80%;
-  z-index: 11000;
+  z-index: 1100;
 }
 
 .textarea-description {
@@ -1224,7 +1228,7 @@ export default {
   position: fixed;
   top: 0;
   width: 100%;
-  z-index: 999;
+  z-index: 1000;
 }
 
 .modal-responsible {
@@ -1319,7 +1323,7 @@ export default {
 }
 
 #searchScheduleModal {
-  z-index: 11000;
+  z-index: 1100;
 }
 
 #title {
