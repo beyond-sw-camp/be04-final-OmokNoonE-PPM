@@ -5,14 +5,14 @@
     :class="isBlur ? isBlur : 'shadow-none my-2 navbar-transparent w-100'"
   >
     <div class="container px-0">
-      <router-link
+<!--      <router-link
         class="navbar-brand font-weight-bolder ms-lg-0 ms-3"
         to="/dashboard"
         v-bind="$attrs"
         :class="isBlur ? 'text-dark' : 'text-white'"
       >
-        Material Dashboard 2
-      </router-link>
+        PPM
+      </router-link>-->
       <button
         class="navbar-toggler shadow-none ms-2"
         type="button"
@@ -29,7 +29,7 @@
         </span>
       </button>
       <div class="collapse navbar-collapse" id="navigation">
-        <ul class="navbar-nav mx-auto">
+<!--        <ul class="navbar-nav mx-auto">
           <li class="nav-item">
             <router-link
               class="nav-link d-flex align-items-center me-2 active"
@@ -83,7 +83,7 @@
               >Free download</a
             >
           </li>
-        </ul>
+        </ul>-->
       </div>
     </div>
   </nav>

@@ -16,7 +16,7 @@
                 class="bg-gradient-success shadow-success border-radius-lg py-3 pe-1"
               >
                 <h4 class="text-white font-weight-bolder text-center mt-2 mb-0">
-                  로그인
+                  PPM
                 </h4>
               </div>
             </div>
@@ -81,13 +81,13 @@
             >
               <li class="nav-item">
                 <a
-                  href="https://www.creative-tim.com"
+                  href="https://github.com/OmokNoonE"
                   class="nav-link text-white"
                   target="_blank"
-                  >Creative Tim</a
+                  >Github</a
                 >
               </li>
-              <li class="nav-item">
+<!--              <li class="nav-item">
                 <a
                   href="https://www.creative-tim.com/presentation"
                   class="nav-link text-white"
@@ -110,7 +110,7 @@
                   target="_blank"
                   >License</a
                 >
-              </li>
+              </li>-->
             </ul>
           </div>
         </div>
