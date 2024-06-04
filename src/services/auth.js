@@ -23,6 +23,11 @@ export async function login(employeeId, password) {
         let encodedEmployeeName = headersData["employeename"];
         let decodedEmployeeName = decodeURIComponent(escape(atob(encodedEmployeeName)));  // 이름 디코딩
         store.commit("employeeName", decodedEmployeeName);                                  // 이름 저장
+
+        let encodedProjectTitle = headersData["projecttitle"];
+        let decodedProjectTitle = decodeURIComponent(escape(atob(encodedProjectTitle)));  // 이름 디코딩
+        store.commit("projectTitle", decodedProjectTitle);                          // 프로젝트 제목 저장
+
     }
 }
 
