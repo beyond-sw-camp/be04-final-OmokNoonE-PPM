@@ -7,6 +7,9 @@ import Chart from '@toast-ui/chart';
 import { ref, onMounted } from 'vue';
 import {defaultInstance} from "@/axios/axios-instance";
 import store from "@/store";
+import { useToast } from 'vue-toastification';
+
+const toast = useToast();
 
 export default {
   setup() {
@@ -78,18 +81,19 @@ export default {
         categories.value = dashboardData.categories;
         data.categories = categories.value;
 
-
+        return true;
       } catch (error) {
-        console.error('Error fetching data:', error);
+        toast.warning('표시할 데이터가 없습니다.');
+        return false;
       }
     };
 
     onMounted(async () => {
-      await fetchData(); // 데이터를 먼저 fetch
-      if (columnRef.value) {
+      const result = await fetchData(); // 데이터를 먼저 fetch
+
+      if (result) {
         const el = columnRef.value;
-        const chart = Chart.columnChart({el, data, options});
-        console.log(chart);
+        Chart.columnChart({el, data, options});
       }
     });
 

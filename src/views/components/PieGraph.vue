@@ -7,6 +7,9 @@ import Chart from '@toast-ui/chart';
 import {ref, onMounted} from 'vue';
 import {defaultInstance} from "@/axios/axios-instance";
 import store from "@/store";
+import {useToast} from 'vue-toastification';
+
+const toast = useToast();
 
 export default {
   setup() {
@@ -67,7 +70,7 @@ export default {
 
     const fetchData = async () => {
       try {
-        const response = defaultInstance.get(`/graphs/${projectId}/pie`);
+        const response = defaultInstance.get(`graphs/${projectId}/pie`);
 
         // 예상 진행률 및 실제 진행률 데이터 업데이트
         const dashboardData = response.data.result.viewProjectDashboardByProjectId;
@@ -84,17 +87,19 @@ export default {
         inProgress.value = inProgress.data;
         done.value = done.data;
 
+        return true;
       } catch (error) {
-        console.error('Error fetching data:', error);
+        toast.warning('표시할 데이터가 없습니다.');
+        return false;
       }
     };
 
     onMounted(async () => {
-      await fetchData(); // 데이터를 먼저 fetch
-      if (pieRef.value) {
+      const result = await fetchData(); // 데이터를 먼저 fetch
+
+      if (result) {
         const el = pieRef.value;
-        const chart = Chart.pieChart({el, data, options});
-        console.log(chart);
+        Chart.pieChart({el, data, options});
       }
     });
 
