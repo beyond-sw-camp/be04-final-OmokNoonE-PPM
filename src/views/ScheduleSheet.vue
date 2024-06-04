@@ -2,13 +2,7 @@
   <div id="example">
     <!-- 프로젝트가 선택된 경우 (ID 존재)  -->
     <div v-if="projectId">
-      <div v-if="!loadingState" class="edit-button-container">
-        <!--        <button class="create-button" @click="goToCreateSchedulePage({{ store.getters['project/getProjectId'] }})">등록-->
-        <button class="create-button" @click="goToCreateSchedulePage(projectId)">등록
-        </button>
-        <!--      일괄 편집 기능 추후 개발 예정-->
-        <!--        <button class="edit-button" @click="toggleEditMode">{{ editMode ? '수정 완료' : '수정' }}</button>-->
-        <!--        <button @click="checkCopySchedules">CopySchedules 값 확인</button>-->
+      <div v-if="!loadingState">
         <!--  프로젝트에 일정이 하나라도 있는 경우    -->
         <div v-if="copySchedules.length > 0" class="content-container">
           <Handsontable :settings="hotSettings"></Handsontable>
@@ -25,6 +19,17 @@
     <div v-else class="no-dashboard">
       <span>선택된 프로젝트가 없습니다.</span>
     </div>
+
+    <!-- 클릭 안되는 이슈로 바깥으로 배치   -->
+    <div v-if="projectId" class="edit-button-container">
+      <!--        <button class="create-button" @click="goToCreateSchedulePage({{ store.getters['project/getProjectId'] }})">등록-->
+      <button class="create-button" @click="goToCreateSchedulePage(projectId)">등록
+      </button>
+      <!--      일괄 편집 기능 추후 개발 예정-->
+      <!--        <button class="edit-button" @click="toggleEditMode">{{ editMode ? '수정 완료' : '수정' }}</button>-->
+      <!--        <button @click="checkCopySchedules">CopySchedules 값 확인</button>-->
+    </div>
+
     <div class="delete-reason" v-if="showDeleteModal">
       <div class="delete-reason-content">
         <h5>삭제 사유</h5>
