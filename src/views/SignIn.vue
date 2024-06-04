@@ -84,8 +84,10 @@
                   href="https://github.com/OmokNoonE"
                   class="nav-link text-white"
                   target="_blank"
-                  >Github</a
-                >
+                  >
+                  <div class="github-icon"/>
+                  Github
+                </a>
               </li>
 <!--              <li class="nav-item">
                 <a
@@ -156,3 +158,13 @@ onBeforeUnmount(() => {
   toggleHideConfig();
 });
 </script>
+
+<style>
+.github-icon {
+  width: 24px; /* 아이콘의 너비 설정 */
+  height: 24px; /* 아이콘의 높이 설정 */
+  background-image: url("~@/assets/img/small-logos/github.svg"); /* 아이콘 이미지 설정 */
+  background-size: cover; /* 아이콘 이미지 크기 조절 */
+  filter: invert(1); /* 아이콘 색상을 흰색으로 변경 */
+}
+</style>
