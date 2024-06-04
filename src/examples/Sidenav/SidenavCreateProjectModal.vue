@@ -1,5 +1,5 @@
 <template>
-  <div class="project_modal" v-if="isActive">
+  <div class="project_modal">
     <div class="py-4 container-fluid">
       <div class="modal-container">
         <!-- 헤더 추가 -->
@@ -95,7 +95,6 @@ export default {
   components: {MaterialButton, MaterialInput},
   data() {
     return {
-      isActive: false,
       projects: [],
       isEditing: false,
     };
@@ -112,7 +111,7 @@ export default {
       }
     },
     close() {
-      this.isActive = false;
+      store.commit("setIsProjectModalOpen", false);
       this.isEditing = false;
     },
     selectProject(project) {
@@ -161,7 +160,7 @@ export default {
 
 <style>
 .project_modal {
-  position: fixed;
+  position: absolute;
   top: 50%;
   left: 50%;
   width: 800px; /* 너비 설정 */
@@ -170,6 +169,7 @@ export default {
   background-color: #F0F2F5;
   border-radius: 20px;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5); /* 그림자 추가 */
+  z-index: 1000;
 }
 
 .modal-container {

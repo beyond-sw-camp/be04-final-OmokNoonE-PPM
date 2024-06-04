@@ -27,6 +27,7 @@ export default createStore({
         navbarFixed:
             "position-sticky blur shadow-blur left-auto top-1 z-index-sticky px-0 mx-4",
         absolute: "position-absolute px-4 mx-0 w-100 z-index-2",
+        isProjectModalOpen: false,
     },
     mutations: {
         toggleConfigurator(state) {
@@ -61,12 +62,21 @@ export default createStore({
         color(state, payload) {
             state.color = payload;
         },
-
+        setIsProjectModalOpen(state, data) {
+            state.isProjectModalOpen = data;
+        }
     },
     actions: {
         setColor({commit}, payload) {
             commit("color", payload);
         },
+        openProjectModal({commit}){
+            commit("setIsProjectModalOpen", true)
+        }
     },
-    getters: {},
+    getters: {
+        getIsProjectModalOpen(state) {
+            return state.isProjectModalOpen;
+        },
+    },
 });

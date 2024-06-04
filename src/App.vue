@@ -28,8 +28,11 @@ Coded by www.creative-tim.com
       :minNav="navbarMinimize"
       v-if="showNavbar"
     />
+<!-- sidenav-create-project-modal   -->
+    <sidenav-create-project-modal v-if="isProjectModalOpen"/>
+
     <router-view />
-<!--    <app-footer v-show="showFooter" />-->
+    <!--    <app-footer v-show="showFooter" />-->
     <configurator
       :toggle="toggleConfigurator"
       :class="[showConfig ? 'show' : '', hideConfigButton ? 'd-none' : '']"
@@ -40,8 +43,10 @@ Coded by www.creative-tim.com
 import Sidenav from "./examples/Sidenav";
 import Configurator from "@/examples/Configurator.vue";
 import Navbar from "@/examples/Navbars/Navbar.vue";
+import SidenavCreateProjectModal from "@/examples/Sidenav/SidenavCreateProjectModal.vue";
 // import AppFooter from "@/examples/Footer.vue";
 import { mapMutations, mapState } from "vuex";
+import store from "@/store";
 
 export default {
   name: "App",
@@ -50,11 +55,15 @@ export default {
     Configurator,
     Navbar,
     // AppFooter,
+    SidenavCreateProjectModal,
   },
   methods: {
     ...mapMutations(["toggleConfigurator", "navbarMinimize"]),
   },
   computed: {
+    store() {
+      return store
+    },
     ...mapState([
       "isRTL",
       "color",
@@ -67,6 +76,7 @@ export default {
       "showFooter",
       "showConfig",
       "hideConfigButton",
+      "isProjectModalOpen"
     ]),
   },
   beforeMount() {
