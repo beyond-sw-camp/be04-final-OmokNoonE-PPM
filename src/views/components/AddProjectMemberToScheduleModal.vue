@@ -81,9 +81,7 @@ import MaterialInput from '@/components/MaterialInput.vue'; // MaterialInput 컴
 import MaterialButton from '@/components/MaterialButton.vue'; // MaterialButton 컴포넌트 임포트
 // import {useToast} from 'vue-toastification';
 import {defaultInstance} from "@/axios/axios-instance";
-import {useStore} from "vuex";
-
-const store = useStore();
+import store from '@/store';
 
 // 이벤트를 부모 컴포넌트로 전달하기 위한 설정
 const emit = defineEmits(['close', 'add-members']);

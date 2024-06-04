@@ -124,13 +124,11 @@ import { ref, onBeforeMount, onBeforeUnmount } from "vue";
 import Navbar from "@/examples/PageLayout/Navbar.vue";
 import MaterialInput from "@/components/MaterialInput.vue";
 import MaterialButton from "@/components/MaterialButton.vue";
-import { useStore } from "vuex";
 import { login } from '@/services/auth';
 import { useRouter } from 'vue-router';
+import store from '@/store';
 
 const router = useRouter();
-
-const store = useStore();
 
 const employeeId = ref('');
 const password = ref('');

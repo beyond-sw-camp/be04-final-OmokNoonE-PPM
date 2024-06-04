@@ -96,13 +96,12 @@
 
 <script setup>
 import {ref, onMounted, computed} from 'vue';
-import {useStore} from 'vuex';
 import MaterialButton from '@/components/MaterialButton.vue';
 import AddProjectMemberCard from '@/views/components/AddProjectMemberCard.vue';
 import ModifyProjectMemberRoleCard from '@/views/components/ModifyProjectMemberRoleCard.vue';
 import {useToast} from 'vue-toastification';
+import store from '@/store';
 
-const store = useStore();
 const toast = useToast();
 const isAddModalVisible = ref(false); // 구성원 추가 모달 표시 상태
 const isModifyModalVisible = ref(false); // 직책 변경 모달 표시 상태

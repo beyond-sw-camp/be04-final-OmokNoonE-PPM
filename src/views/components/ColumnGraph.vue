@@ -6,9 +6,7 @@
 import Chart from '@toast-ui/chart';
 import { ref, onMounted } from 'vue';
 import {defaultInstance} from "@/axios/axios-instance";
-import {useStore} from "vuex";
-
-const store = useStore();
+import store from "@/store";
 
 export default {
   setup() {

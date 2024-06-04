@@ -89,10 +89,8 @@
 import {defaultInstance} from "@/axios/axios-instance";
 import MaterialButton from "@/components/MaterialButton.vue";
 import MaterialInput from "@/components/MaterialInput.vue";
-import {useStore} from "vuex";
-// import router from "@/router";
+import store from "@/store";
 
-const store = useStore();
 export default {
   components: {MaterialButton, MaterialInput},
   data() {

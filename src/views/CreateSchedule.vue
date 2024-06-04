@@ -358,10 +358,7 @@ import MaterialInput from "@/components/MaterialInput.vue";
 // import AddProjectMemberToScheduleModal from "@/views/components/AddProjectMemberToScheduleModal.vue";
 import {defaultInstance} from "@/axios/axios-instance";
 import router from "@/router";
-import {useStore} from "vuex";
-
-const store = useStore();
-
+import store from "@/store";
 export default {
   components: {
     // AddProjectMemberToScheduleModal,

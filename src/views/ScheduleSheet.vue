@@ -46,9 +46,7 @@ import {format} from 'date-fns';
 import {defaultInstance} from "@/axios/axios-instance";
 import router from "@/router";
 import MaterialButton from "@/components/MaterialButton.vue";
-import {useStore} from "vuex";
-
-const store = useStore();
+import store from "@/store";
 
 export default defineComponent({
   name: 'ScheduleSheet',

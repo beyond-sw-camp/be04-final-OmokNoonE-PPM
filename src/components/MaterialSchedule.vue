@@ -510,9 +510,7 @@
 import MaterialButton from "@/components/MaterialButton.vue";
 import {defaultInstance} from "@/axios/axios-instance";
 import MaterialInput from "@/components/MaterialInput.vue";
-import {useStore} from "vuex";
-
-const store = useStore();
+import store from "@/store";
 
 export default {
   components: {MaterialInput, MaterialButton},

@@ -94,9 +94,7 @@
 import {ref, onMounted} from 'vue';
 import MaterialButton from "@/components/MaterialButton.vue";
 import {defaultInstance} from "@/axios/axios-instance";
-import {useStore} from "vuex";
-
-const store = useStore();
+import store from "@/store";
 
 const projectId = store.getters.projectId;
 

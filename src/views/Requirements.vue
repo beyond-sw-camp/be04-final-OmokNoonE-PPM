@@ -61,9 +61,7 @@ import { ref, onMounted } from 'vue';
 import RegisterRequirement from '@/views/RegisterRequirement.vue';
 import ModifyRequirement from '@/views/components/ModifyRequirement.vue';
 import {defaultInstance} from "@/axios/axios-instance";
-import {useStore} from "vuex";
-
-const store = useStore();
+import store from "@/store";
 
 const requirements = ref([]);
 const projectId = store.getters.projectId;

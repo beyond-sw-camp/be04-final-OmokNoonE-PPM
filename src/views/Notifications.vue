@@ -57,13 +57,12 @@
 
 <script setup>
 import {ref, onMounted, computed, onUnmounted} from 'vue';
-import {useStore} from 'vuex';
 import {useToast} from 'vue-toastification';
 import MaterialAlert from "@/components/MaterialAlert.vue";
 import MaterialSnackbar from "@/components/MaterialSnackbar.vue";
+import store from "@/store";
 
 const snackbar = ref(null);
-const store = useStore();
 const toast = useToast();
 const employeeId = store.getters.employeeId;
 

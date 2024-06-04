@@ -1,8 +1,6 @@
 // src/store/modules/projectMember.js
 import {defaultInstance} from "@/axios/axios-instance";
-import {useStore} from "vuex";
-
-const store = useStore();
+import store from "@/store";
 
 // 권한 상수 정의
 const ROLES = {
