@@ -1,10 +1,8 @@
 <template>
-<div v-if="projectId">
+<div >
   <ScheduleSheet/>
 </div>
-<div v-else class="no-dashboard">
-  <span>표시할 일정이 없습니다.</span>
-</div>
+
 </template>
 
 <script>
@@ -31,14 +29,5 @@ export default {
 };
 </script>
 <style>
-.no-dashboard {
-  background-color: white;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 1.5rem;
-  color: #868e96;
-  width: 90%;
-  height: 80vh;
-}
+
 </style>

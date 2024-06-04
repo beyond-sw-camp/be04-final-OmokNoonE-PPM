@@ -1,17 +1,29 @@
 <template>
   <div id="example">
-    <div v-if="!loadingState" class="content-container">
-      <Handsontable :settings="hotSettings"></Handsontable>
-      <!--      <Handsontable v-if="!editMode" :settings="hotSettings"></Handsontable>-->
-      <!--      <Handsontable v-if="editMode" :settings="editableHotSettings"></Handsontable>-->
-      <div class="edit-button-container">
+    <!-- 프로젝트가 선택된 경우 (ID 존재)  -->
+    <div v-if="projectId">
+      <div v-if="!loadingState" class="edit-button-container">
         <!--        <button class="create-button" @click="goToCreateSchedulePage({{ store.getters['project/getProjectId'] }})">등록-->
         <button class="create-button" @click="goToCreateSchedulePage(projectId)">등록
         </button>
         <!--      일괄 편집 기능 추후 개발 예정-->
         <!--        <button class="edit-button" @click="toggleEditMode">{{ editMode ? '수정 완료' : '수정' }}</button>-->
         <!--        <button @click="checkCopySchedules">CopySchedules 값 확인</button>-->
+        <!--  프로젝트에 일정이 하나라도 있는 경우    -->
+        <div v-if="copySchedules.length > 0" class="content-container">
+          <Handsontable :settings="hotSettings"></Handsontable>
+          <!--      <Handsontable v-if="!editMode" :settings="hotSettings"></Handsontable>-->
+          <!--      <Handsontable v-if="editMode" :settings="editableHotSettings"></Handsontable>-->
+        </div>
+        <!--  프로젝트에 일정이 하나도 없는 경우  -->
+        <div v-else class="no-dashboard">
+          <span>프로젝트에 일정이 존재하지 않습니다.</span>
+        </div>
       </div>
+    </div>
+    <!-- 선택된 프로젝트가 없는 경우 (ID 없음)   -->
+    <div v-else class="no-dashboard">
+      <span>선택된 프로젝트가 없습니다.</span>
     </div>
     <div class="delete-reason" v-if="showDeleteModal">
       <div class="delete-reason-content">
@@ -460,6 +472,8 @@ export default defineComponent({
       getProjectRequirements,
       projectId,
       employeeId,
+      schedules,
+      copySchedules,
       requirementList,
       copyRequirementList,
       projectMembers,
@@ -605,5 +619,16 @@ table.htCore {
   &:hover {
     background-color: #45a049;
   }
+}
+
+.no-dashboard {
+  background-color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.5rem;
+  color: #868e96;
+  width: 90%;
+  height: 80vh;
 }
 </style>
