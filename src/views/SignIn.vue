@@ -145,17 +145,14 @@ const loginSubmit = async () => {
   }
 }
 
-const toggleEveryDisplay = () => store.commit("toggleEveryDisplay");
-const toggleHideConfig = () => store.commit("toggleHideConfig");
-
 onBeforeMount(() => {
-  toggleEveryDisplay();
-  toggleHideConfig();
+  store.commit("toggleEveryDisplay", false);
+  store.commit("toggleHideConfig", false);
 });
 
 onBeforeUnmount(() => {
-  toggleEveryDisplay();
-  toggleHideConfig();
+  store.commit("toggleEveryDisplay", true);
+  store.commit("toggleHideConfig", true);
 });
 </script>
 

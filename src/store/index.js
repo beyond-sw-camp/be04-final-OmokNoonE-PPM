@@ -52,10 +52,10 @@ export default createStore({
                 state.isNavFixed = false;
             }
         },
-        toggleEveryDisplay(state) {
-            state.showNavbar = !state.showNavbar;
-            state.showSidenav = !state.showSidenav;
-            state.showFooter = !state.showFooter;
+        toggleEveryDisplay(state, data) {
+            state.showNavbar = data;
+            state.showSidenav = data;
+            state.showFooter = data;
         },
         toggleHideConfig(state) {
             state.hideConfigButton = !state.hideConfigButton;
