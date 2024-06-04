@@ -76,14 +76,14 @@
               <material-button
                   v-if="isEditing  && project.projectId === selectedProjectId"
                   color="warning"
-                  @click="editMode === 'add' ? cancelAdd() : cancelModify()"
+                  @click="editMode === 'add' ? cancelAdd() : cancelReason()"
               >취소
               </material-button>
             </td>
             <td>
               <material-button
                   color="danger"
-                  @click="deleteProject(project)"
+                  @click="removeProject(project)"
               >삭제
               </material-button>
             </td>
@@ -115,22 +115,40 @@
         >닫기
         </material-button>
       </div>
-      <div v-if="showModifyReasonModal" class="modify-reason-modal">
+      <div v-if="showReasonModal" class="modify-reason-modal">
         <div class="modal-content w-100">
-          <h5 class="text-center bg-dark text-white">수정 사유</h5>
-          <material-input
-              v-model="modifyReason"
-              label="수정 사유를 입력하세요"
-              required
-          ></material-input>
+          <div v-if="editMode === 'modify'">
+            <h5 class="text-center bg-dark text-white">수정 사유</h5>
+            <material-input
+                v-if="editMode === 'modify'"
+                v-model="modifyReason"
+                label="수정 사유를 입력하세요"
+                required
+            ></material-input>
+          </div>
+          <div v-if="editMode === 'remove'">
+            <h5 class="text-center bg-dark text-white">삭제 사유</h5>
+            <material-input
+                v-if="editMode === 'remove'"
+                v-model="removeReason"
+                label="삭제 사유를 입력하세요"
+                required
+            ></material-input>
+          </div>
           <div class="text-center">
             <material-button
+                v-if="editMode === 'modify'"
                 @click="confirmModify"
             >확인
             </material-button>
             <material-button
+                v-if="editMode === 'remove'"
+                @click="confirmRemove"
+            >확인
+            </material-button>
+            <material-button
                 color="danger"
-                @click="cancelModify"
+                @click="cancelReason"
             >취소
             </material-button>
           </div>
@@ -152,11 +170,12 @@ export default {
     return {
       projects: [],
       isEditing: false,
-      editMode: '',   // 'add' or 'modify'
+      editMode: '',           // 'add' or 'modify' or 'remove'
       selectedProjectId: null,
-      modifiedProject: null,
-      showModifyReasonModal: false, // 수정 사유 입력 모달
-      modifyReason: '',             // 수정 사유
+      selectedProject: null,
+      showReasonModal: false, // 수정 사유 입력 모달
+      modifyReason: '',       // 수정 사유
+      removeReason: '',       // 삭제 사유
       projectStatus: {
         '계획': 10201,
         '착수': 10202,
@@ -183,8 +202,8 @@ export default {
       this.isEditing = false;
       this.editMode = '';
       this.selectedProjectId = null;
-      this.modifiedProject = null;
-      this.showModifyReasonModal = false;
+      this.selectedProject = null;
+      this.showReasonModal = false;
       this.modifyReason = '';
     },
     create() {
@@ -230,48 +249,41 @@ export default {
       this.isEditing = true;
       this.editMode = 'modify';
       this.selectedProjectId = project.projectId;
-      this.modifiedProject = project;
-      console.log('Modifying project:', project)
+      this.selectedProject = project;
     },
-    async deleteProject(project) {
-      try {
-        const response = await defaultInstance.delete(`/projects/delete/${project.projectId}`);
-        if (!(response.status >= 200 && response.status < 300)) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        await this.open();
-      } catch (error) {
-        console.error('Error deleting projects:', error);
-      }
+    async removeProject(project) {
+      this.editMode = 'remove';
+      this.selectedProjectId = project.projectId;
+      this.showReasonModal = true;
+      this.selectedProject = project;
     },
     cancelAdd() {
       this.isEditing = false;
       this.projects.shift();
       this.selectedProjectId = null;
     },
-    cancelModify() {
+    cancelReason() {
       this.isEditing = false;
       this.editMode = '';
       this.selectedProjectId = null;
-      this.showModifyReasonModal = false;
+      this.showReasonModal = false;
     },
     saveModifiedProject() {
-      this.showModifyReasonModal = true;
+      this.showReasonModal = true;
     },
     async confirmModify() {
-      this.showModifyReasonModal = false;
+      this.showReasonModal = false;
       this.isEditing = false;
       this.editMode = '';
       this.selectedProjectId = null;
       try {
         const requestBody = {
-          projectId: this.modifiedProject.projectId,
+          projectId: this.selectedProject.projectId,
           projectMemberId: 1,
-          projectTitle: this.modifiedProject.projectTitle,
-          projectStartDate: this.modifiedProject.projectStartDate,
-          projectEndDate: this.modifiedProject.projectEndDate,
-          projectStatus: this.projectStatus[this.modifiedProject.projectStatus],
+          projectTitle: this.selectedProject.projectTitle,
+          projectStartDate: this.selectedProject.projectStartDate,
+          projectEndDate: this.selectedProject.projectEndDate,
+          projectStatus: this.projectStatus[this.selectedProject.projectStatus],
           projectHistoryReason: this.modifyReason
         }
         console.log('requestBody : ', requestBody);
@@ -280,10 +292,38 @@ export default {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
 
+        this.selectedProject = null;
         this.modifyReason = '';
         await this.open();
       } catch (error) {
         console.error('프로젝트 수정 중 오류가 발생하였습니다:', error);
+      }
+    },
+    async confirmRemove() {
+      this.showReasonModal = false;
+      try {
+        const requestBody = {
+          projectId: this.selectedProject.projectId,
+          projectMemberId: 1,
+          projectHistoryReason: this.removeReason,
+          projectHistoryProjectId: this.selectedProject.projectId
+        }
+
+        const response = await defaultInstance.delete(`/projects/remove/${this.selectedProjectId}`, {
+          data: requestBody
+        });
+
+        if (!(response.status >= 200 && response.status < 300)) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        this.selectedProject = null;
+        this.selectedProjectId = null;
+        this.removeReason = '';
+
+        await this.open();
+      } catch (error) {
+        console.error('Error deleting projects:', error);
       }
     },
     closeModal() {
