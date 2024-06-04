@@ -17,14 +17,14 @@
           <div class="card-body px-0 pb-2" style="max-height: 480px; min-height: 480px; overflow-y: auto;">
             <div class="table-responsive p-0">
               <material-button
-                  color="outline-info"
+                  :color="thisWeekButtonColor"
                   class="register-btn"
                   style="margin: 0 0 1rem 1rem;"
                   @click="thisWeek">
                 금주 할 일
               </material-button>
               <material-button
-                  color=""
+                  :color="nextWeekButtonColor"
                   class="register-btn"
                   style="margin: 0 0 1rem 1rem;"
                   @click="nextWeek">
@@ -95,8 +95,13 @@ import {ref, onMounted} from 'vue';
 import MaterialButton from "@/components/MaterialButton.vue";
 import {defaultInstance} from "@/axios/axios-instance";
 import store from "@/store";
+import {useToast} from 'vue-toastification';
 
 const projectId = store.getters.projectId;
+const toast = useToast();
+
+const thisWeekButtonColor = ref("outline-info");
+const nextWeekButtonColor = ref("");
 
 const todoList = ref([
   {
@@ -109,35 +114,50 @@ const todoList = ref([
   },
 ]);
 async function nextWeek() {
-  const response = await defaultInstance.get(`/schedules/nextweek/${projectId}`);
-  const responseData = response.data.result.findSchedulesForNextWeek;
-  console.log(responseData);
+  try {
+    thisWeekButtonColor.value = "";
+    nextWeekButtonColor.value = "outline-info";
 
-  // TODO. assignee 속성을 받아올 수 있게 Controller 수정이 필요함
-  todoList.value = responseData.map(item => ({
-    id: item.scheduleId,
-    title: item.scheduleTitle,
-    authorId: item.authorId,
-    authorName: item.authorName,
-    assignee: item.assigneeList,
-    status: item.scheduleStatus
-  }));
+    const response = await defaultInstance.get(`/schedules/nextweek/${projectId}`);
+    const responseData = response.data.result.findSchedulesForNextWeek;
+    console.log(responseData);
+
+    // TODO. assignee 속성을 받아올 수 있게 Controller 수정이 필요함
+    todoList.value = responseData.map(item => ({
+      id: item.scheduleId,
+      title: item.scheduleTitle,
+      authorId: item.authorId,
+      authorName: item.authorName,
+      assignee: item.assigneeList,
+      status: item.scheduleStatus
+    }));
+  } catch (error) {
+    toast.warning('차주 할 일이 없습니다.');
+  }
+
 }
 
 async function thisWeek() {
-  const response = await defaultInstance.get(`/schedules/thisweek/${projectId}`);
-  const responseData = response.data.result.findSchedulesForThisWeek;
-  console.log(responseData)
+  try {
+    thisWeekButtonColor.value = "outline-info";
+    nextWeekButtonColor.value = "";
 
-  // TODO. assignee 속성을 받아올 수 있게 Controller 수정이 필요함
-  todoList.value = responseData.map(item => ({
-    id: item.scheduleId,
-    title: item.scheduleTitle,
-    authorId: item.authorId,
-    authorName: item.authorName,
-    assignee: item.assigneeList,
-    status: item.scheduleStatus
-  }));
+    const response = await defaultInstance.get(`/schedules/thisweek/${projectId}`);
+    const responseData = response.data.result.findSchedulesForThisWeek;
+    console.log(responseData)
+
+    // TODO. assignee 속성을 받아올 수 있게 Controller 수정이 필요함
+    todoList.value = responseData.map(item => ({
+      id: item.scheduleId,
+      title: item.scheduleTitle,
+      authorId: item.authorId,
+      authorName: item.authorName,
+      assignee: item.assigneeList,
+      status: item.scheduleStatus
+    }));
+  } catch (error) {
+    toast.warning('금주 할 일이 없습니다.');
+  }
 }
 
 // 컴포넌트가 마운트될 때 프로젝트 ID를 설정하고 데이터를 가져옴
