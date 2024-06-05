@@ -433,8 +433,6 @@ export default {
       page: 1,
       totalPages: 0,
       isRequirementSearchModal: false,
-      //
-      // projectId: store.getters['project/getProjectId'],
       projectId: store.getters.projectId,
       projectMemberId: store.getters.projectMemberId,
       toast: useToast(),
@@ -708,7 +706,7 @@ export default {
     // 부모 일정 검색
     async searchSchedule() {
       try {
-        const response = await defaultInstance.get(`/schedules/search/${this.searchScheduleTitleValue}`);
+        const response = await defaultInstance.get(`/schedules/search/${this.searchScheduleTitleValue}/${this.projectId}`);
         const data = response.data.result.searchScheduleByTitle;
         this.searchSchedules = data.map(schedule => ({
           id: schedule.scheduleId,
