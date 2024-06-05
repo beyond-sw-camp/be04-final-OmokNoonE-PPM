@@ -85,13 +85,16 @@ const actions = {
             PM: 10601,
         };
         try {
-            const response = await defaultInstance.post('/projectMembers/create', {
-                projectMemberProjectId: store.getters.projectMembers,
+            const requestBody = {
+                projectMemberProjectId: store.getters.projectId,
                 projectMemberEmployeeId: member.projectMemberEmployeeId,
                 projectMemberRoleId: ROLE_IDS[member.role],
                 projectMemberEmployeeName: member.employeeName,
-            });
-            commit('ADD_PROJECT_MEMBER', response.data.result.createProjectMember);
+            };
+
+            await defaultInstance.post('/projectMembers/create', requestBody);
+
+            commit('SET_AVAILABLE_MEMBERS_LOADING', false); // 로딩 상태 해제
         } catch (err) {
             console.error('프로젝트 구성원을 추가하는 중 오류 발생:', err);
             throw new Error('프로젝트 구성원을 추가하는 중 오류가 발생했습니다.');

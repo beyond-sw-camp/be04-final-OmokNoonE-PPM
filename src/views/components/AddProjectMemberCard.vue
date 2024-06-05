@@ -159,6 +159,7 @@ const addMembers = async () => {
     toast.success('구성원이 성공적으로 추가되었습니다.');
     selectedMembers.value = [];
     emit('close');
+    await store.dispatch('fetchProjectMembers');
   } catch (error) {
     toast.error('구성원 추가 중 오류가 발생했습니다.'); // 에러 메시지 처리
   }
