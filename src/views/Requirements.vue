@@ -37,9 +37,9 @@
                   <p class="text-xs text-secondary mb-0">{{ requirement.requirementsContent }}</p>
                 </td>
                 <td class="align-middle text-center text-sm requirement-created-date">
-                  <p class="text-xs text-secondary mb-0">{{ requirement.requirementsModifiedDate }}</p>
+                  <p class="text-xs text-secondary mb-0">{{ transferDateTime(requirement.requirementsModifiedDate) }}</p>
                 </td>
-                <td class="align-middle text-end">
+                <td v-if="projectMemberRoleId == 10601" class="align-middle text-end">
                   <button @click="editRequirement(requirement)" class="btn btn-warning btn-sm">Edit</button>
                   <button @click="confirmDelete(requirement)" class="btn btn-danger btn-sm">X</button>
                 </td>
@@ -70,13 +70,18 @@ const projectId = store.getters.projectId;
 const isModalVisible = ref(false);
 const isEditModalVisible = ref(false);
 const selectedRequirement = ref({});
-const currentUserId = store.getters.employeeId;
+const projectMemberId = store.getters.projectMemberId;
+const projectMemberRoleId = store.getters.roleId;
+
+const transferDateTime = (dateTime) => {
+  return `${dateTime.slice(0, 3).map(part => String(part).padStart(2, '0')).join('-')}
+                              ${dateTime.slice(3, 6).map(part => String(part).padStart(2, '0')).join(':')}`
+}
 
 const fetchRequirements = async () => {
   try {
     const response = await defaultInstance.get(`/requirements/list/${projectId}`);
     const data = response.data;
-    console.log(data.result.viewRequirementsList.projectRequirementsList);
     requirements.value = data.result.viewRequirementsList.projectRequirementsList;
 
     requirements.value.sort((a, b) => b.requirementsId - a.requirementsId);
@@ -87,30 +92,34 @@ const fetchRequirements = async () => {
   }
 };
 
-const deleteRequirement = async (requirementsId) => {
+const deleteRequirement = async (recievedRequirement) => {
   const reason = prompt("삭제 사유를 입력해주세요:");
   if (!reason) {
-    alert("삭제 사유가 필요합니다.");
+    toast.warning('삭제 사유를 입력하세요.')
+    console.log(projectMemberRoleId);
     return;
   }
 
   try {
-    const response = await defaultInstance.delete(`/requirements/remove/${requirementsId}`, {
+    const response = await defaultInstance.delete(`/requirements/remove/${recievedRequirement.requirementsId}`, {
       data: {
+        requirementsId: recievedRequirement.requirementsId,
+        requirementsName: recievedRequirement.requirementsName,
+        requirementsContent: recievedRequirement.requirementsContent,
         requirementHistoryReason: reason,
-        requirementHistoryProjectMemberId: currentUserId.value
+        requirementHistoryProjectMemberId: projectMemberId,
       }
     });
 
     if (response.status === 204) {
-      requirements.value = requirements.value.filter(requirement => requirement.requirementsId !== requirementsId);
-      alert('요구사항이 성공적으로 삭제되었습니다.');
+      requirements.value = requirements.value.filter(requirement => requirement.requirementsId !== recievedRequirement.requirementsId);
+      toast.success('요구사항이 성공적으로 삭제되었습니다.');
     } else {
       alert('요구사항 삭제 중 오류가 발생했습니다.');
     }
   } catch (error) {
     console.error('Error deleting requirement:', error);
-    alert('요구사항 삭제 중 오류가 발생했습니다.');
+    toast.error('요구사항 삭제 중 오류가 발생했습니다.');
   }
 };
 
@@ -121,7 +130,7 @@ const editRequirement = (requirement) => {
 
 const confirmDelete = (requirement) => {
   if (confirm('정말로 이 요구사항을 삭제하시겠습니까?')) {
-    deleteRequirement(requirement.requirementsId);
+    deleteRequirement(requirement);
   }
 };
 

@@ -19,10 +19,10 @@
             <label for="reason">수정 사유</label>
             <input id="reason" type="text" v-model="requirementHistoryReason" class="form-control"/>
           </div>
-          <div class="mb-3">
-            <label for="projectMemberId">프로젝트 멤버 아이디</label>
-            <input id="projectMemberId" type="text" v-model="requirementHistoryProjectMemberId" class="form-control"/>
-          </div>
+          <!--          <div class="mb-3">-->
+          <!--            <label for="projectMemberId">프로젝트 멤버 아이디</label>-->
+          <!--            <input id="projectMemberId" type="text" v-model="requirementHistoryProjectMemberId" class="form-control"/>-->
+          <!--          </div>-->
           <div class="text-center">
             <button type="submit" class="btn btn-success my-4 mb-2">수정</button>
           </div>
@@ -33,8 +33,10 @@
 </template>
 
 <script setup>
-import { ref, defineProps, defineEmits, watch } from 'vue';
+import {ref, defineProps, defineEmits, watch} from 'vue';
 import {defaultInstance} from "@/axios/axios-instance";
+import store from "@/store";
+import {useToast} from "vue-toastification";
 
 const props = defineProps({
   isVisible: Boolean,
@@ -43,36 +45,42 @@ const props = defineProps({
 
 const emit = defineEmits(['close', 'update']);
 
+const toast = useToast();
+
 const requirementsName = ref('');
 const requirementsContent = ref('');
 const requirementHistoryReason = ref('');
-const requirementHistoryProjectMemberId = ref('');
+const requirementHistoryProjectMemberId = store.getters.projectMemberId;
 
 watch(() => props.requirement, (newReq) => {
   if (newReq) {
     requirementsName.value = newReq.requirementsName;
     requirementsContent.value = newReq.requirementsContent;
   }
-}, { immediate: true });
+}, {immediate: true});
 
 const close = () => {
   emit('close');
 };
 
 const updateRequirement = async () => {
-  try {
-    await defaultInstance.put(`/requirements/modify/${props.requirement.requirementsId}`, {
-      requirementsName: requirementsName.value,
-      requirementsContent: requirementsContent.value,
-      requirementHistoryReason: requirementHistoryReason.value,
-      requirementHistoryProjectMemberId: requirementHistoryProjectMemberId.value
-    });
-    alert('요구사항이 성공적으로 수정되었습니다.');
-    emit('update');
-    close();
-  } catch (error) {
-    console.error('Error updating requirement:', error);
-    alert('요구사항 수정 중 오류가 발생했습니다.');
+  if (requirementHistoryReason.value.length > 0) {
+    try {
+      await defaultInstance.put(`/requirements/modify/${props.requirement.requirementsId}`, {
+        requirementsName: requirementsName.value,
+        requirementsContent: requirementsContent.value,
+        requirementHistoryReason: requirementHistoryReason.value,
+        requirementHistoryProjectMemberId: requirementHistoryProjectMemberId
+      });
+      toast.success('요구사항이 성공적으로 수정되었습니다.');
+      emit('update');
+      close();
+    } catch (error) {
+      console.error('Error updating requirement:', error);
+      toast.error('요구사항 수정 중 오류가 발생했습니다.');
+    }
+  } else {
+    toast.warning('요구사항 수정 사유를 입력하세요.')
   }
 };
 </script>
