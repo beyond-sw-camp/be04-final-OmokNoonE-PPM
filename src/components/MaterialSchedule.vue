@@ -254,7 +254,7 @@
               <td style="width: 20%">{{ stakeholder.name }}</td>
               <td style="width: 20%">{{ stakeholder.employeeId }}</td>
               <td style="width: 20%">{{
-                  stakeholder.roleName === 10601 ? 'PM' : (stakeholder.roleName === 10602 ? 'PL' : 'PA')
+                  stakeholder.roleId == 10601 ? 'PM' : (stakeholder.roleId == 10602 ? 'PL' : 'PA')
                 }}
               </td>
               <td style="width: 20%">{{ stakeholder.type === 10401 ? '작성자' : '담당자' }}</td>
@@ -301,7 +301,7 @@
                 <td style="width: 20%">{{ member.name }}</td>
                 <td style="width: 20%">{{ member.employeeId }}</td>
                 <td style="width: 20%">{{
-                    member.roleName === 10601 ? 'PM' : (member.roleName === 10602 ? 'PL' : 'PA')
+                    member.roleId == 10601 ? 'PM' : (member.roleId == 10602 ? 'PL' : 'PA')
                   }}
                 </td>
                 <td style="width: 20%">
@@ -709,7 +709,7 @@ export default {
             {
               id: response.data.result.createStakeholders.stakeholdersId,
               type: 10402,    // 모두 담당자로 추가
-              roleName: member.roleName,
+              roleId: member.roleId,
               name: member.name,
               projectMemberId: member.projectMemberId,
               employeeId: member.employeeId,
@@ -969,7 +969,7 @@ export default {
             this.stakeholders = data.map(stakeholder => ({
               id: stakeholder.stakeholdersId,
               type: stakeholder.stakeholdersType,
-              roleName: stakeholder.projectMemberRoleName,
+              roleId: stakeholder.projectMemberRoleId,
               name: stakeholder.projectMemberEmployeeName,
               projectMemberId: stakeholder.stakeholdersProjectMemberId,
               employeeId: stakeholder.projectMemberEmployeeId,
