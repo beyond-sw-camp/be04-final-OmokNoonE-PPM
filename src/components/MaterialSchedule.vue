@@ -113,7 +113,9 @@
           <div class="modal-info">
             <div class="modal-info-item">
               <span class="modal-info-label">부모 일정:</span>
-              <span v-if="schedule.parentId" class="modal-info-value">{{ schedule.parentTitle }}({{schedule.parentId }})</span>
+              <span v-if="schedule.parentId" class="modal-info-value">{{ schedule.parentTitle }}({{
+                  schedule.parentId
+                }})</span>
               <span v-else class="modal-info-value">해당 사항 없음</span>
               <div v-if="isScheduleEditing">
                 <MaterialButton @click="openSearchScheduleModal('parent')">검색</MaterialButton>
@@ -121,7 +123,9 @@
             </div>
             <div class="modal-info-item">
               <span class="modal-info-label">선행 일정:</span>
-              <span v-if="schedule.precedingId" class="modal-info-value">{{ schedule.precedingTitle }}({{schedule.precedingId }})</span>
+              <span v-if="schedule.precedingId" class="modal-info-value">{{
+                  schedule.precedingTitle
+                }}({{ schedule.precedingId }})</span>
               <span v-else class="modal-info-value">해당 사항 없음</span>
               <div v-if="isScheduleEditing">
                 <MaterialButton @click="openSearchScheduleModal('preceding')">검색</MaterialButton>
@@ -572,6 +576,9 @@ export default {
       isSearchModal: false,
       searchScheduleType: '',
       searchScheduleTitleValue: '',
+      selectedScheduleRequestBody: {
+
+      },
 
       // 수정 상태값
       isScheduleEditing: false,
@@ -603,6 +610,13 @@ export default {
     async isOpen() {
       this.scheduleId = this.modalUrl.split('/').pop();
       await this.getScheduleData();
+      this.setSelectedScheduleRequestBody();
+      if (this.schedule.parentId) {
+        this.schedule.parentTitle = await this.getScheduleTitle(this.schedule.parentId);
+      }
+      if (this.schedule.precedingId) {
+        this.schedule.precedingTitle = await this.getScheduleTitle(this.schedule.precedingId);
+      }
       await this.getTaskData();
       await this.getStakeholderData();
       await this.getScheduleHistoryData();
@@ -670,23 +684,30 @@ export default {
         console.log(error);
       }
     },
+    setSelectedScheduleRequestBody(){
+      this.selectedScheduleRequestBody = {
+        scheduleId: this.scheduleId,
+        scheduleParentScheduleId: this.schedule.parentId,
+        schedulePrecedingScheduleId: this.schedule.precedingId
+      }
+    },
     selectSchedule(schedule) {
       if (this.searchScheduleType === 'parent') {         // 부모 일정 선택
         this.schedule.parentId = schedule.id;
         this.schedule.parentTitle = schedule.title;
-        const requestBody = {
+        this.selectedScheduleRequestBody = {
           scheduleId: this.scheduleId,
           scheduleParentScheduleId: schedule.id,
+          schedulePrecedingScheduleId: this.schedule.precedingId
         }
-        this.connectSchedule(requestBody);
       } else if (this.searchScheduleType === 'preceding') { // 선행 일정 선택
         this.schedule.precedingId = schedule.id;
         this.schedule.precedingTitle = schedule.title;
-        const requestBody = {
+        this.selectedScheduleRequestBody = {
           scheduleId: this.scheduleId,
+          scheduleParentScheduleId: this.schedule.parentId,
           schedulePrecedingScheduleId: schedule.id,
         }
-        this.connectSchedule(requestBody);
       } else {
         this.toast.error('부적절한 details값 전달!');
       }
@@ -819,14 +840,13 @@ export default {
       }
     },
 
-    async connectSchedule(requestBody){
+    async connectSchedule(requestBody) {
       try {
         const response = await defaultInstance.put(`/schedules/connect/${this.scheduleId}`, requestBody);
         if (!(response.status >= 200 && response.status < 300)) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         this.toast.success('일정이 정상적으로 연결되었습니다.');
-        return response.ok;
       } catch (error) {
         console.error('error :', error);
       }
@@ -867,10 +887,10 @@ export default {
           });
           this.reason = '';
           this.isScheduleEditing = false;
-          return response.ok;
         } catch (error) {
           console.error('error :', error);
         }
+        await this.connectSchedule(this.selectedScheduleRequestBody);
       }
     },
 
@@ -940,6 +960,19 @@ export default {
       }
     },
 
+    async getScheduleTitle(scheduleId) {
+      try {
+        const response = await defaultInstance.get('/schedules/get/title/'+scheduleId);
+        if (!(response.status >= 200 && response.status < 300)) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const title = response.data.result.scheduleTitle;
+        console.log('제목 조회 ', title ,'되었습니다.');
+        return title
+      } catch (error) {
+        console.error('error :', error);
+      }
+    },
     async getScheduleData() {
       await defaultInstance.get(`schedules/view/${this.scheduleId}`)
           .then(response => {
