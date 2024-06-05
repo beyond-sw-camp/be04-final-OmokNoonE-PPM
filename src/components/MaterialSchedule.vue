@@ -113,14 +113,16 @@
           <div class="modal-info">
             <div class="modal-info-item">
               <span class="modal-info-label">부모 일정:</span>
-              <span class="modal-info-value">{{ schedule.parentTitle }}</span>
+              <span v-if="schedule.parentId" class="modal-info-value">{{ schedule.parentTitle }}({{schedule.parentId }})</span>
+              <span v-else class="modal-info-value">해당 사항 없음</span>
               <div v-if="isScheduleEditing">
                 <MaterialButton @click="openSearchScheduleModal('parent')">검색</MaterialButton>
               </div>
             </div>
             <div class="modal-info-item">
               <span class="modal-info-label">선행 일정:</span>
-              <span class="modal-info-value">{{ schedule.precedingTitle }}</span>
+              <span v-if="schedule.precedingId" class="modal-info-value">{{ schedule.precedingTitle }}({{schedule.precedingId }})</span>
+              <span v-else class="modal-info-value">해당 사항 없음</span>
               <div v-if="isScheduleEditing">
                 <MaterialButton @click="openSearchScheduleModal('preceding')">검색</MaterialButton>
               </div>
