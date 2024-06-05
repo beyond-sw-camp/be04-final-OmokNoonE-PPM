@@ -16,7 +16,7 @@
                 class="bg-gradient-success shadow-success border-radius-lg py-3 pe-1"
               >
                 <h4 class="text-white font-weight-bolder text-center mt-2 mb-0">
-                  로그인
+                  PPM
                 </h4>
               </div>
             </div>
@@ -81,13 +81,15 @@
             >
               <li class="nav-item">
                 <a
-                  href="https://www.creative-tim.com"
+                  href="https://github.com/OmokNoonE"
                   class="nav-link text-white"
                   target="_blank"
-                  >Creative Tim</a
-                >
+                  >
+                  <div class="github-icon"/>
+                  Github
+                </a>
               </li>
-              <li class="nav-item">
+<!--              <li class="nav-item">
                 <a
                   href="https://www.creative-tim.com/presentation"
                   class="nav-link text-white"
@@ -110,7 +112,7 @@
                   target="_blank"
                   >License</a
                 >
-              </li>
+              </li>-->
             </ul>
           </div>
         </div>
@@ -127,6 +129,7 @@ import MaterialButton from "@/components/MaterialButton.vue";
 import { login } from '@/services/auth';
 import { useRouter } from 'vue-router';
 import store from '@/store';
+import {useToast} from "vue-toastification";
 
 const router = useRouter();
 
@@ -139,20 +142,30 @@ const loginSubmit = async () => {
     await router.push('/');
   } catch (error) {
     // 로그인 실패 시 처리
-    console.error("로그인 실패", error);
+    // console.error("로그인 실패", error);
+    const toast = useToast(); // 토스트 메시지를 사용할 수 있는 toast 객체를 생성합니다.
+    toast.error("회원 정보가 일치하지 않습니다."); // projectId가 없는 경우 토스트 메시지를 표시합니다.
+
   }
 }
 
-const toggleEveryDisplay = () => store.commit("toggleEveryDisplay");
-const toggleHideConfig = () => store.commit("toggleHideConfig");
-
 onBeforeMount(() => {
-  toggleEveryDisplay();
-  toggleHideConfig();
+  store.commit("toggleEveryDisplay", false);
+  store.commit("toggleHideConfig", false);
 });
 
 onBeforeUnmount(() => {
-  toggleEveryDisplay();
-  toggleHideConfig();
+  store.commit("toggleEveryDisplay", true);
+  store.commit("toggleHideConfig", true);
 });
 </script>
+
+<style>
+.github-icon {
+  width: 24px; /* 아이콘의 너비 설정 */
+  height: 24px; /* 아이콘의 높이 설정 */
+  background-image: url("~@/assets/img/small-logos/github.svg"); /* 아이콘 이미지 설정 */
+  background-size: cover; /* 아이콘 이미지 크기 조절 */
+  filter: invert(1); /* 아이콘 색상을 흰색으로 변경 */
+}
+</style>

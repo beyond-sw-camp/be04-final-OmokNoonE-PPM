@@ -4,6 +4,7 @@ const state = {
     employeeName: "",
     accessToken: localStorage.getItem("accessToken") || null,
     projectId: "",
+    projectTitle: "",
     projectMemberId: "",
     roleId: ""
 };
@@ -25,6 +26,9 @@ const mutations = {
     projectId: (state, data) => {
         state.projectId = data;
     },
+    projectTitle: (state, data) => {
+        state.projectTitle = data;
+    },
     projectMemberId: (state, data) => {
         state.projectMemberId = data;
     },
@@ -34,7 +38,16 @@ const mutations = {
 };
 
 const actions = {
-
+    resetLogin({commit}) {
+        commit("needLogin", true);
+        commit("employeeId", "");
+        commit("employeeName", "");
+        commit("accessToken", "");
+        commit("projectId", "");
+        commit("projectTitle", "");
+        commit("projectMemberId", "");
+        commit("roleId", "");
+    }
 };
 
 const getters = {
@@ -52,6 +65,9 @@ const getters = {
     },
     projectId: (state) => {
         return state.projectId;
+    },
+    projectTitle: (state) => {
+        return state.projectTitle;
     },
     projectMemberId: (state) => {
         return state.projectMemberId;

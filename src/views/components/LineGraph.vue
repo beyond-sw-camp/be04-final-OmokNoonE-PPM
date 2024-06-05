@@ -1,5 +1,5 @@
 <template>
-  <div ref="lineRef"></div>
+  <div class="graph" ref="lineRef"></div>
 </template>
 
 <script>
@@ -7,6 +7,9 @@ import Chart from '@toast-ui/chart';
 import { ref, onMounted } from 'vue';
 import {defaultInstance} from "@/axios/axios-instance";
 import store from "@/store";
+import { useToast } from 'vue-toastification';
+
+const toast = useToast();
 
 export default {
   setup() {
@@ -31,7 +34,13 @@ export default {
     };
 
     const options = {
-      chart: {width: 900, height: 500},
+      chart: {
+        width: 650,
+        height: 300,
+        animation: {
+          duration: 1000
+        }
+      },
       exportMenu :{
         visible: false
       },
@@ -42,12 +51,31 @@ export default {
             '#ccd1d2', '#49be1b'
           ],
         }
+      },
+      tooltip: {
+        template: (model, defaultTooltipTemplate, theme) => {
+          theme.body.fontSize = '20px';
+          const {body} = defaultTooltipTemplate;
+          const {background} = theme;
+
+          return `
+        <div style="
+          background: ${background};
+          width: 130px;
+          margin: 0px;
+          text-align: center;
+          color: white;
+          ">
+            <p> 📅 ${model.category}</p>
+            ${body}
+          </div>`;
+        }
       }
     };
 
     const fetchData = async () => {
       try {
-        const response = await defaultInstance.get(`/graphs/${projectId}/line`);
+        const response = await defaultInstance.get(`graphs/${projectId}/line`);
 
         // 예상진행률, 실제진행률 데이터 업데이트
         const dashboardData = response.data.result.viewProjectDashboardByProjectId;
@@ -65,17 +93,19 @@ export default {
 
         linedata.categories = categories.value;
 
+        return true;
       } catch (error) {
-        console.error('Error fetching data:', error);
+        toast.warning('[선] 표시할 데이터가 없습니다.');
+        return false;
       }
     };
 
     onMounted(async () => {
-      await fetchData(); // 데이터를 먼저 fetch
-      if (lineRef.value) {
+      const result = await fetchData(); // 데이터를 먼저 fetch
+
+      if (result) {
         const el = lineRef.value;
-        const chart = Chart.lineChart({el, data: linedata, options});
-        console.log(chart);
+        Chart.lineChart({el, data: linedata, options});
       }
     });
 
@@ -85,3 +115,8 @@ export default {
   },
 };
 </script>
+<style>
+.graph .toastui-chart-tooltip-container{
+  position: absolute;
+}
+</style>

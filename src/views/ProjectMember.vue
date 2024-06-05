@@ -11,7 +11,7 @@
                 <i class="material-icons text-white me-2">groups</i>
                 <h6 class="text-white text-capitalize mb-0">프로젝트 구성원</h6>
               </div>
-              <div>
+              <div v-if="projectMemberRoleId == 10601">
                 <MaterialButton color="info" size="md" variant="fill" class="me-3" @click="isModifyModalVisible = true">
                   권한 변경
                 </MaterialButton>
@@ -68,7 +68,7 @@
                   <td class="align-middle text-center text-sm">
                     <span class="text-secondary text-xs font-weight-bold">{{ convertArrayToDate(projectMember.projectMemberCreatedDate) }}</span>
                   </td>
-                  <td class="align-middle">
+                  <td v-if="projectMemberRoleId == 10601" class="align-middle">
                     <material-button
                             color="danger"
                             @click="confirmRemoveProjectMember(projectMember.projectMemberId)" data-toggle="tooltip"
@@ -118,6 +118,7 @@ const fetchProjectMembers = async () => {
 // 필터링된 프로젝트 구성원 목록을 가져오는 computed property
 const projectMembers = computed(() => store.getters.projectMembers || []);
 const projectMembersLoading = computed(() => store.state.projectMembersLoading); // 프로젝트 구성원 로딩 상태
+const projectMemberRoleId = computed(() => store.getters.roleId); // 프로젝트 구성원 역할 확인
 
 // 구성원을 제외하기 전에 확인 메시지를 표시하는 함수
 const confirmRemoveProjectMember = async (projectMemberId) => {

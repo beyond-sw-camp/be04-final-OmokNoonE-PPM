@@ -288,7 +288,6 @@
 
             <hr class="modal-divider">
             <div class="modal-actions">
-              <p v-if="showInfoMessage" class="info-message">* 표시된 항목을 채워주세요. </p>
               <div>
                 <MaterialButton class="custom-button" style="margin: 1em;" @click="checkValidation">일정 등록
                 </MaterialButton>
@@ -359,6 +358,8 @@ import MaterialInput from "@/components/MaterialInput.vue";
 import {defaultInstance} from "@/axios/axios-instance";
 import router from "@/router";
 import store from "@/store";
+import {useToast} from "vue-toastification";
+
 export default {
   components: {
     // AddProjectMemberToScheduleModal,
@@ -423,7 +424,6 @@ export default {
       tasks: [],
       newTaskTitle: '',
       currentTab: 'details',
-      showInfoMessage: false,
       requirementSearchValue: '',
       isEditProjectMemberVisible: false,
       isSearchModal: false,
@@ -433,12 +433,9 @@ export default {
       page: 1,
       totalPages: 0,
       isRequirementSearchModal: false,
-      //
-      // projectId: store.getters['project/getProjectId'],
       projectId: store.getters.projectId,
-      scheduleId: null,
-      /* TODO. backend 코드 완성 시, 삭제 */
-      alwaysTrue: true,
+      projectMemberId: store.getters.projectMemberId,
+      toast: useToast(),
     };
   },
   methods: {
@@ -651,16 +648,13 @@ export default {
           schedulePriority: this.schedule.priority,
           scheduleParentScheduleId: this.schedule.parentId,
           schedulePrecedingScheduleId: this.schedule.precedingId,
-          scheduleProjectId: this.projectId // Assuming this.schedule.projectId exists
+          scheduleProjectId: this.projectId, // Assuming this.schedule.projectId exists
+          projectMemberId: this.projectMemberId
         });
 
         if (!(response.status >= 200 && response.status < 300)) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-
-        this.scheduleId = response.data.result.viewSchedule.scheduleId;
-        console.log('생성된 scheduleId :', this.scheduleId);
-        await this.addStakeholder(this.scheduleId);
 
         return true;
       } catch (error) {
@@ -669,16 +663,11 @@ export default {
     },
 
     checkValidation() {
-      console.log('schedule: ', this.schedule);
-      console.log('stakeholders: ', this.stakeholders);
-      console.log('tasks: ', this.tasks);
-      console.log('requirements: ', this.requirements);
       // 유효성 검사 로직 구현
       if (this.schedule.title.trim() === '' || this.schedule.startDate === '' || this.schedule.endDate === ''
           || this.schedule.content.trim() === '') {
-        this.showInfoMessage = true;
+        this.toast.error('* 표시된 항목을 채워주세요.');
       } else {
-        this.showInfoMessage = false;
         this.saveAll();
       }
     },
@@ -706,7 +695,7 @@ export default {
       //     // && stakeholdersSaveResult
       //     // && permissionsSaveResult
       // ) {
-        await router.push({name: 'Billing'});
+        await router.push({name: '일정'});
       // }
     },
     openSearchScheduleModal(type) {
@@ -717,7 +706,7 @@ export default {
     // 부모 일정 검색
     async searchSchedule() {
       try {
-        const response = await defaultInstance.get(`/schedules/search/${this.searchScheduleTitleValue}`);
+        const response = await defaultInstance.get(`/schedules/search/${this.searchScheduleTitleValue}/${this.projectId}`);
         const data = response.data.result.searchScheduleByTitle;
         this.searchSchedules = data.map(schedule => ({
           id: schedule.scheduleId,
@@ -761,24 +750,6 @@ export default {
     //     this.getRequirements();
     //   }
     // },
-    async addStakeholder(scheduleId) {
-      try {
-        const requestBody = {
-          stakeholdersType: 10401,    // 일정 작성자로 추가됨
-          stakeholdersScheduleId: scheduleId,
-          projectMemberId: this.projectMemberId,
-        };
-        const response = await defaultInstance.post('/stakeholders/create', {
-          data: requestBody,
-        });
-        if (!(response.status >= 200 && response.status < 300)) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-      } catch (error) {
-        console.error('error :', error);
-      }
-    },
   },
 };
 </script>
@@ -917,12 +888,6 @@ export default {
 
 .delete-button:hover {
   background: #e70a0a;
-}
-
-.info-message {
-  color: red;
-  font-size: 0.875rem;
-  margin-top: 0.5rem;
 }
 
 #searchScheduleModal {

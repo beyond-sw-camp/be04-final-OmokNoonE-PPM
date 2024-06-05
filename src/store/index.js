@@ -2,6 +2,7 @@ import {createStore} from "vuex";
 import notifications from "./notifications";
 import projectMember from "./projectMember";
 import login from "@/store/login";
+import createPersistedState from "vuex-persistedstate";
 
 export default createStore({
     modules: {
@@ -13,7 +14,7 @@ export default createStore({
         hideConfigButton: false,
         isPinned: true,
         showConfig: false,
-        sidebarType: "bg-gradient-dark",
+        sidebarType: "bg-white",
         isRTL: false,
         color: "success",
         isNavFixed: false,
@@ -27,6 +28,7 @@ export default createStore({
         navbarFixed:
             "position-sticky blur shadow-blur left-auto top-1 z-index-sticky px-0 mx-4",
         absolute: "position-absolute px-4 mx-0 w-100 z-index-2",
+        isProjectModalOpen: false,
     },
     mutations: {
         toggleConfigurator(state) {
@@ -50,10 +52,10 @@ export default createStore({
                 state.isNavFixed = false;
             }
         },
-        toggleEveryDisplay(state) {
-            state.showNavbar = !state.showNavbar;
-            state.showSidenav = !state.showSidenav;
-            state.showFooter = !state.showFooter;
+        toggleEveryDisplay(state, data) {
+            state.showNavbar = data;
+            state.showSidenav = data;
+            state.showFooter = data;
         },
         toggleHideConfig(state) {
             state.hideConfigButton = !state.hideConfigButton;
@@ -61,12 +63,27 @@ export default createStore({
         color(state, payload) {
             state.color = payload;
         },
-
+        setIsProjectModalOpen(state, data) {
+            state.isProjectModalOpen = data;
+        },
+        disableConfigurator(state) {
+            state.showConfig = false;
+        }
     },
     actions: {
         setColor({commit}, payload) {
             commit("color", payload);
         },
+        openProjectModal({commit}){
+            commit("setIsProjectModalOpen", true)
+        }
     },
-    getters: {},
+    getters: {
+        getIsProjectModalOpen(state) {
+            return state.isProjectModalOpen;
+        },
+    },
+    plugins: [createPersistedState({
+        paths: ["login"],
+    })],
 });

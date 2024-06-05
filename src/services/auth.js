@@ -23,6 +23,11 @@ export async function login(employeeId, password) {
         let encodedEmployeeName = headersData["employeename"];
         let decodedEmployeeName = decodeURIComponent(escape(atob(encodedEmployeeName)));  // 이름 디코딩
         store.commit("employeeName", decodedEmployeeName);                                  // 이름 저장
+
+        let encodedProjectTitle = headersData["projecttitle"];
+        let decodedProjectTitle = decodeURIComponent(escape(atob(encodedProjectTitle)));  // 이름 디코딩
+        store.commit("projectTitle", decodedProjectTitle);                          // 프로젝트 제목 저장
+
     }
 }
 
@@ -36,12 +41,11 @@ export async function logout() {
     // 로그아웃 처리
     localStorage.removeItem('accessToken');
     cookies.remove('refreshTokenId');
-    store.commit('needLogin', true);
-    store.commit('employeeId', '');
-    store.commit('employeeName', '');
-    store.commit('accessToken', '');
-    store.commit('projectId', '');
-    store.commit('projectMemberId', '');
+
+    await store.commit('disableConfigurator');
+    await store.dispatch('resetLogin');
+    await store.dispatch('resetProjectMember');
+    await store.dispatch('notifications/resetNotification');
 }
 
 export async function refreshToken() {

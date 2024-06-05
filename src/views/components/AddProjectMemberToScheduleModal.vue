@@ -79,7 +79,7 @@
 import {ref, onMounted} from 'vue';
 import MaterialInput from '@/components/MaterialInput.vue'; // MaterialInput 컴포넌트 임포트
 import MaterialButton from '@/components/MaterialButton.vue'; // MaterialButton 컴포넌트 임포트
-// import {useToast} from 'vue-toastification';
+import {useToast} from 'vue-toastification';
 import {defaultInstance} from "@/axios/axios-instance";
 import store from '@/store';
 
@@ -94,6 +94,8 @@ const searchState = ref(false);
 const projectMembers = ref([]);
 const copyProjectMembers = ref([]);
 const searchResults = ref([]); // 검색 결과를 저장
+
+const toast = useToast();
 
 onMounted(async () => {
   try {
@@ -136,7 +138,7 @@ const searchMembers = async () => {
 // 구성원 추가 함수
 const addMembers = async () => {
   if (!copyProjectMembers.value.some(member => member.isChecked)) {
-    alert('추가할 구성원을 선택해 주세요.');
+    toast.warning('추가할 구성원을 선택해 주세요.');
     return;
   }
   try {
@@ -146,7 +148,7 @@ const addMembers = async () => {
     emit('add-members', selectedMembers);
     emit('close');
   } catch (error) {
-    alert('구성원 추가 중 오류가 발생했습니다.'); // 에러 메시지 처리
+    toast.error('구성원 추가 중 오류가 발생했습니다.'); // 에러 메시지 처리
   }
 };
 

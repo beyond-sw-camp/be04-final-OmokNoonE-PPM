@@ -1,18 +1,35 @@
 <template>
   <div id="example">
-    <div v-if="!loadingState" class="content-container">
-      <Handsontable :settings="hotSettings"></Handsontable>
-      <!--      <Handsontable v-if="!editMode" :settings="hotSettings"></Handsontable>-->
-      <!--      <Handsontable v-if="editMode" :settings="editableHotSettings"></Handsontable>-->
-      <div class="edit-button-container">
-        <!--        <button class="create-button" @click="goToCreateSchedulePage({{ store.getters['project/getProjectId'] }})">등록-->
-        <button class="create-button" @click="goToCreateSchedulePage(projectId)">등록
-        </button>
-        <!--      일괄 편집 기능 추후 개발 예정-->
-        <!--        <button class="edit-button" @click="toggleEditMode">{{ editMode ? '수정 완료' : '수정' }}</button>-->
-        <!--        <button @click="checkCopySchedules">CopySchedules 값 확인</button>-->
+    <!-- 프로젝트가 선택된 경우 (ID 존재)  -->
+    <div v-if="projectId">
+      <div v-if="!loadingState">
+        <!--  프로젝트에 일정이 하나라도 있는 경우    -->
+        <div v-if="copySchedules.length > 0" class="content-container">
+          <Handsontable :settings="hotSettings"></Handsontable>
+          <!--      <Handsontable v-if="!editMode" :settings="hotSettings"></Handsontable>-->
+          <!--      <Handsontable v-if="editMode" :settings="editableHotSettings"></Handsontable>-->
+        </div>
+        <!--  프로젝트에 일정이 하나도 없는 경우  -->
+        <div v-else class="no-dashboard">
+          <span>프로젝트에 일정이 존재하지 않습니다.</span>
+        </div>
       </div>
     </div>
+    <!-- 선택된 프로젝트가 없는 경우 (ID 없음)   -->
+    <div v-else class="no-dashboard">
+      <span>선택된 프로젝트가 없습니다.</span>
+    </div>
+
+    <!-- 클릭 안되는 이슈로 바깥으로 배치   -->
+    <div v-if="projectId" class="edit-button-container">
+      <!--        <button class="create-button" @click="goToCreateSchedulePage({{ store.getters['project/getProjectId'] }})">등록-->
+      <button class="create-button" @click="goToCreateSchedulePage(projectId)">등록
+      </button>
+      <!--      일괄 편집 기능 추후 개발 예정-->
+      <!--        <button class="edit-button" @click="toggleEditMode">{{ editMode ? '수정 완료' : '수정' }}</button>-->
+      <!--        <button @click="checkCopySchedules">CopySchedules 값 확인</button>-->
+    </div>
+
     <div class="delete-reason" v-if="showDeleteModal">
       <div class="delete-reason-content">
         <h5>삭제 사유</h5>
@@ -47,6 +64,7 @@ import {defaultInstance} from "@/axios/axios-instance";
 import router from "@/router";
 import MaterialButton from "@/components/MaterialButton.vue";
 import store from "@/store";
+import {useToast} from "vue-toastification";
 
 export default defineComponent({
   name: 'ScheduleSheet',
@@ -72,6 +90,8 @@ export default defineComponent({
     const copyProjectMembers = ref([]);
 
     const loadingState = ref(true);
+
+    const projectMembersRoleId = ref(store.getters.roleId);
 
     onMounted(async () => {
       await getProjectSchedules();
@@ -215,7 +235,7 @@ export default defineComponent({
     const showDeleteModal = ref(false);
     const deleteReason = ref('');
     const deleteId = ref(0);
-
+    const toast = useToast();
 
     const openModal = (url) => {
       modalUrl.value = url;
@@ -317,7 +337,7 @@ export default defineComponent({
         deleteSchedule(deleteId.value, deleteReason.value);
 
       } else {
-        alert('삭제 사유를 입력해주세요.');
+        toast.error('삭제 사유를 입력해주세요.');
       }
     };
     const cancelDelete = () => {
@@ -325,8 +345,12 @@ export default defineComponent({
       deleteReason.value = '';
     };
     const openDeleteModal = (id) => {
-      deleteId.value = id;
-      showDeleteModal.value = true;
+      if (projectMembersRoleId.value == 10601) {
+        deleteId.value = id;
+        showDeleteModal.value = true;
+      } else{
+        toast.warning('PM인 구성원만 일정을 삭제할 수 있습니다.')
+      }
     };
 
     const goToCreateSchedulePage = (projectId) => {
@@ -460,6 +484,8 @@ export default defineComponent({
       getProjectRequirements,
       projectId,
       employeeId,
+      schedules,
+      copySchedules,
       requirementList,
       copyRequirementList,
       projectMembers,
@@ -605,5 +631,16 @@ table.htCore {
   &:hover {
     background-color: #45a049;
   }
+}
+
+.no-dashboard {
+  background-color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.5rem;
+  color: #868e96;
+  width: 90%;
+  height: 80vh;
 }
 </style>

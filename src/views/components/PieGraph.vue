@@ -1,5 +1,5 @@
 <template>
-  <div ref="pieRef"></div>
+  <div class="graph" ref="pieRef"></div>
 </template>
 
 <script>
@@ -7,6 +7,9 @@ import Chart from '@toast-ui/chart';
 import {ref, onMounted} from 'vue';
 import {defaultInstance} from "@/axios/axios-instance";
 import store from "@/store";
+import {useToast} from 'vue-toastification';
+
+const toast = useToast();
 
 export default {
   setup() {
@@ -37,7 +40,13 @@ export default {
     }
 
     const options = {
-      chart: {width: 600, height: 500},
+      chart: {
+        width: 500,
+        height: 300,
+        animation: {
+          duration: 1000
+        }
+      },
       exportMenu: {
         visible: false
       },
@@ -58,16 +67,34 @@ export default {
           dataLabels: {
             color: '#3d3d3d',
             pieSeriesName: {
-              fontSize: 20
+              fontSize: 20,
             }
           },
         },
       },
+      tooltip: {
+        template: (model, defaultTooltipTemplate, theme) => {
+          theme.body.fontSize = '20px';
+          const {body} = defaultTooltipTemplate;
+          const {background} = theme;
+
+          return `
+        <div style="
+          background: ${background};
+          width: 130px;
+          margin: 0px;
+          text-align: center;
+          color: white;
+          ">
+            🏃 ${body}
+          </div>`;
+        }
+      }
     };
 
     const fetchData = async () => {
       try {
-        const response = defaultInstance.get(`/graphs/${projectId}/pie`);
+        const response = await defaultInstance.get(`graphs/${projectId}/pie`);
 
         // 예상 진행률 및 실제 진행률 데이터 업데이트
         const dashboardData = response.data.result.viewProjectDashboardByProjectId;
@@ -84,17 +111,19 @@ export default {
         inProgress.value = inProgress.data;
         done.value = done.data;
 
+        return true;
       } catch (error) {
-        console.error('Error fetching data:', error);
+        toast.warning('[파이] 표시할 데이터가 없습니다.');
+        return false;
       }
     };
 
     onMounted(async () => {
-      await fetchData(); // 데이터를 먼저 fetch
-      if (pieRef.value) {
+      const result = await fetchData(); // 데이터를 먼저 fetch
+
+      if (result) {
         const el = pieRef.value;
-        const chart = Chart.pieChart({el, data, options});
-        console.log(chart);
+        Chart.pieChart({el, data, options});
       }
     });
 
@@ -104,3 +133,8 @@ export default {
   },
 };
 </script>
+<style>
+.graph .toastui-chart-tooltip-container{
+  position: absolute;
+}
+</style>

@@ -38,19 +38,19 @@
 <script setup>
 import { ref, defineEmits, defineProps} from 'vue';
 import {defaultInstance} from "@/axios/axios-instance";
+import store from "@/store";
+import {useToast} from "vue-toastification";
 
 const props = defineProps({
   isVisible: {
     type: Boolean,
     required: true
-  },
-  projectId: {
-    type: String,
-    required: true
   }
 });
 const requirementsName = ref('');
 const requirementsContent = ref('');
+
+const toast = useToast();
 
 const emit = defineEmits(['close']);
 
@@ -60,22 +60,27 @@ const close = () => {
 
 const registerRequirement = async () => {
   if (!requirementsName.value || !requirementsContent.value) {
-    alert('모든 필드를 입력해주세요.');
+    toast.warning('모든 필드를 입력해주세요.');
     return;
   }
 
   try {
-    await defaultInstance.post('/requirements/create', {
-      requirementsProjectId: props.projectId,
+    const response = await defaultInstance.post('/requirements/create', {
+      requirementsProjectId: store.getters.projectId,
       requirementsName: requirementsName.value,
       requirementsContent: requirementsContent.value,
     });
-    alert('요구사항이 성공적으로 등록되었습니다.');
+
+    if (!(response.status >= 200 && response.status < 300)) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    toast.success('요구사항이 성공적으로 등록되었습니다.');
+
     close();
     emit('update');
   } catch (error) {
     console.error('Error registering requirement:', error);
-    alert('요구사항 등록 중 오류가 발생했습니다.');
+    toast.error('요구사항 등록 중 오류가 발생했습니다.');
   }
 };
 </script>

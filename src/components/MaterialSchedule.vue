@@ -14,10 +14,7 @@
           {{ schedule.title }}
         </h2>
 
-        <!-- TODO. 프로젝트 이름 -->
-        <!--        <p class="modal-project-name">{{ schedule.projectName }}</p>-->
-        <!--   스케쥴에서 가져올 때, 프로젝트 이름까지 같이 가져오도록     -->
-        <p class="modal-project-name">한화SW 부트캠프 Project Name</p>
+        <p class="modal-project-name">{{ projectTitle }}</p>
 
         <!--   탭     -->
         <div class="modal-actions">
@@ -97,16 +94,16 @@
                 <select id="status" v-model="schedule.status">
                   <option v-for="status in statusItems" :key="status" :value="status">
                     {{
-                      status == 10401 ? '준비' :
-                          status == 10402 ? '진행' : '완료'
+                      status === 10303 ? '완료' :
+                          status === 10302 ? '진행' : '준비'
                     }}
                   </option>
                 </select>
               </div>
               <span v-else class="modal-info-value">
                 {{
-                  schedule.status == 10401 ? '준비' :
-                      schedule.status == 10402 ? '진행' : '완료'
+                  schedule.status === 10303 ? '완료' :
+                      schedule.status === 10302 ? '진행' : '준비'
                 }}
               </span>
             </div>
@@ -116,14 +113,20 @@
           <div class="modal-info">
             <div class="modal-info-item">
               <span class="modal-info-label">부모 일정:</span>
-              <span class="modal-info-value">{{ schedule.parentTitle }}</span>
+              <span v-if="schedule.parentId" class="modal-info-value">{{ schedule.parentTitle }}({{
+                  schedule.parentId
+                }})</span>
+              <span v-else class="modal-info-value">해당 사항 없음</span>
               <div v-if="isScheduleEditing">
                 <MaterialButton @click="openSearchScheduleModal('parent')">검색</MaterialButton>
               </div>
             </div>
             <div class="modal-info-item">
               <span class="modal-info-label">선행 일정:</span>
-              <span class="modal-info-value">{{ schedule.precedingTitle }}</span>
+              <span v-if="schedule.precedingId" class="modal-info-value">{{
+                  schedule.precedingTitle
+                }}({{ schedule.precedingId }})</span>
+              <span v-else class="modal-info-value">해당 사항 없음</span>
               <div v-if="isScheduleEditing">
                 <MaterialButton @click="openSearchScheduleModal('preceding')">검색</MaterialButton>
               </div>
@@ -156,8 +159,7 @@
           </div>
 
           <!-- 수정 -->
-          <div class="modal-actions">
-            <p v-if="showInfoMessage" class="info-message">* 표시된 항목을 채워주세요. </p>
+          <div v-if="checkRoleId" class="modal-actions">
             <MaterialButton v-if="!isScheduleEditing" class="modal-action-button" @click="isScheduleEditing = true">수정
             </MaterialButton>
             <div v-else>
@@ -189,12 +191,12 @@
                   <label style="width: 42px">{{ task.isCompleted ? '완료' : '미완료' }}</label>
                 </div>
               </td>
-              <td v-if="tasks.length > 0">
+              <td v-if="tasks.length > 0 && checkRoleId">
                 <MaterialButton style="width: 100px" class="delete-button" @click="deleteTask(index)">삭제
                 </MaterialButton>
               </td>
             </tr>
-            <tr>
+            <tr v-if="checkRoleId">
               <td class="task-title" style="width: 80%">
                 <MaterialInput type="text" label="새 업무명을 입력하세요." v-model="newTaskTitle"></MaterialInput>
               </td>
@@ -254,7 +256,7 @@
               <td style="width: 20%">{{ stakeholder.name }}</td>
               <td style="width: 20%">{{ stakeholder.employeeId }}</td>
               <td style="width: 20%">{{
-                  stakeholder.roleName === 10601 ? 'PM' : (stakeholder.roleName === 10602 ? 'PL' : 'PA')
+                  stakeholder.roleId == 10601 ? 'PM' : (stakeholder.roleId == 10602 ? 'PL' : 'PA')
                 }}
               </td>
               <td style="width: 20%">{{ stakeholder.type === 10401 ? '작성자' : '담당자' }}</td>
@@ -267,7 +269,7 @@
           </table>
 
           <!-- 수정 -->
-          <div class="modal-actions">
+          <div v-if="checkRoleId" class="modal-actions">
             <MaterialButton v-if="!isStakeholdersEditing" class="modal-action-button"
                             @click="isStakeholdersEditing = true">수정
             </MaterialButton>
@@ -301,7 +303,7 @@
                 <td style="width: 20%">{{ member.name }}</td>
                 <td style="width: 20%">{{ member.employeeId }}</td>
                 <td style="width: 20%">{{
-                    member.roleName === 10601 ? 'PM' : (member.roleName === 10602 ? 'PL' : 'PA')
+                    member.roleId == 10601 ? 'PM' : (member.roleId == 10602 ? 'PL' : 'PA')
                   }}
                 </td>
                 <td style="width: 20%">
@@ -359,7 +361,7 @@
           </table>
 
           <!-- 수정 -->
-          <div class="modal-actions">
+          <div v-if="checkRoleId" class="modal-actions">
             <MaterialButton v-if="!isScheduleRequirementsEditing" class="modal-action-button"
                             @click="isScheduleRequirementsEditing = true">수정
             </MaterialButton>
@@ -444,12 +446,17 @@
               <th class="history-modifiedDate">수정 일시</th>
             </tr>
             </thead>
-            <tbody>
+            <tbody v-if="history.length > 0">
             <tr v-for="(history, index) in history" :key="index">
               <td class="history-reason">{{ history.reason }}</td>
               <td class="history-name">{{ history.name }}</td>
               <td class="history-employeeId">{{ history.employeeId }}</td>
               <td class="history-modifiedDate">{{ history.modifiedDate }}</td>
+            </tr>
+            </tbody>
+            <tbody v-else>
+            <tr>
+              <td colspan="4">등록된 수정내역이 존재하지 않습니다.</td>
             </tr>
             </tbody>
           </table>
@@ -462,7 +469,7 @@
     <div v-if="isSearchModal">
       <!-- 검색 모달 창 -->
       <div id="searchScheduleModal" class="modal fade show" style="display: block;" tabindex="-1" role="dialog">
-        <div class="modal-content" style="z-index: 12000">
+        <div class="modal-content" style="z-index: 1200">
           <div class="modal-header">
             <h5 class="modal-title">일정 검색</h5>
           </div>
@@ -511,6 +518,7 @@ import MaterialButton from "@/components/MaterialButton.vue";
 import {defaultInstance} from "@/axios/axios-instance";
 import MaterialInput from "@/components/MaterialInput.vue";
 import store from "@/store";
+import {useToast} from "vue-toastification";
 
 export default {
   components: {MaterialInput, MaterialButton},
@@ -564,10 +572,13 @@ export default {
       requirements: [],
       searchRequirements: [],
       projectMember: [],
-      statusItems: [10401, 10402, 10403],
+      statusItems: [10301, 10302, 10303],
       isSearchModal: false,
       searchScheduleType: '',
       searchScheduleTitleValue: '',
+      selectedScheduleRequestBody: {
+
+      },
 
       // 수정 상태값
       isScheduleEditing: false,
@@ -581,7 +592,6 @@ export default {
       editingPermission: {name: '', id: '', role_name: ''},
       isPermissionEditing: false,
       isEditProjectMemberVisible: false,
-      showInfoMessage: false,
       currentTab: 'details',  // 기본 탭을 'details'로 설정
       requirementSearchValue: '',
       scheduleId: null,
@@ -590,17 +600,33 @@ export default {
       searchProjectMemberState: false,
       searchProjectMemberResults: [],
       loadingState: true,
+      projectTitle: store.getters.projectTitle,
+      projectMemberRoleId: store.getters.roleId,
+      checkRoleId: false,
+      toast: useToast(),
     };
   },
   watch: {
     async isOpen() {
       this.scheduleId = this.modalUrl.split('/').pop();
       await this.getScheduleData();
+      this.setSelectedScheduleRequestBody();
+      if (this.schedule.parentId) {
+        this.schedule.parentTitle = await this.getScheduleTitle(this.schedule.parentId);
+      }
+      if (this.schedule.precedingId) {
+        this.schedule.precedingTitle = await this.getScheduleTitle(this.schedule.precedingId);
+      }
       await this.getTaskData();
       await this.getStakeholderData();
       await this.getScheduleHistoryData();
       await this.getScheduleRequirement()
       await this.initSettingValues();
+
+      this.checkRoleId = false;
+      this.projectId = store.getters.projectId;
+      this.projectMemberRoleId = store.getters.roleId;
+      this.checkRoleId = this.projectMemberRoleId == 10601;
     },
     tasks: {
       handler(tasks) {
@@ -647,7 +673,7 @@ export default {
     },
     async searchSchedule() {
       try {
-        const response = await defaultInstance.get(`/schedules/search/${this.searchScheduleTitleValue}`);
+        const response = await defaultInstance.get(`/schedules/search/${this.searchScheduleTitleValue}/${this.projectId}`);
         const data = response.data.result.searchScheduleByTitle;
         this.searchSchedules = data.map(schedule => ({
           id: schedule.scheduleId,
@@ -658,13 +684,32 @@ export default {
         console.log(error);
       }
     },
+    setSelectedScheduleRequestBody(){
+      this.selectedScheduleRequestBody = {
+        scheduleId: this.scheduleId,
+        scheduleParentScheduleId: this.schedule.parentId,
+        schedulePrecedingScheduleId: this.schedule.precedingId
+      }
+    },
     selectSchedule(schedule) {
       if (this.searchScheduleType === 'parent') {         // 부모 일정 선택
         this.schedule.parentId = schedule.id;
         this.schedule.parentTitle = schedule.title;
+        this.selectedScheduleRequestBody = {
+          scheduleId: this.scheduleId,
+          scheduleParentScheduleId: schedule.id,
+          schedulePrecedingScheduleId: this.schedule.precedingId
+        }
       } else if (this.searchScheduleType === 'preceding') { // 선행 일정 선택
         this.schedule.precedingId = schedule.id;
         this.schedule.precedingTitle = schedule.title;
+        this.selectedScheduleRequestBody = {
+          scheduleId: this.scheduleId,
+          scheduleParentScheduleId: this.schedule.parentId,
+          schedulePrecedingScheduleId: schedule.id,
+        }
+      } else {
+        this.toast.error('부적절한 details값 전달!');
       }
 
       this.closeSearchModal();
@@ -680,7 +725,7 @@ export default {
 
     async addStakeholder(member) {
       if (this.stakeholders.find(stakeholder => stakeholder.projectMemberId === member.projectMemberId)) {
-        alert('이미 추가된 프로젝트 구성원입니다.');
+        this.toast.warning('이미 추가된 프로젝트 구성원입니다.');
         return;
       }
       try {
@@ -700,7 +745,7 @@ export default {
             {
               id: response.data.result.createStakeholders.stakeholdersId,
               type: 10402,    // 모두 담당자로 추가
-              roleName: member.roleName,
+              roleId: member.roleId,
               name: member.name,
               projectMemberId: member.projectMemberId,
               employeeId: member.employeeId,
@@ -718,7 +763,8 @@ export default {
           if (!(response.status >= 200 && response.status < 300)) {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
-          alert('이해관계자가 정상적으로 삭제되었습니다.');
+
+          this.toast.success('이해관계자가 정상적으로 삭제되었습니다.');
           this.stakeholders.splice(index, 1);
           return response.ok;
         } catch (error) {
@@ -750,7 +796,7 @@ export default {
           if (!(response.status >= 200 && response.status < 300)) {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
-          alert('업무가 정상적으로 추가되었습니다.');
+          this.toast.success('업무가 정상적으로 추가되었습니다.');
           this.tasks.push({id: response.data.result.createTask.taskId, title: this.newTaskTitle, completed: false});
           this.newTaskTitle = '';
           return response.ok;
@@ -784,7 +830,7 @@ export default {
             if (!(response.status >= 200 && response.status < 300)) {
               throw new Error(`HTTP error! status: ${response.status}`);
             }
-            alert('업무가 정상적으로 삭제되었습니다.');
+            this.toast.success('업무가 정상적으로 삭제되었습니다.');
             this.tasks.splice(index, 1);
             return response.ok;
           } catch (error) {
@@ -794,6 +840,17 @@ export default {
       }
     },
 
+    async connectSchedule(requestBody) {
+      try {
+        const response = await defaultInstance.put(`/schedules/connect/${this.scheduleId}`, requestBody);
+        if (!(response.status >= 200 && response.status < 300)) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        this.toast.success('일정이 정상적으로 연결되었습니다.');
+      } catch (error) {
+        console.error('error :', error);
+      }
+    },
     async saveScheduleChanges() {
       if (!(
           this.schedule.title &&
@@ -802,10 +859,7 @@ export default {
           this.schedule.status &&
           this.schedule.content &&
           this.reason)) {
-        this.showInfoMessage = true;
-        setTimeout(() => {
-          this.showInfoMessage = false;
-        }, 2000);
+        this.toast.warning('* 표시된 항목을 채워주세요.')
       } else {
         try {
           const response = await defaultInstance.put(`/schedules/modify/${this.scheduleId}`, {
@@ -818,13 +872,12 @@ export default {
             scheduleStatus: this.schedule.status,
             scheduleHistoryReason: this.reason,           // 일정 수정내역
             scheduleHistoryProjectMemberId: store.getters.projectMemberId,
-            scheduleParentScheduleId: this.schedule.parentId,       // TODO. backend 코드에 실제로 값을 받아줘야함.
-            schedulePrecedingScheduleId: this.schedule.precedingId, // TODO. backend 코드에 실제로 값을 받아줘야함.
           });
           if (!(response.status >= 200 && response.status < 300)) {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
-          alert('일정이 정상적으로 수정되었습니다.');
+          this.toast.success('일정이 정상적으로 수정되었습니다.');
+
           /* 수정 사유 갱신 */
           this.history.push({
             reason: this.reason,
@@ -834,17 +887,17 @@ export default {
           });
           this.reason = '';
           this.isScheduleEditing = false;
-          return response.ok;
         } catch (error) {
           console.error('error :', error);
         }
+        await this.connectSchedule(this.selectedScheduleRequestBody);
       }
     },
 
     viewRequirement(requirementId) {
       // 요구사항 자세히 보기 로직 구현
       console.log('requirementId :', requirementId);
-      alert('요구사항 자세히 보기 구현 예정');
+      this.toast.warning('요구사항 자세히 보기 구현 예정');
     },
     async deleteRequirement(scheduleRequirementMapId, index) {
       try {
@@ -852,7 +905,7 @@ export default {
         if (!(response.status >= 200 && response.status < 300)) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        alert('요구사항이 정상적으로 삭제되었습니다.');
+        this.toast.success('요구사항이 정상적으로 삭제되었습니다.');
         this.requirements.splice(index, 1);
         return response.ok;
       } catch (error) {
@@ -867,7 +920,7 @@ export default {
           return;
         }
         console.log(`requirementSearchValue` + this.requirementSearchValue);
-        const response = await defaultInstance.get(`/requirements/search/${store.getters.projectId}/${this.requirementSearchValue}`);
+        const response = await defaultInstance.get(`/requirements/search/${this.projectId}/${this.requirementSearchValue}`);
         const data = response.data.result.searchRequirementsByName;
         console.log(data);
         this.searchRequirements = data.map(requirement => ({
@@ -892,7 +945,7 @@ export default {
           if (!(response.status >= 200 && response.status < 300)) {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
-          alert('요구사항이 정상적으로 추가되었습니다.');
+          this.toast.success('요구사항이 정상적으로 추가되었습니다.');
           this.requirements.push({
             scheduleRequirementMapId: data.scheduleRequirementMapId,
             requirementId: requirement.requirementId,
@@ -907,6 +960,19 @@ export default {
       }
     },
 
+    async getScheduleTitle(scheduleId) {
+      try {
+        const response = await defaultInstance.get('/schedules/get/title/'+scheduleId);
+        if (!(response.status >= 200 && response.status < 300)) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const title = response.data.result.scheduleTitle;
+        console.log('제목 조회 ', title ,'되었습니다.');
+        return title
+      } catch (error) {
+        console.error('error :', error);
+      }
+    },
     async getScheduleData() {
       await defaultInstance.get(`schedules/view/${this.scheduleId}`)
           .then(response => {
@@ -927,7 +993,7 @@ export default {
                             ${data.scheduleCreatedDate.slice(3, 6).map(part => String(part).padStart(2, '0')).join(':')}`,
               modifiedDate: `${data.scheduleModifiedDate.slice(0, 3).map(part => String(part).padStart(2, '0')).join('-')}
                               ${data.scheduleModifiedDate.slice(3, 6).map(part => String(part).padStart(2, '0')).join(':')}`,
-              projectName: data.scheduleProjectId, // TODO. 프로젝트 이름으로 바꿔야함.
+              projectName: this.projectId,
             };
           })
           .catch(error => {
@@ -959,7 +1025,7 @@ export default {
             this.stakeholders = data.map(stakeholder => ({
               id: stakeholder.stakeholdersId,
               type: stakeholder.stakeholdersType,
-              roleName: stakeholder.projectMemberRoleName,
+              roleId: stakeholder.projectMemberRoleId,
               name: stakeholder.projectMemberEmployeeName,
               projectMemberId: stakeholder.stakeholdersProjectMemberId,
               employeeId: stakeholder.projectMemberEmployeeId,
@@ -974,7 +1040,12 @@ export default {
       try {
         const response = await defaultInstance.get(`/scheduleRequirementsMaps/view/${this.scheduleId}`);
         const data = response.data.result.viewScheduleRequirementsMap;
+        console.log('response status', response.status);
+        console.log('data ', data);
 
+        if (!(response.status >= 200 && response.status < 300)) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
         data.forEach(item => {
           const matchingRequirement = this.requirementList.find(r => r.requirementId === item.scheduleRequirementMapRequirementId);
 
@@ -1093,7 +1164,7 @@ export default {
   position: fixed;
   top: 0;
   width: 100%;
-  z-index: 10000;
+  z-index: 1010;
 }
 
 .modal-action-button {
@@ -1142,7 +1213,7 @@ export default {
   top: 50%;
   transform: translate(-50%, -50%);
   width: 80%;
-  z-index: 11000;
+  z-index: 1100;
 }
 
 .textarea-description {
@@ -1224,7 +1295,7 @@ export default {
   position: fixed;
   top: 0;
   width: 100%;
-  z-index: 999;
+  z-index: 1000;
 }
 
 .modal-responsible {
@@ -1319,7 +1390,7 @@ export default {
 }
 
 #searchScheduleModal {
-  z-index: 11000;
+  z-index: 1100;
 }
 
 #title {

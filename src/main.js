@@ -12,8 +12,8 @@ import vueCookie from "vue3-cookies";
 
 const appInstance = createApp(App);
 const toastOptions = {
-    position: POSITION.TOP_RIGHT,
-    timeout: 5000,
+    position: POSITION.BOTTOM_CENTER,
+    timeout: 3000,
     closeOnClick: true,
     pauseOnFocusLoss: true,
     pauseOnHover: true,

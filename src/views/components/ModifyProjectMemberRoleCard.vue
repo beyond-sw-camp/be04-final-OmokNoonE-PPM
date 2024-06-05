@@ -85,8 +85,8 @@ const saveChanges = async () => {
     return;
   }
   try {
-    for (const member of selectedMembers) {
-      await store.dispatch('modifyProjectMember', {projectMemberId: member.id, role: member.role});
+    for (const member of selectedMembers.value) {
+      await store.dispatch('modifyProjectMember', {member: member});
     }
     toast.success('구성원의 직책이 성공적으로 변경되었습니다.');
   } catch (error) {
@@ -98,6 +98,7 @@ const saveChanges = async () => {
 const confirmClose = () => {
   if (selectedMembers.value.length > 0) {
     if (confirm('직책 변경을 취소하시겠습니까?')) {
+      store.dispatch('fetchProjectMembers');
       emit('close');
     }
   } else {
@@ -121,8 +122,6 @@ const toggleSelection = (member) => {
 
 onMounted(async () => {
   isLoading.value = true;
-  console.log('fetching project members');
-  console.log(projectMembers.value)
   isLoading.value = false;
 });
 </script>

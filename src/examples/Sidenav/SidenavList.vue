@@ -6,6 +6,19 @@
     <ul class="navbar-nav">
       <li class="nav-item">
         <sidenav-collapse
+            url="#"
+            :aria-controls="''"
+            v-bind:collapse="false"
+            collapseRef="todo"
+            navText="TODO"
+        >
+          <template v-slot:icon>
+            <i class="material-icons-round opacity-10 fs-5">list_alt</i>
+          </template>
+        </sidenav-collapse>
+      </li>
+      <li class="nav-item">
+        <sidenav-collapse
           url="#"
           :aria-controls="''"
           v-bind:collapse="false"
@@ -35,7 +48,7 @@
           url="#"
           :aria-controls="''"
           v-bind:collapse="false"
-          collapseRef="shcedules"
+          collapseRef="schedules"
           navText="일정"
         >
           <template v-slot:icon>
@@ -112,23 +125,27 @@
         <a
           class="btn w-100 "
           :class="`bg-gradient-${this.$store.state.color}`"
-          @click="openCreateProjectModal"
+          @click="openProjectModal"
           >프로젝트 목록</a
         >
       </div>
     </div>
-    <sidenav-create-project-modal ref="createProjectModal" />
+<!--    <sidenav-create-project-modal ref="createProjectModal" />-->
   </div>
 </template>
 <script>
 import SidenavCollapse from "./SidenavCollapse.vue";
-import SidenavCreateProjectModal from "./SidenavCreateProjectModal.vue";
+// import SidenavCreateProjectModal from "./ProjectModal.vue";
 import {logout} from "@/services/auth";
 import {mapState} from "vuex";
+import store from "@/store";
 
 export default {
   name: "SidenavList",
   computed: {
+    store() {
+      return store
+    },
     ...mapState(["needLogin"]),
   },
   props: {
@@ -143,12 +160,13 @@ export default {
   },
   components: {
     SidenavCollapse,
-    SidenavCreateProjectModal,
+    // SidenavCreateProjectModal,
   },
   methods: {
     logout,
-    openCreateProjectModal() {
-      this.$refs.createProjectModal.open();
+    openProjectModal(){
+      store.dispatch('openProjectModal');
+      console.log('openProjectModal: ', store.getters.getIsProjectModalOpen);
     },
   },
 };
