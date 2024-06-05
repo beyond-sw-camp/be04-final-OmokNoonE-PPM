@@ -593,7 +593,7 @@ export default {
       loadingState: true,
       projectTitle: store.getters.projectTitle,
       projectMemberRoleId: store.getters.roleId,
-      checkRoleId: (this.projectMemberRoleId === 10601),
+      checkRoleId: false,
       toast: useToast(),
     };
   },
@@ -607,6 +607,7 @@ export default {
       await this.getScheduleRequirement()
       await this.initSettingValues();
 
+      this.checkRoleId = this.projectMemberRoleId === 10601;
     },
     tasks: {
       handler(tasks) {
