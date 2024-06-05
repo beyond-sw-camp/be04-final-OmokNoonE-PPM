@@ -76,7 +76,8 @@
 </template>
 
 <script setup>
-import {ref, onMounted, computed, onUnmounted} from 'vue';
+import {ref, onMounted, computed} from 'vue';
+// import {ref, onMounted, computed, onUnmounted, reactive, watch} from 'vue';
 import {useToast} from 'vue-toastification';
 import MaterialAlert from "@/components/MaterialAlert.vue";
 import MaterialSnackbar from "@/components/MaterialSnackbar.vue";
@@ -145,30 +146,46 @@ const formatTime = (createdDate) => {
 
 const fetchNotifications = async () => {
   try {
-    await store.dispatch("notifications/fetchNotifications", employeeId.value);
+    await store.dispatch("notifications/fetchNotifications", employeeId);
   } catch (error) {
     toast.error(`데이터를 가져오는 중 오류 발생: ${error.message}`);
   }
 };
+// const state = reactive({
+//   employeeId: null,
+//   stopPolling: null,
+// });
 
 onMounted(async () => {
+  store.dispatch("notifications/resetNotification");
   await fetchNotifications();
 
-  const stopPolling = store.dispatch(
-      "notifications/startPolling",
-      employeeId.value
-  );
-  console.log("Polling started successfully");
+  // employeeId를 감시하고 변경을 감지
+  // watch(
+  //     () => state.employeeId,
+  //     (newEmployeeId) => { // oldEmployeeId를 완전히 제거
+  //       // employeeId가 변경되면 이전의 폴링을 중지하고 새로운 폴링을 시작
+  //       if (state.stopPolling) {
+  //         state.stopPolling();
+  //         console.log('Polling stopped due to employeeId change');
+  //       }
+  //       if (newEmployeeId) {
+  //         state.stopPolling = store.dispatch('notifications/startPolling', newEmployeeId);
+  //         console.log('Polling started due to employeeId change');
+  //       }
+  //     },
+  //     { immediate: true } // 초기 employeeId 값에 대해서도 watch 적용
+  // );
 
   // 컴포넌트 언마운트 시 폴링 중지
-  onUnmounted(async () => {
-    console.log("Polling stopped");
-    if (typeof stopPolling === 'function') {
-      (await stopPolling)();
-    } else {
-      console.error("stopPolling is not a function");
-    }
-  });
+  // onUnmounted(async () => {
+  //   console.log("Polling stopped");
+  //   if (typeof state.stopPolling === 'function') {
+  //     (await state.stopPolling)();
+  //   } else {
+  //     console.error("stopPolling is not a function");
+  //   }
+  // });
 });
 
 // 여기서 notifications를 기본값으로 빈 배열로 초기화합니다.

@@ -52,30 +52,17 @@ const actions = {
             });
             commit("SET_NOTIFICATIONS", notifications);
             notifications.forEach((notification) => {
-                commit("ADD_FETCHED_NOTIFICATION", notification.notificationId);
+                if (notification.notificationId != null) { // notification.notificationId가 유효한 값인지 확인
+                    commit("ADD_FETCHED_NOTIFICATION", notification.notificationId);
+                }
             });
         } catch (error) {
-            commit(
-                "SET_ERROR_MESSAGE",
-                `알림을 가져오는 중 오류 발생: ${
-                    error.response ? error.response.status : error.message
-                }`
-            );
-        }
-    },
-    async markAsRead({commit}, notificationId) {
-        console.log("로그 확인용: markAsRead - notificationId:", notificationId);
-
-        try {
-            await defaultInstance.put(`/notifications/read/${notificationId}`);
-            commit("MARK_AS_READ", notificationId);
-        } catch (error) {
-            commit(
-                "SET_ERROR_MESSAGE",
-                `알림을 읽음으로 표시하는 중 오류 발생: ${
-                    error.response ? error.response.status : error.message
-                }`
-            );
+            // commit(
+            //     "SET_ERROR_MESSAGE",
+            //     `알림을 가져오는 중 오류 발생: ${
+            //         error.response ? error.response.status : error.message
+            //     }`
+            // );
         }
     },
     startPolling({dispatch}, employeeId) {
@@ -87,6 +74,10 @@ const actions = {
         // 폴링 중지 함수 반환
         return () => clearInterval(intervalId);
     },
+    resetNotification({commit}) {
+        commit("SET_NOTIFICATIONS", []);
+        commit("SET_ERROR_MESSAGE", null);
+    }
 };
 
 const getters = {
