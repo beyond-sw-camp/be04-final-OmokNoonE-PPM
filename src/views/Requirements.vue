@@ -6,7 +6,7 @@
           <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
             <div class="bg-gradient-success shadow-success border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
               <h6 class="text-white text-capitalize ps-3">요구사항</h6>
-              <button @click="goRegisterRequirement" class="btn btn-info register-btn">요구사항 등록</button>
+              <button v-if="projectMemberRoleId == 10601" @click="goRegisterRequirement" class="btn btn-info register-btn">요구사항 등록</button>
             </div>
           </div>
           <div class="card-body px-0 pb-2">
