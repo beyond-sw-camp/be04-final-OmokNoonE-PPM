@@ -141,13 +141,13 @@ export default {
     },
 
     sidenavTypeOnResize() {
-      let transparent = document.querySelector("#btn-transparent");
+      // let transparent = document.querySelector("#btn-transparent");
       let white = document.querySelector("#btn-white");
       if (window.innerWidth < 1200) {
-        transparent.classList.add("disabled");
+        // transparent.classList.add("disabled");
         white.classList.add("disabled");
       } else {
-        transparent.classList.remove("disabled");
+        // transparent.classList.remove("disabled");
         white.classList.remove("disabled");
       }
     },
@@ -159,7 +159,7 @@ export default {
     },
   },
   beforeMount() {
-    this.$store.state.isTransparent = "bg-transparent";
+    // this.$store.state.isTransparent = "bg-transparent";
     window.addEventListener("resize", this.sidenavTypeOnResize);
     window.addEventListener("load", this.sidenavTypeOnResize);
   },
