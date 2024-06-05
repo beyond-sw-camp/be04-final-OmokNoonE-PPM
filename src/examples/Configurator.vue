@@ -75,14 +75,14 @@
           >
             Dark
           </button>
-          <button
-            id="btn-transparent"
-            class="px-3 mb-2 btn bg-gradient-dark ms-2"
-            :class="sidebarType === 'bg-transparent' ? 'active' : ''"
-            @click="sidebar('bg-transparent')"
-          >
-            Transparent
-          </button>
+<!--          <button-->
+<!--            id="btn-transparent"-->
+<!--            class="px-3 mb-2 btn bg-gradient-dark ms-2"-->
+<!--            :class="sidebarType === 'bg-transparent' ? 'active' : ''"-->
+<!--            @click="sidebar('bg-transparent')"-->
+<!--          >-->
+<!--            Transparent-->
+<!--          </button>-->
           <button
             id="btn-white"
             class="px-3 mb-2 btn bg-gradient-dark ms-2"
