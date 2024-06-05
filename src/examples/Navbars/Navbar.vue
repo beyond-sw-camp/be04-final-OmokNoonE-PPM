@@ -17,6 +17,7 @@
           class="pe-md-3 d-flex align-items-center"
           :class="isRTL ? 'me-md-auto' : 'ms-md-auto'"
         >
+          {{ employeeName }} / {{ projectTitle }} / {{ roleIds[roleId] }}
 <!-- 사용하지 않는 버튼 제거 -->
 <!--          <material-input id="search" label="Search here" />-->
         </div>
@@ -32,7 +33,6 @@
               </i>
             </router-link>
           </li>-->
-          <li><h6>{{ projectTitle }}</h6></li>
           <li class="nav-item d-xl-none ps-3 d-flex align-items-center">
             <a
               href="#"
@@ -199,6 +199,13 @@ export default {
       showMenu: false,
       // projectTitle: "테스트 텍스트",
       projectTitle: store.getters.projectTitle,
+      employeeName: store.getters.employeeName,
+      roleId: store.getters.roleId,
+      roleIds: {
+        10603: "PA",
+        10602: "PL",
+        10601: "PM",
+      }
     };
   },
   props: ["minNav", "color"],
