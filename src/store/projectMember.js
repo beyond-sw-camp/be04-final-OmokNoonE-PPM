@@ -12,7 +12,6 @@ const ROLES = {
 const state = {
     projectMembers: [], // 프로젝트 구성원 목록
     availableMembers: [], // 프로젝트에 추가되지 않은 회원 목록
-    selectedProjectId: null, // 선택된 프로젝트 ID
     projectMembersLoading: false, // 프로젝트 구성원 로딩 상태
     availableMembersLoading: false, // 추가 가능한 구성원 로딩 상태
     searchQuery: '', // 검색어
@@ -35,10 +34,10 @@ const mutations = {
             member.isDeleted = true;
         }
     },
-    UPDATE_PROJECT_MEMBER_ROLE(state, {projectMemberId, role}) {
-        const projectMember = state.projectMembers.find((m) => m.projectMemberId === projectMemberId);
+    UPDATE_PROJECT_MEMBER_ROLE(state, {member}) {
+        const projectMember = state.projectMembers.find((m) => m.projectMemberId === member.projectMemberId);
         if (projectMember) {
-            projectMember.role = role;
+            projectMember.role = member.codeId;
         }
     },
     SET_PROJECT_MEMBERS_LOADING(state, loading) {
@@ -113,17 +112,24 @@ const actions = {
             throw new Error('프로젝트 구성원을 제외하는 중 오류가 발생했습니다.');
         }
     },
-    async modifyProjectMember({commit, state}, {projectMemberId, role}) {
+    async modifyProjectMember({commit}, {member}) {
         // 유효한 권한 값인지 확인
-        if (!Object.values(ROLES).includes(role)) {
+        if (!Object.values(ROLES).includes(member.codeName)) {
             throw new Error('유효하지 않은 권한 값입니다.');
         }
         try {
-            await defaultInstance.put(`/projectMembers/modify/${projectMemberId}`, {
-                role: role,
-                projectId: state.selectedProjectId,
-            });
-            commit('UPDATE_PROJECT_MEMBER_ROLE', {projectMemberId, role});
+            const ROLE_IDS = {
+                PA: 10603,
+                PL: 10602,
+                PM: 10601,
+            };
+            let requestBody = {
+                projectMemberRoleId: ROLE_IDS[member.codeName],
+                projectMemberId: member.projectMemberId,
+            }
+            await defaultInstance.put(`/projectMembers/modify`, requestBody);
+
+            commit('SET_AVAILABLE_MEMBERS_LOADING', false); // 로딩 상태 해제
             await this.dispatch('fetchProjectMembers'); // 권한 업데이트 후 최신 데이터 요청
         } catch (err) {
             console.error('프로젝트 구성원 직책을 업데이트하는 중 오류 발생:', err);
