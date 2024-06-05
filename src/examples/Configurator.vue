@@ -112,7 +112,8 @@ export default {
     ...mapActions(["setColor"]),
 
     sidebarColor(color = "success") {
-      document.querySelector("#sidenav-main").setAttribute("data-color", color);
+      // TODO. 헤더 색상을 사이드바와 같은 색상으로 변경
+      // document.querySelector("#sidenav-main").setAttribute("data-color", color);
       this.setColor(color);
     },
 
