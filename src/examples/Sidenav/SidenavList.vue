@@ -48,7 +48,7 @@
           url="#"
           :aria-controls="''"
           v-bind:collapse="false"
-          collapseRef="shcedules"
+          collapseRef="schedules"
           navText="일정"
         >
           <template v-slot:icon>
