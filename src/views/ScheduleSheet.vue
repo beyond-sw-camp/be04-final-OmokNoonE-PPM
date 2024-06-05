@@ -91,6 +91,8 @@ export default defineComponent({
 
     const loadingState = ref(true);
 
+    const projectMembersRoleId = ref(store.getters.roleId);
+
     onMounted(async () => {
       await getProjectSchedules();
       await getProjectRequirements();
@@ -343,8 +345,12 @@ export default defineComponent({
       deleteReason.value = '';
     };
     const openDeleteModal = (id) => {
-      deleteId.value = id;
-      showDeleteModal.value = true;
+      if (projectMembersRoleId.value === 10601) {
+        deleteId.value = id;
+        showDeleteModal.value = true;
+      } else{
+        toast.warning('PM인 구성원만 일정을 삭제할 수 있습니다.')
+      }
     };
 
     const goToCreateSchedulePage = (projectId) => {
