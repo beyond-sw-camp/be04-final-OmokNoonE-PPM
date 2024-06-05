@@ -607,7 +607,9 @@ export default {
       await this.getScheduleRequirement()
       await this.initSettingValues();
 
-      this.checkRoleId = this.projectMemberRoleId === 10601;
+      this.checkRoleId = false;
+      this.projectMemberRoleId = store.getters.roleId;
+      this.checkRoleId = this.projectMemberRoleId == 10601;
     },
     tasks: {
       handler(tasks) {
