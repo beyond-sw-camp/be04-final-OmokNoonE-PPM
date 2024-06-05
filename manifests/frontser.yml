@@ -8,6 +8,6 @@ spec:
     app: ppm-front
   ports:
     - protocol: TCP
-      port: 80
-      targetPort: 80
+      port: 8887
+      targetPort: 8887
   type: LoadBalancer
