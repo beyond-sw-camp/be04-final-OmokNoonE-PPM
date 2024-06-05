@@ -14,7 +14,7 @@ const toast = useToast();
 export default {
 
   setup() {
-    const projectId = store.state.projectId;
+    const projectId = store.getters.projectId;
 
     const gaugeRef = ref(null);
 
