@@ -87,6 +87,10 @@ const actions = {
         // 폴링 중지 함수 반환
         return () => clearInterval(intervalId);
     },
+    resetNotification({commit}) {
+        commit("SET_NOTIFICATIONS", []);
+        commit("SET_ERROR_MESSAGE", null);
+    }
 };
 
 const getters = {

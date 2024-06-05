@@ -127,6 +127,13 @@ const actions = {
             throw new Error('프로젝트 구성원 직책을 업데이트하는 중 오류가 발생했습니다.');
         }
     },
+    resetProjectMember({commit}) {
+        commit('SET_PROJECT_MEMBERS', []);
+        commit('SET_AVAILABLE_MEMBERS', []);
+        commit('SET_PROJECT_MEMBERS_LOADING', false);
+        commit('SET_AVAILABLE_MEMBERS_LOADING', false);
+        commit('SET_SEARCH_RESULTS', []);
+    }
 };
 
 const getters = {

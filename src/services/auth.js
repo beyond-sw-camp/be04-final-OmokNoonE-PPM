@@ -41,12 +41,10 @@ export async function logout() {
     // 로그아웃 처리
     localStorage.removeItem('accessToken');
     cookies.remove('refreshTokenId');
-    store.commit('needLogin', true);
-    store.commit('employeeId', '');
-    store.commit('employeeName', '');
-    store.commit('accessToken', '');
-    store.commit('projectId', '');
-    store.commit('projectMemberId', '');
+
+    await store.dispatch('resetLogin');
+    await store.dispatch('resetProjectMember');
+    await store.dispatch('notifications/resetNotification');
 }
 
 export async function refreshToken() {

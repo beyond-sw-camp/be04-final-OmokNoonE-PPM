@@ -80,5 +80,7 @@ export default createStore({
             return state.isProjectModalOpen;
         },
     },
-    plugins: [createPersistedState()],
+    plugins: [createPersistedState({
+        paths: ["login"],
+    })],
 });

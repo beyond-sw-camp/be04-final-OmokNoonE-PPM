@@ -38,7 +38,16 @@ const mutations = {
 };
 
 const actions = {
-
+    resetLogin({commit}) {
+        commit("needLogin", true);
+        commit("employeeId", "");
+        commit("employeeName", "");
+        commit("accessToken", "");
+        commit("projectId", "");
+        commit("projectTitle", "");
+        commit("projectMemberId", "");
+        commit("roleId", "");
+    }
 };
 
 const getters = {
