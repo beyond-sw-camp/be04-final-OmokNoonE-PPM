@@ -42,6 +42,7 @@ export async function logout() {
     localStorage.removeItem('accessToken');
     cookies.remove('refreshTokenId');
 
+    await store.commit('disableConfigurator');
     await store.dispatch('resetLogin');
     await store.dispatch('resetProjectMember');
     await store.dispatch('notifications/resetNotification');

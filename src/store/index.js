@@ -65,6 +65,9 @@ export default createStore({
         },
         setIsProjectModalOpen(state, data) {
             state.isProjectModalOpen = data;
+        },
+        disableConfigurator(state) {
+            state.showConfig = false;
         }
     },
     actions: {
