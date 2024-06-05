@@ -697,7 +697,7 @@ export default {
       //     // && stakeholdersSaveResult
       //     // && permissionsSaveResult
       // ) {
-        await router.push({name: 'Billing'});
+        await router.push({name: '일정'});
       // }
     },
     openSearchScheduleModal(type) {
