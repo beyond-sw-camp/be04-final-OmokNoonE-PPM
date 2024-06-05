@@ -30,7 +30,7 @@
                   :label="editMode === 'modify' ? '' : '제목'"
                   required
               ></material-input>
-              <span v-else @click="selectProject(project)" style="cursor: pointer;">{{ project.projectTitle }}</span>
+              <span v-else @click="selectProject(project)" style="cursor: pointer; font-weight: bold; color:#007bff ">{{ project.projectTitle }}</span>
             </td>
             <td>
               <material-input
