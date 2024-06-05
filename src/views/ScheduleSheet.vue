@@ -345,7 +345,7 @@ export default defineComponent({
       deleteReason.value = '';
     };
     const openDeleteModal = (id) => {
-      if (projectMembersRoleId.value === 10601) {
+      if (projectMembersRoleId.value == 10601) {
         deleteId.value = id;
         showDeleteModal.value = true;
       } else{

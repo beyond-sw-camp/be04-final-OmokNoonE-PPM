@@ -156,7 +156,7 @@
           </div>
 
           <!-- 수정 -->
-          <div class="modal-actions">
+          <div v-if="checkRoleId" class="modal-actions">
             <p v-if="showInfoMessage" class="info-message">* 표시된 항목을 채워주세요. </p>
             <MaterialButton v-if="!isScheduleEditing" class="modal-action-button" @click="isScheduleEditing = true">수정
             </MaterialButton>
@@ -189,12 +189,12 @@
                   <label style="width: 42px">{{ task.isCompleted ? '완료' : '미완료' }}</label>
                 </div>
               </td>
-              <td v-if="tasks.length > 0">
+              <td v-if="tasks.length > 0 && checkRoleId">
                 <MaterialButton style="width: 100px" class="delete-button" @click="deleteTask(index)">삭제
                 </MaterialButton>
               </td>
             </tr>
-            <tr>
+            <tr  v-if="checkRoleId">
               <td class="task-title" style="width: 80%">
                 <MaterialInput type="text" label="새 업무명을 입력하세요." v-model="newTaskTitle"></MaterialInput>
               </td>
@@ -267,7 +267,7 @@
           </table>
 
           <!-- 수정 -->
-          <div class="modal-actions">
+          <div v-if="checkRoleId" class="modal-actions">
             <MaterialButton v-if="!isStakeholdersEditing" class="modal-action-button"
                             @click="isStakeholdersEditing = true">수정
             </MaterialButton>
@@ -359,7 +359,7 @@
           </table>
 
           <!-- 수정 -->
-          <div class="modal-actions">
+          <div v-if="checkRoleId" class="modal-actions">
             <MaterialButton v-if="!isScheduleRequirementsEditing" class="modal-action-button"
                             @click="isScheduleRequirementsEditing = true">수정
             </MaterialButton>
@@ -592,6 +592,8 @@ export default {
       searchProjectMemberResults: [],
       loadingState: true,
       projectTitle: store.getters.projectTitle,
+      projectMemberRoleId: store.getters.roleId,
+      checkRoleId: (this.projectMemberRoleId === 10601),
       toast: useToast(),
     };
   },
@@ -604,6 +606,7 @@ export default {
       await this.getScheduleHistoryData();
       await this.getScheduleRequirement()
       await this.initSettingValues();
+
     },
     tasks: {
       handler(tasks) {
