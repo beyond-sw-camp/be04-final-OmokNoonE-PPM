@@ -613,6 +613,7 @@ export default {
       await this.initSettingValues();
 
       this.checkRoleId = false;
+      this.projectId = store.getters.projectId;
       this.projectMemberRoleId = store.getters.roleId;
       this.checkRoleId = this.projectMemberRoleId == 10601;
     },
@@ -661,7 +662,7 @@ export default {
     },
     async searchSchedule() {
       try {
-        const response = await defaultInstance.get(`/schedules/search/${this.searchScheduleTitleValue}`);
+        const response = await defaultInstance.get(`/schedules/search/${this.searchScheduleTitleValue}/${this.projectId}`);
         const data = response.data.result.searchScheduleByTitle;
         this.searchSchedules = data.map(schedule => ({
           id: schedule.scheduleId,
@@ -882,7 +883,7 @@ export default {
           return;
         }
         console.log(`requirementSearchValue` + this.requirementSearchValue);
-        const response = await defaultInstance.get(`/requirements/search/${store.getters.projectId}/${this.requirementSearchValue}`);
+        const response = await defaultInstance.get(`/requirements/search/${this.projectId}/${this.requirementSearchValue}`);
         const data = response.data.result.searchRequirementsByName;
         console.log(data);
         this.searchRequirements = data.map(requirement => ({
@@ -942,7 +943,7 @@ export default {
                             ${data.scheduleCreatedDate.slice(3, 6).map(part => String(part).padStart(2, '0')).join(':')}`,
               modifiedDate: `${data.scheduleModifiedDate.slice(0, 3).map(part => String(part).padStart(2, '0')).join('-')}
                               ${data.scheduleModifiedDate.slice(3, 6).map(part => String(part).padStart(2, '0')).join(':')}`,
-              projectName: data.scheduleProjectId, // TODO. 프로젝트 이름으로 바꿔야함.
+              projectName: this.projectId,
             };
           })
           .catch(error => {
