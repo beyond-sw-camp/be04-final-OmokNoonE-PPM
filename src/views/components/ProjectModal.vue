@@ -65,8 +65,9 @@
             </td>
             <td>{{ project.projectModifiedDate }}</td>
             <td>
+              <!-- 관리자만 수정 가능 -->
               <material-button
-                  v-if="!project.isNew && !isEditing"
+                  v-if="!project.isNew && !isEditing && project.roleId === 10601"
                   color="info"
                   @click="modifyProject(project)"
               >수정
@@ -81,7 +82,9 @@
               </material-button>
             </td>
             <td>
+              <!-- 관리자만 삭제 가능 -->
               <material-button
+                  v-if="project.roleId === 10601"
                   color="danger"
                   @click="removeProject(project)"
               >삭제
@@ -193,6 +196,7 @@ export default {
         const employeeId = store.getters.employeeId;
         const response = await defaultInstance.get(`projects/list/${employeeId}`);
         this.projects = response.data.result.viewProjectList;
+        console.log('projects:', this.projects)
       } catch (error) {
         console.error('Error fetching projects:', error);
       }
