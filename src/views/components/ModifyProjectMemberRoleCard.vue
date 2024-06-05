@@ -98,6 +98,7 @@ const saveChanges = async () => {
 const confirmClose = () => {
   if (selectedMembers.value.length > 0) {
     if (confirm('직책 변경을 취소하시겠습니까?')) {
+      store.dispatch('fetchProjectMembers');
       emit('close');
     }
   } else {
