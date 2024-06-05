@@ -14,9 +14,6 @@
           {{ schedule.title }}
         </h2>
 
-        <!-- TODO. 프로젝트 이름 -->
-        <!--        <p class="modal-project-name">{{ schedule.projectName }}</p>-->
-        <!--   스케쥴에서 가져올 때, 프로젝트 이름까지 같이 가져오도록     -->
         <p class="modal-project-name">{{ projectTitle }}</p>
 
         <!--   탭     -->
@@ -157,7 +154,6 @@
 
           <!-- 수정 -->
           <div v-if="checkRoleId" class="modal-actions">
-            <p v-if="showInfoMessage" class="info-message">* 표시된 항목을 채워주세요. </p>
             <MaterialButton v-if="!isScheduleEditing" class="modal-action-button" @click="isScheduleEditing = true">수정
             </MaterialButton>
             <div v-else>
@@ -587,7 +583,6 @@ export default {
       editingPermission: {name: '', id: '', role_name: ''},
       isPermissionEditing: false,
       isEditProjectMemberVisible: false,
-      showInfoMessage: false,
       currentTab: 'details',  // 기본 탭을 'details'로 설정
       requirementSearchValue: '',
       scheduleId: null,
@@ -677,9 +672,21 @@ export default {
       if (this.searchScheduleType === 'parent') {         // 부모 일정 선택
         this.schedule.parentId = schedule.id;
         this.schedule.parentTitle = schedule.title;
+        const requestBody = {
+          scheduleId: this.scheduleId,
+          scheduleParentScheduleId: schedule.id,
+        }
+        this.connectSchedule(requestBody);
       } else if (this.searchScheduleType === 'preceding') { // 선행 일정 선택
         this.schedule.precedingId = schedule.id;
         this.schedule.precedingTitle = schedule.title;
+        const requestBody = {
+          scheduleId: this.scheduleId,
+          schedulePrecedingScheduleId: schedule.id,
+        }
+        this.connectSchedule(requestBody);
+      } else {
+        this.toast.error('부적절한 details값 전달!');
       }
 
       this.closeSearchModal();
@@ -810,6 +817,18 @@ export default {
       }
     },
 
+    async connectSchedule(requestBody){
+      try {
+        const response = await defaultInstance.put(`/schedules/connect/${this.scheduleId}`, requestBody);
+        if (!(response.status >= 200 && response.status < 300)) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        this.toast.success('일정이 정상적으로 연결되었습니다.');
+        return response.ok;
+      } catch (error) {
+        console.error('error :', error);
+      }
+    },
     async saveScheduleChanges() {
       if (!(
           this.schedule.title &&
@@ -818,10 +837,7 @@ export default {
           this.schedule.status &&
           this.schedule.content &&
           this.reason)) {
-        this.showInfoMessage = true;
-        setTimeout(() => {
-          this.showInfoMessage = false;
-        }, 2000);
+        this.toast.warning('* 표시된 항목을 채워주세요.')
       } else {
         try {
           const response = await defaultInstance.put(`/schedules/modify/${this.scheduleId}`, {
@@ -834,13 +850,12 @@ export default {
             scheduleStatus: this.schedule.status,
             scheduleHistoryReason: this.reason,           // 일정 수정내역
             scheduleHistoryProjectMemberId: store.getters.projectMemberId,
-            scheduleParentScheduleId: this.schedule.parentId,       // TODO. backend 코드에 실제로 값을 받아줘야함.
-            schedulePrecedingScheduleId: this.schedule.precedingId, // TODO. backend 코드에 실제로 값을 받아줘야함.
           });
           if (!(response.status >= 200 && response.status < 300)) {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
           this.toast.success('일정이 정상적으로 수정되었습니다.');
+
           /* 수정 사유 갱신 */
           this.history.push({
             reason: this.reason,
