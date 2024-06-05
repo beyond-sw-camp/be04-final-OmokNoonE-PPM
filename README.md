@@ -2,7 +2,7 @@
 
 ![version](https://img.shields.io/badge/version-3.1.0-blue.svg) [![GitHub issues open](https://img.shields.io/github/issues/creativetimofficial/vue-material-dashboard-2.svg)](https://github.com/creativetimofficial/vue-material-dashboard-2/issues?q=is%3Aopen+is%3Aissue) [![GitHub issues closed](https://img.shields.io/github/issues-closed-raw/creativetimofficial/vue-material-dashboard-2.svg)](https://github.com/creativetimofficial/vue-material-dashboard-2/issues?q=is%3Aissue+is%3Aclosed)
 
-![Image](https://s3.amazonaws.com/creativetim_bucket/products/596/original/vue-material-dashboard-2.jpg)
+![Image](https://s3.amazonaws.com/creativetim_bucket/products/596/original/vue-material-dashboard-2.jpg)asdfasdf
 
 Vue Material Dashboard 2 is our newest free Admin Template based on Vue3 & Bootstrap5. If you’re a developer looking to create an admin dashboard that is developer-friendly, rich with features, and highly customisable, here is your match. Our innovative Vue3 & Bootstrap5 dashboard comsdfes with a beautiful design inspired by Google's Material Design and it will help you create stunning websites & web apps to delight your clients
 
