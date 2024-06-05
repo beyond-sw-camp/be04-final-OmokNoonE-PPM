@@ -194,7 +194,7 @@
                 </MaterialButton>
               </td>
             </tr>
-            <tr  v-if="checkRoleId">
+            <tr v-if="checkRoleId">
               <td class="task-title" style="width: 80%">
                 <MaterialInput type="text" label="새 업무명을 입력하세요." v-model="newTaskTitle"></MaterialInput>
               </td>
@@ -444,12 +444,17 @@
               <th class="history-modifiedDate">수정 일시</th>
             </tr>
             </thead>
-            <tbody>
+            <tbody v-if="history.length > 0">
             <tr v-for="(history, index) in history" :key="index">
               <td class="history-reason">{{ history.reason }}</td>
               <td class="history-name">{{ history.name }}</td>
               <td class="history-employeeId">{{ history.employeeId }}</td>
               <td class="history-modifiedDate">{{ history.modifiedDate }}</td>
+            </tr>
+            </tbody>
+            <tbody v-else>
+            <tr>
+              <td colspan="4">등록된 수정내역이 존재하지 않습니다.</td>
             </tr>
             </tbody>
           </table>
@@ -984,7 +989,12 @@ export default {
       try {
         const response = await defaultInstance.get(`/scheduleRequirementsMaps/view/${this.scheduleId}`);
         const data = response.data.result.viewScheduleRequirementsMap;
+        console.log('response status', response.status);
+        console.log('data ', data);
 
+        if (!(response.status >= 200 && response.status < 300)) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
         data.forEach(item => {
           const matchingRequirement = this.requirementList.find(r => r.requirementId === item.scheduleRequirementMapRequirementId);
 
