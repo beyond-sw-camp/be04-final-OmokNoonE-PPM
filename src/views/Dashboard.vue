@@ -44,6 +44,8 @@ export default {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-gap: 10px;
+  width: 70%;
+  height: 70%;
 }
 .no-dashboard {
   background-color: white;

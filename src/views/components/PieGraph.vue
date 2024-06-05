@@ -1,5 +1,5 @@
 <template>
-  <div ref="pieRef"></div>
+  <div class="graph" ref="pieRef"></div>
 </template>
 
 <script>
@@ -40,7 +40,13 @@ export default {
     }
 
     const options = {
-      chart: {width: 600, height: 500},
+      chart: {
+        width: 500,
+        height: 300,
+        animation: {
+          duration: 1000
+        }
+      },
       exportMenu: {
         visible: false
       },
@@ -61,16 +67,34 @@ export default {
           dataLabels: {
             color: '#3d3d3d',
             pieSeriesName: {
-              fontSize: 20
+              fontSize: 20,
             }
           },
         },
       },
+      tooltip: {
+        template: (model, defaultTooltipTemplate, theme) => {
+          theme.body.fontSize = '20px';
+          const {body} = defaultTooltipTemplate;
+          const {background} = theme;
+
+          return `
+        <div style="
+          background: ${background};
+          width: 130px;
+          margin: 0px;
+          text-align: center;
+          color: white;
+          ">
+            🏃 ${body}
+          </div>`;
+        }
+      }
     };
 
     const fetchData = async () => {
       try {
-        const response = defaultInstance.get(`graphs/${projectId}/pie`);
+        const response = await defaultInstance.get(`graphs/${projectId}/pie`);
 
         // 예상 진행률 및 실제 진행률 데이터 업데이트
         const dashboardData = response.data.result.viewProjectDashboardByProjectId;
@@ -89,7 +113,7 @@ export default {
 
         return true;
       } catch (error) {
-        toast.warning('표시할 데이터가 없습니다.');
+        toast.warning('[파이] 표시할 데이터가 없습니다.');
         return false;
       }
     };
@@ -109,3 +133,8 @@ export default {
   },
 };
 </script>
+<style>
+.graph .toastui-chart-tooltip-container{
+  position: absolute;
+}
+</style>
