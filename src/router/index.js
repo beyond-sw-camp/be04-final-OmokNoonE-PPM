@@ -113,7 +113,8 @@ router.beforeEach(async (to, from, next) => {
   const localStorageData = localStorage.getItem('accessToken');
   const refreshTokenId = cookies.get('refreshTokenId')
 
-  if (!localStorageData || !refreshTokenId) {
+  // if (!localStorageData || !refreshTokenId) {
+  if (!localStorageData) {
     // 로컬 스토리지나 쿠키의 값이 없는 경우, 페이지 이동을 취소하고 로그인 페이지로 리다이렉트
     next('/sign-in');
   } else {
