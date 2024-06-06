@@ -10,7 +10,7 @@ RUN pwd
 ARG SERVER_URL
 ENV SERVER_URL=$SERVER_URL
 
-CMD echo "SERVER_URL value is: $SERVER_URL"
+RUN echo "SERVER_URL value is: $SERVER_URL"
 
 RUN npm install
 
