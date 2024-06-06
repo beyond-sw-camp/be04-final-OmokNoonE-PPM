@@ -17,4 +17,4 @@ spec:
         image: orlzll/ppm-front
         imagePullPolicy: Always
         ports:
-        - containerPort: 8887
+        - containerPort: 80
