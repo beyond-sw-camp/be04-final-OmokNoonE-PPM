@@ -3,6 +3,7 @@ const path = require('path');
 module.exports = {
   devServer: {
     port: 80, // 원하는 포트 번호로 변경
+    allowedHosts: "all",
   },
   transpileDependencies: [
     'vuetify'
