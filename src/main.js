@@ -32,3 +32,4 @@ appInstance.use(MaterialDashboard);
 appInstance.use(Toast, toastOptions);
 appInstance.use(vueCookie);
 appInstance.mount("#app");
+console.log('Server URL:', SERVER_URL);
