@@ -1,6 +1,8 @@
 import axios from "axios";
+import { SERVER_URL } from "@/config.js";
 
-const BASE_URL = 'http://localhost:8888/'
+// const BASE_URL = 'http://localhost:8888/'
+const BASE_URL = SERVER_URL;
 
 // 단순 get요청으로 인증값이 필요없는 경우
 const axiosApi = (url, options) => {
