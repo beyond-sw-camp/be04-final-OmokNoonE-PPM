@@ -9,8 +9,8 @@
     <div class="shadow-lg card">
       <div class="pt-3 pb-0 bg-transparent card-header">
         <div class="float-start">
-          <h5 class="mt-3 mb-0">Material UI Configurator</h5>
-          <p>See our dashboard options.</p>
+          <h5 class="mt-3 mb-0">PPM UI 설정</h5>
+          <p>색상을 변경해보세요</p>
         </div>
         <div class="mt-4 float-end" @click="toggle">
           <button class="p-0 btn btn-link text-dark fixed-plugin-close-button">
@@ -23,7 +23,7 @@
       <div class="pt-0 card-body pt-sm-3">
         <!-- Sidebar Backgrounds -->
         <div>
-          <h6 class="mb-0">Sidebar Colors</h6>
+          <h6 class="mb-0">사이드바 버튼 색상</h6>
         </div>
         <a href="#" class="switch-trigger background-color">
           <div
@@ -64,8 +64,7 @@
         </a>
         <!-- Sidenav Type -->
         <div class="mt-3">
-          <h6 class="mb-0">Sidenav Type</h6>
-          <p class="text-sm">Choose between 2 different sidenav types.</p>
+          <h6 class="mb-0">사이드바 색상</h6>
         </div>
         <div class="d-flex">
           <button
@@ -76,14 +75,14 @@
           >
             Dark
           </button>
-          <button
-            id="btn-transparent"
-            class="px-3 mb-2 btn bg-gradient-dark ms-2"
-            :class="sidebarType === 'bg-transparent' ? 'active' : ''"
-            @click="sidebar('bg-transparent')"
-          >
-            Transparent
-          </button>
+<!--          <button-->
+<!--            id="btn-transparent"-->
+<!--            class="px-3 mb-2 btn bg-gradient-dark ms-2"-->
+<!--            :class="sidebarType === 'bg-transparent' ? 'active' : ''"-->
+<!--            @click="sidebar('bg-transparent')"-->
+<!--          >-->
+<!--            Transparent-->
+<!--          </button>-->
           <button
             id="btn-white"
             class="px-3 mb-2 btn bg-gradient-dark ms-2"
@@ -96,44 +95,6 @@
         <p class="text-sm d-xl-none d-block mt-2">
           You can change the sidenav type just on desktop view.
         </p>
-
-        <!-- Navbar Fixed -->
-        <hr class="horizontal dark my-3" />
-        <div class="mt-2 d-flex">
-          <h6 class="mb-0">Light / Dark</h6>
-          <div class="form-check form-switch ps-0 ms-auto my-auto">
-            <input
-              class="form-check-input mt-1 ms-auto"
-              type="checkbox"
-              :checked="$store.state.isDarkMode"
-              @click="darkMode"
-            />
-          </div>
-        </div>
-        <hr class="horizontal dark my-sm-4" />
-
-        <a
-          class="btn btn-outline-dark w-100"
-          href="https://www.creative-tim.com/learning-lab/vue/overview/material-dashboard/"
-          >View documentation</a
-        >
-        <div class="text-center w-100">
-          <h6 class="mt-3">Thank you for sharing!</h6>
-          <a
-            href="https://twitter.com/intent/tweet?text=Check%20Vue%20Material%20Dashboard%202%20made%20by%20%40CreativeTim%20%23webdesign%20%23dashboard%20%23vuejs3&amp;url=https%3A%2F%2Fwww.creative-tim.com%2Fproduct%2Fvue-material-dashboard-2"
-            class="mb-0 btn btn-dark me-2"
-            target="_blank"
-          >
-            <i class="fab fa-twitter me-1" aria-hidden="true"></i> Tweet
-          </a>
-          <a
-            href="https://www.facebook.com/sharer/sharer.php?u=https://www.creative-tim.com/product/vue-material-dashboard-2"
-            class="mb-0 btn btn-dark me-2"
-            target="_blank"
-          >
-            <i class="fab fa-facebook-square me-1" aria-hidden="true"></i> Share
-          </a>
-        </div>
       </div>
     </div>
   </div>
@@ -151,7 +112,8 @@ export default {
     ...mapActions(["setColor"]),
 
     sidebarColor(color = "success") {
-      document.querySelector("#sidenav-main").setAttribute("data-color", color);
+      // TODO. 헤더 색상을 사이드바와 같은 색상으로 변경
+      // document.querySelector("#sidenav-main").setAttribute("data-color", color);
       this.setColor(color);
     },
 
@@ -180,13 +142,13 @@ export default {
     },
 
     sidenavTypeOnResize() {
-      let transparent = document.querySelector("#btn-transparent");
+      // let transparent = document.querySelector("#btn-transparent");
       let white = document.querySelector("#btn-white");
       if (window.innerWidth < 1200) {
-        transparent.classList.add("disabled");
+        // transparent.classList.add("disabled");
         white.classList.add("disabled");
       } else {
-        transparent.classList.remove("disabled");
+        // transparent.classList.remove("disabled");
         white.classList.remove("disabled");
       }
     },
@@ -198,7 +160,7 @@ export default {
     },
   },
   beforeMount() {
-    this.$store.state.isTransparent = "bg-transparent";
+    // this.$store.state.isTransparent = "bg-transparent";
     window.addEventListener("resize", this.sidenavTypeOnResize);
     window.addEventListener("load", this.sidenavTypeOnResize);
   },

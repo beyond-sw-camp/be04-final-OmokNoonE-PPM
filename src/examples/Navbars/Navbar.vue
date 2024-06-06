@@ -17,10 +17,12 @@
           class="pe-md-3 d-flex align-items-center"
           :class="isRTL ? 'me-md-auto' : 'ms-md-auto'"
         >
-          <material-input id="search" label="Search here" />
+          {{ employeeName }} / {{ projectTitle }} / {{ roleIds[roleId] }}
+<!-- 사용하지 않는 버튼 제거 -->
+<!--          <material-input id="search" label="Search here" />-->
         </div>
         <ul class="navbar-nav justify-content-end">
-          <li class="nav-item d-flex align-items-center">
+<!--          <li class="nav-item d-flex align-items-center">
             <router-link
               :to="{ name: 'SignIn' }"
               class="px-0 nav-link font-weight-bold lh-1"
@@ -30,7 +32,7 @@
                 account_circle
               </i>
             </router-link>
-          </li>
+          </li>-->
           <li class="nav-item d-xl-none ps-3 d-flex align-items-center">
             <a
               href="#"
@@ -45,7 +47,7 @@
               </div>
             </a>
           </li>
-          <li class="px-3 nav-item d-flex align-items-center">
+<!--          <li class="px-3 nav-item d-flex align-items-center">
             <a
               class="p-0 nav-link lh-1"
               @click="toggleConfigurator"
@@ -55,8 +57,8 @@
                 settings
               </i>
             </a>
-          </li>
-          <li
+          </li>-->
+<!--          <li
             class="nav-item dropdown d-flex align-items-center"
             :class="isRTL ? 'ps-2' : 'pe-2'"
           >
@@ -178,22 +180,32 @@
                 </a>
               </li>
             </ul>
-          </li>
+          </li>-->
         </ul>
       </div>
     </div>
   </nav>
 </template>
 <script>
-import MaterialInput from "@/components/MaterialInput.vue";
+// import MaterialInput from "@/components/MaterialInput.vue";
 import Breadcrumbs from "../Breadcrumbs.vue";
 import { mapMutations, mapState } from "vuex";
+import store from "@/store";
 
 export default {
   name: "navbar",
   data() {
     return {
       showMenu: false,
+      // projectTitle: "테스트 텍스트",
+      projectTitle: store.getters.projectTitle,
+      employeeName: store.getters.employeeName,
+      roleId: store.getters.roleId,
+      roleIds: {
+        10603: "PA",
+        10602: "PL",
+        10601: "PM",
+      }
     };
   },
   props: ["minNav", "color"],
@@ -209,7 +221,7 @@ export default {
   },
   components: {
     Breadcrumbs,
-    MaterialInput,
+    // MaterialInput,
   },
   computed: {
     ...mapState(["isRTL", "isAbsolute"]),

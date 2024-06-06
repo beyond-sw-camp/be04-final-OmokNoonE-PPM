@@ -12,19 +12,19 @@
         aria-hidden="true"
         id="iconSidenav"
       ></i>
-      <a class="m-0 navbar-brand" href="/">
+      <a class="mx-1 navbar-brand " href="/">
         <img
           :src="
             sidebarType === 'bg-white' ||
             (sidebarType === 'bg-transparent' && !isDarkMode)
-              ? logoDark
-              : logo
+              ? logo
+              : logoDark
           "
-          class="navbar-brand-img h-100"
+          class="navbar-brand-img h-100 ms-2"
           alt="main_logo"
         />
-        <span class="ms-2 font-weight-bold text-white"
-          >Material Dashboard 2</span
+        <span class="ms-0 font-weight-bold text-white h5 text-center"
+          >PPM</span
         >
       </a>
     </div>
@@ -34,8 +34,10 @@
 </template>
 <script>
 import SidenavList from "./SidenavList.vue";
-import logo from "@/assets/img/logo-ct.png";
-import logoDark from "@/assets/img/logo-ct-dark.png";
+// import logo from "@/assets/img/logo-ct.png";
+import logo from "@/assets/img/ppm-logo-maerong.png";
+// import logoDark from "@/assets/img/logo-ct-dark.png";
+import logoDark from "@/assets/img/ppm-logo-pink-blue.png";
 import { mapState } from "vuex";
 
 export default {
@@ -54,3 +56,8 @@ export default {
   },
 };
 </script>
+<style>
+.navbar-vertical .navbar-brand > img, .navbar-vertical .navbar-brand-img {
+    max-height: 3rem !important;
+}
+</style>

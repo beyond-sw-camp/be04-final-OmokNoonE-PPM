@@ -6,11 +6,24 @@
     <ul class="navbar-nav">
       <li class="nav-item">
         <sidenav-collapse
+            url="#"
+            :aria-controls="''"
+            v-bind:collapse="false"
+            collapseRef="todo"
+            navText="TODO"
+        >
+          <template v-slot:icon>
+            <i class="material-icons-round opacity-10 fs-5">list_alt</i>
+          </template>
+        </sidenav-collapse>
+      </li>
+      <li class="nav-item">
+        <sidenav-collapse
           url="#"
           :aria-controls="''"
           v-bind:collapse="false"
           collapseRef="dashboard"
-          navText="Dashboard"
+          navText="대시보드"
         >
           <template v-slot:icon>
             <i class="material-icons-round opacity-10 fs-5">dashboard</i>
@@ -22,11 +35,11 @@
           url="#"
           :aria-controls="''"
           v-bind:collapse="false"
-          collapseRef="tables"
-          navText="Tables"
+          collapseRef="project-member"
+          navText="프로젝트 구성원"
         >
           <template v-slot:icon>
-            <i class="material-icons-round opacity-10 fs-5">table_view</i>
+            <i class="material-icons-round opacity-10 fs-5">groups</i>
           </template>
         </sidenav-collapse>
       </li>
@@ -35,8 +48,21 @@
           url="#"
           :aria-controls="''"
           v-bind:collapse="false"
-          collapseRef="billing"
-          navText="Billing"
+          collapseRef="schedules"
+          navText="일정"
+        >
+          <template v-slot:icon>
+            <i class="material-icons-round opacity-10 fs-5">table_view</i>
+          </template>
+        </sidenav-collapse>
+      </li>
+      <li class="nav-item">
+        <sidenav-collapse
+            url="#"
+            :aria-controls="''"
+            v-bind:collapse="false"
+            collapseRef="requirements"
+            navText="요구사항"
         >
           <template v-slot:icon>
             <i class="material-icons-round opacity-10 fs-5">receipt_long</i>
@@ -48,23 +74,8 @@
           url="#"
           :aria-controls="''"
           v-bind:collapse="false"
-          collapseRef="rtl-page"
-          navText="Rtl"
-        >
-          <template v-slot:icon>
-            <i class="material-icons-round opacity-10 fs-5"
-              >format_textdirection_r_to_l</i
-            >
-          </template>
-        </sidenav-collapse>
-      </li>
-      <li class="nav-item">
-        <sidenav-collapse
-          url="#"
-          :aria-controls="''"
-          v-bind:collapse="false"
           collapseRef="notifications"
-          navText="Notifications"
+          navText="알림"
         >
           <template v-slot:icon>
             <i class="material-icons-round opacity-10 fs-5">notifications</i>
@@ -79,21 +90,11 @@
           ACCOUNT PAGES
         </h6>
       </li>
+
+      <!-- 로그인 상태에 따라 Sign-In과 Logout이 보인다. -->
       <li class="nav-item">
         <sidenav-collapse
-          url="#"
-          :aria-controls="''"
-          v-bind:collapse="false"
-          collapseRef="profile"
-          navText="Profile"
-        >
-          <template v-slot:icon>
-            <i class="material-icons-round opacity-10 fs-5">person</i>
-          </template>
-        </sidenav-collapse>
-      </li>
-      <li class="nav-item">
-        <sidenav-collapse
+          v-if="needLogin"
           url="#"
           :aria-controls="''"
           v-bind:collapse="false"
@@ -104,17 +105,17 @@
             <i class="material-icons-round opacity-10 fs-5">login</i>
           </template>
         </sidenav-collapse>
-      </li>
-      <li class="nav-item">
         <sidenav-collapse
+          v-else
           url="#"
           :aria-controls="''"
           v-bind:collapse="false"
-          collapseRef="sign-up"
-          navText="SignUp"
+          collapseRef="logout"
+          navText="Logout"
+          @click="logout"
         >
           <template v-slot:icon>
-            <i class="material-icons-round opacity-10 fs-5">assignment</i>
+            <i class="material-icons-round opacity-10 fs-5">logout</i>
           </template>
         </sidenav-collapse>
       </li>
@@ -122,20 +123,31 @@
     <div class="sidenav-footer position-absolute w-100 bottom-0">
       <div class="mx-3">
         <a
-          class="btn mt-4 w-100"
+          class="btn w-100 "
           :class="`bg-gradient-${this.$store.state.color}`"
-          href="https://www.creative-tim.com/product/vue-material-dashboard-2-pro"
-          >Upgrade to pro</a
+          @click="openProjectModal"
+          >프로젝트 목록</a
         >
       </div>
     </div>
+<!--    <sidenav-create-project-modal ref="createProjectModal" />-->
   </div>
 </template>
 <script>
 import SidenavCollapse from "./SidenavCollapse.vue";
+// import SidenavCreateProjectModal from "./ProjectModal.vue";
+import {logout} from "@/services/auth";
+import {mapState} from "vuex";
+import store from "@/store";
 
 export default {
   name: "SidenavList",
+  computed: {
+    store() {
+      return store
+    },
+    ...mapState(["needLogin"]),
+  },
   props: {
     cardBg: String,
   },
@@ -148,6 +160,14 @@ export default {
   },
   components: {
     SidenavCollapse,
+    // SidenavCreateProjectModal,
+  },
+  methods: {
+    logout,
+    openProjectModal(){
+      store.dispatch('openProjectModal');
+      console.log('openProjectModal: ', store.getters.getIsProjectModalOpen);
+    },
   },
 };
 </script>

@@ -16,64 +16,42 @@
                 class="bg-gradient-success shadow-success border-radius-lg py-3 pe-1"
               >
                 <h4 class="text-white font-weight-bolder text-center mt-2 mb-0">
-                  Sign in
+                  PPM
                 </h4>
-                <div class="row mt-3">
-                  <div class="col-2 text-center ms-auto">
-                    <a class="btn btn-link px-3" href="javascript:;">
-                      <i class="fab fa-facebook text-white text-lg"></i>
-                    </a>
-                  </div>
-                  <div class="col-2 text-center px-1">
-                    <a class="btn btn-link px-3" href="javascript:;">
-                      <i class="fab fa-github text-white text-lg"></i>
-                    </a>
-                  </div>
-                  <div class="col-2 text-center me-auto">
-                    <a class="btn btn-link px-3" href="javascript:;">
-                      <i class="fab fa-google text-white text-lg"></i>
-                    </a>
-                  </div>
-                </div>
               </div>
             </div>
             <div class="card-body">
               <form role="form" class="text-start mt-3">
                 <div class="mb-3">
                   <material-input
-                    id="email"
-                    type="email"
-                    label="Email"
-                    name="email"
+                    v-model="employeeId"
+                    id="employeeId"
+                    type="text"
+                    label="사원번호"
+                    name="employeeId"
                   />
                 </div>
                 <div class="mb-3">
                   <material-input
+                    v-model="password"
                     id="password"
                     type="password"
-                    label="Password"
+                    label="비밀번호"
                     name="password"
                   />
                 </div>
-                <material-switch id="rememberMe" name="rememberMe"
-                  >Remember me</material-switch
-                >
                 <div class="text-center">
                   <material-button
                     class="my-4 mb-2"
                     variant="gradient"
                     color="success"
                     fullWidth
-                    >Sign in</material-button
+                    @click.prevent="loginSubmit"
+                    >로그인</material-button
                   >
                 </div>
                 <p class="mt-4 text-sm text-center">
-                  Don't have an account?
-                  <router-link
-                    :to="{ name: 'SignUp' }"
-                    class="text-success text-gradient font-weight-bold"
-                    >Sign up</router-link
-                  >
+                  회원가입은 인사팀에 문의하세요.
                 </p>
               </form>
             </div>
@@ -87,7 +65,7 @@
           <div class="col-12 col-md-6 my-auto">
             <div class="copyright text-center text-sm text-white text-lg-start">
               © {{ new Date().getFullYear() }}, made with
-              <i class="fa fa-heart" aria-hidden="true"></i> by
+              <i class="fa fa-heart" aria-hidden="true"> OmokNoonE</i> by
               <a
                 href="https://www.creative-tim.com"
                 class="font-weight-bold text-white"
@@ -103,13 +81,15 @@
             >
               <li class="nav-item">
                 <a
-                  href="https://www.creative-tim.com"
+                  href="https://github.com/OmokNoonE"
                   class="nav-link text-white"
                   target="_blank"
-                  >Creative Tim</a
-                >
+                  >
+                  <div class="github-icon"/>
+                  Github
+                </a>
               </li>
-              <li class="nav-item">
+<!--              <li class="nav-item">
                 <a
                   href="https://www.creative-tim.com/presentation"
                   class="nav-link text-white"
@@ -132,7 +112,7 @@
                   target="_blank"
                   >License</a
                 >
-              </li>
+              </li>-->
             </ul>
           </div>
         </div>
@@ -141,31 +121,51 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, onBeforeMount, onBeforeUnmount } from "vue";
 import Navbar from "@/examples/PageLayout/Navbar.vue";
 import MaterialInput from "@/components/MaterialInput.vue";
-import MaterialSwitch from "@/components/MaterialSwitch.vue";
 import MaterialButton from "@/components/MaterialButton.vue";
-import { mapMutations } from "vuex";
+import { login } from '@/services/auth';
+import { useRouter } from 'vue-router';
+import store from '@/store';
+import {useToast} from "vue-toastification";
 
-export default {
-  name: "sign-in",
-  components: {
-    Navbar,
-    MaterialInput,
-    MaterialSwitch,
-    MaterialButton,
-  },
-  beforeMount() {
-    this.toggleEveryDisplay();
-    this.toggleHideConfig();
-  },
-  beforeUnmount() {
-    this.toggleEveryDisplay();
-    this.toggleHideConfig();
-  },
-  methods: {
-    ...mapMutations(["toggleEveryDisplay", "toggleHideConfig"]),
-  },
-};
+const router = useRouter();
+
+const employeeId = ref('');
+const password = ref('');
+
+const loginSubmit = async () => {
+  try {
+    await login(employeeId.value, password.value);
+    await router.push('/');
+  } catch (error) {
+    // 로그인 실패 시 처리
+    // console.error("로그인 실패", error);
+    const toast = useToast(); // 토스트 메시지를 사용할 수 있는 toast 객체를 생성합니다.
+    toast.error("회원 정보가 일치하지 않습니다."); // projectId가 없는 경우 토스트 메시지를 표시합니다.
+
+  }
+}
+
+onBeforeMount(() => {
+  store.commit("toggleEveryDisplay", false);
+  store.commit("toggleHideConfig", false);
+});
+
+onBeforeUnmount(() => {
+  store.commit("toggleEveryDisplay", true);
+  store.commit("toggleHideConfig", true);
+});
 </script>
+
+<style>
+.github-icon {
+  width: 24px; /* 아이콘의 너비 설정 */
+  height: 24px; /* 아이콘의 높이 설정 */
+  background-image: url("~@/assets/img/small-logos/github.svg"); /* 아이콘 이미지 설정 */
+  background-size: cover; /* 아이콘 이미지 크기 조절 */
+  filter: invert(1); /* 아이콘 색상을 흰색으로 변경 */
+}
+</style>

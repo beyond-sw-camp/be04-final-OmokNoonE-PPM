@@ -10,11 +10,11 @@
       class="form-control"
       :class="getClasses(size)"
       :name="name"
-      :value="value"
+      :value="modelValue"
       :placeholder="placeholder"
       :isRequired="isRequired"
       :disabled="disabled"
-      @input="$emit('update:value', $event.target.value)"
+      @input="$emit('update:modelValue', $event.target.value)"
     />
   </div>
 </template>
@@ -57,7 +57,7 @@ export default {
       type: String,
       required: true,
     },
-    value: {
+    modelValue: {
       type: String,
       default: "",
     },
@@ -74,7 +74,7 @@ export default {
       default: false,
     },
   },
-  emits: ["update:value"],
+  emits: ["update:modelValue"],
   mounted() {
     setMaterialInput();
   },
