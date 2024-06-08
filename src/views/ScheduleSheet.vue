@@ -23,7 +23,7 @@
     <!-- 클릭 안되는 이슈로 바깥으로 배치   -->
     <div v-if="projectId" class="edit-button-container">
       <!--        <button class="create-button" @click="goToCreateSchedulePage({{ store.getters['project/getProjectId'] }})">등록-->
-      <button class="create-button" @click="goToCreateSchedulePage(projectId)">등록
+      <button v-if="projectMembersRoleId == 10601 " class="create-button" @click="goToCreateSchedulePage(projectId)">등록
       </button>
       <!--      일괄 편집 기능 추후 개발 예정-->
       <!--        <button class="edit-button" @click="toggleEditMode">{{ editMode ? '수정 완료' : '수정' }}</button>-->
@@ -79,6 +79,7 @@ export default defineComponent({
     const projectId = store.getters.projectId;
     const employeeId = store.getters.employeeId;
     const projectMemberId = store.getters.projectMemberId;
+    const projectMembersRoleId = ref(store.getters.roleId);
 
     const schedules = ref([]);
     const copySchedules = ref([]);
@@ -91,7 +92,6 @@ export default defineComponent({
 
     const loadingState = ref(true);
 
-    const projectMembersRoleId = ref(store.getters.roleId);
 
     onMounted(async () => {
       await getProjectSchedules();
@@ -484,6 +484,7 @@ export default defineComponent({
       getProjectRequirements,
       projectId,
       employeeId,
+      projectMembersRoleId,
       schedules,
       copySchedules,
       requirementList,
