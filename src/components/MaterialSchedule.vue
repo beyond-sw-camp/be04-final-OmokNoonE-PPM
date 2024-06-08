@@ -266,6 +266,11 @@
               </td>
             </tr>
             </tbody>
+            <tbody v-else>
+            <tr>
+              <td colspan="5">등록된 이해관계자가 존재하지 않습니다.</td>
+            </tr>
+            </tbody>
           </table>
 
           <!-- 수정 -->
@@ -531,22 +536,22 @@ export default {
   data() {
     return {
       schedule: {
-        id: null,
-        title: '',
-        content: '',
-        startDate: '',
-        endDate: '',
-        priority: null,
-        progress: null,
-        status: null,
-        manHours: null,
-        parentId: '',
-        parentTitle: '',
-        precedingId: '',
-        precedingTitle: '',
-        createdDate: '',
-        modifiedDate: '',
-        projectName: '',
+        // id: null,
+        // title: '',
+        // content: '',
+        // startDate: '',
+        // endDate: '',
+        // priority: null,
+        // progress: null,
+        // status: null,
+        // manHours: null,
+        // parentId: '',
+        // parentTitle: '',
+        // precedingId: '',
+        // precedingTitle: '',
+        // createdDate: '',
+        // modifiedDate: '',
+        // projectName: '',
       },
       searchSchedules: [
         // {
@@ -577,20 +582,19 @@ export default {
       requirements: [],
       searchRequirements: [],
       projectMember: [],
+      searchProjectMemberResults: [],
+      reason: '',     // 수정 사유
       statusItems: [10301, 10302, 10303],
       isSearchModal: false,
       searchScheduleType: '',
       searchScheduleTitleValue: '',
-      selectedScheduleRequestBody: {
-
-      },
+      selectedScheduleRequestBody: {},
 
       // 수정 상태값
       isScheduleEditing: false,
       isTaskEditing: false,
       isStakeholdersEditing: false,
       isScheduleRequirementsEditing: false,
-      reason: '',     // 수정 사유
       newTaskTitle: '',
       newPermission: {name: '', id: '', role_name: ''},
       editingPermissionIndex: null,
@@ -603,7 +607,6 @@ export default {
       isRequirementSearchModal: false,
       searchQuery: '',
       searchProjectMemberState: false,
-      searchProjectMemberResults: [],
       loadingState: true,
       projectTitle: store.getters.projectTitle,
       projectMemberRoleId: store.getters.roleId,
@@ -613,6 +616,7 @@ export default {
   },
   watch: {
     async isOpen() {
+      await this.initDataBeforeGet();
       this.scheduleId = this.modalUrl.split('/').pop();
       await this.getScheduleData();
       this.setSelectedScheduleRequestBody();
@@ -649,6 +653,19 @@ export default {
     },
   },
   methods: {
+    initDataBeforeGet() {
+      this.schedule = {};
+      this.searchSchedules = [];
+      this.tasks = [];
+      this.stakeholders = [];
+      this.newStakeholders = [];
+      this.history = [];
+      this.requirements = [];
+      this.searchRequirements = [];
+      this.projectMember = [];
+      this.searchProjectMemberResults = [];
+      this.reason = '';
+    },
     initSettingValues() {
       this.loadingState = false;
       this.isScheduleEditing = false;
@@ -704,7 +721,7 @@ export default {
         }
       }
     },
-    setSelectedScheduleRequestBody(){
+    setSelectedScheduleRequestBody() {
       this.selectedScheduleRequestBody = {
         scheduleId: this.scheduleId,
         scheduleParentScheduleId: this.schedule.parentId,
@@ -981,12 +998,12 @@ export default {
 
     async getScheduleTitle(scheduleId) {
       try {
-        const response = await defaultInstance.get('/schedules/get/title/'+scheduleId);
+        const response = await defaultInstance.get('/schedules/get/title/' + scheduleId);
         if (!(response.status >= 200 && response.status < 300)) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const title = response.data.result.scheduleTitle;
-        console.log('제목 조회 ', title ,'되었습니다.');
+        console.log('제목 조회 ', title, '되었습니다.');
         return title
       } catch (error) {
         console.error('error :', error);
