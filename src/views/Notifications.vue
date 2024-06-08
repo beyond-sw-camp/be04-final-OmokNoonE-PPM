@@ -12,6 +12,14 @@
                 <i class="material-icons text-white me-2">notifications</i>
                 <h6 class="text-white text-capitalize mb-0">알림</h6>
               </div>
+              <div class="d-flex align-items-center">
+                <button
+                    class="btn btn-link text-white text-decoration-none"
+                    @click="sendNotifications"
+                >
+                  <i class="material-icons text-white">refresh</i> 새로고침
+                </button>
+              </div>
             </div>
           </div>
           <!-- 카드 본문 -->
@@ -155,6 +163,15 @@ const fetchNotifications = async () => {
 //   employeeId: null,
 //   stopPolling: null,
 // });
+
+// 알림 생성 메소드 (임시)
+const sendNotifications = async () => {
+  try {
+    await defaultInstance.get(`/notifications/send/${store.getters.projectId}`);
+  } catch (error) {
+    toast.error(`알림을 보내는 중 오류 발생: ${error.message}`);
+  }
+};
 
 onMounted(async () => {
   store.dispatch("notifications/resetNotification");

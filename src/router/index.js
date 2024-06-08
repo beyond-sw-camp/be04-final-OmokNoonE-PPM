@@ -9,11 +9,11 @@ import Requirements from "@/views/Requirements.vue";
 import RegisterRequirement from "@/views/RegisterRequirement.vue";
 import Todo from "@/views/Todo.vue";
 import { refreshToken } from '../services/auth.js';
-import { useCookies } from 'vue3-cookies';
+// import { useCookies } from 'vue3-cookies';
 import CreateSchedule from "@/views/CreateSchedule.vue";
 import store from '../store/index.js';
 
-const { cookies } = useCookies();
+// const { cookies } = useCookies();
 
 const routes = [
   {
@@ -111,9 +111,10 @@ router.beforeEach(async (to, from, next) => {
 
   // 로컬 스토리지와 쿠키의 값이 유지되도록 하는 코드
   const localStorageData = localStorage.getItem('accessToken');
-  const refreshTokenId = cookies.get('refreshTokenId')
+  // const refreshTokenId = cookies.get('refreshTokenId')
 
-  if (!localStorageData || !refreshTokenId) {
+  // if (!localStorageData || !refreshTokenId) {
+  if (!localStorageData) {
     // 로컬 스토리지나 쿠키의 값이 없는 경우, 페이지 이동을 취소하고 로그인 페이지로 리다이렉트
     next('/sign-in');
   } else {
