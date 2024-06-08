@@ -101,6 +101,9 @@
                 </select>
               </div>
               <span v-else class="modal-info-value">
+                <span v-if="schedule.status === 10301" class="status-circle status-pending"></span>
+                <span v-else-if="schedule.status === 10302" class="status-circle status-in-progress"></span>
+                <span v-else-if="schedule.status === 10303" class="status-circle status-completed"></span>
                 {{
                   schedule.status === 10303 ? '완료' :
                       schedule.status === 10302 ? '진행' : '준비'
@@ -1457,6 +1460,25 @@ export default {
   min-height: 100px;
   padding: 0.5rem;
   width: 100%;
+}
+
+.status-circle {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.status-in-progress {
+  background-color: #f0ad4e; /* 진행중 상태의 색상 */
+}
+
+.status-completed {
+  background-color: #5cb85c; /* 완료 상태의 색상 */
+}
+
+.status-pending {
+  background-color: #d9534f; /* 보류중 상태의 색상 */
 }
 
 @keyframes fadeOut {

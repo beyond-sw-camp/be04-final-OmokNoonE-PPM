@@ -116,7 +116,37 @@ export default defineComponent({
         {data: 'scheduleEndDate', type: 'date'},
         {data: 'schedulePriority', type: 'numeric', validator: 'numeric'},
         {data: 'scheduleProgress', type: 'numeric', format: 'd%'},
-        {data: 'scheduleStatus', type: 'dropdown', source: ['준비', '진행', '완료']},
+        {
+          data: 'scheduleStatus',
+          type: 'dropdown',
+          source: ['준비', '진행', '완료'],
+          renderer: function(instance, td, row, col, prop, value) {
+            // 원을 표시할 span 요소를 생성합니다.
+            var span = document.createElement('span');
+
+            // 셀의 값에 따라 원의 색상을 결정합니다.
+            switch (value) {
+              case '준비':
+                span.className = 'status-circle status-pending';
+                break;
+              case '진행':
+                span.className = 'status-circle status-in-progress';
+                break;
+              case '완료':
+                span.className = 'status-circle status-completed';
+                break;
+            }
+
+            // 셀의 내용을 완전히 비웁니다.
+            td.innerHTML = '';
+
+            // 원을 셀에 추가합니다.
+            td.appendChild(span);
+
+            // 셀의 값도 표시합니다.
+            td.appendChild(document.createTextNode(' ' + value));
+          }
+        },
         {data: 'scheduleManHours', type: 'numeric'},
         {
           data: 'scheduleEmployeeInfoList', type: 'text', renderer(instance, td, row, col, prop, value) {
@@ -242,7 +272,7 @@ export default defineComponent({
       modalOpen.value = true;
     };
 
-    const closeScheduleModal = async () => {
+    const closeScheduleModal = () => {
       modalOpen.value = false;
       location.reload();
     };
@@ -649,5 +679,24 @@ table.htCore {
   color: #868e96;
   width: 90%;
   height: 80vh;
+}
+
+.status-circle {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.status-in-progress {
+  background-color: #f0ad4e; /* 진행중 상태의 색상 */
+}
+
+.status-completed {
+  background-color: #5cb85c; /* 완료 상태의 색상 */
+}
+
+.status-pending {
+  background-color: #d9534f; /* 보류중 상태의 색상 */
 }
 </style>
