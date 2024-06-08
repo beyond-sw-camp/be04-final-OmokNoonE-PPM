@@ -752,18 +752,17 @@ export default {
         const requestBody = {
           stakeholdersType: 10402,
           stakeholdersScheduleId: this.scheduleId,
-          projectMemberId: member.projectMemberId,
+          stakeholdersProjectMemberId: member.projectMemberId,
         };
         console.log('requestBody :', requestBody)
-        const response = await defaultInstance.post('/stakeholders/create', {
-          data: requestBody,
-        });
+        const response = await defaultInstance.post('/stakeholders/create', requestBody);
+        console.log('response :', response);
         if (!(response.status >= 200 && response.status < 300)) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         this.stakeholders.push(
             {
-              id: response.data.result.createStakeholders.stakeholdersId,
+              id: response.data.result.createStakeholder.stakeholdersId,
               type: 10402,    // 모두 담당자로 추가
               roleId: member.roleId,
               name: member.name,
