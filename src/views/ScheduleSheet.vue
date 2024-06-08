@@ -114,9 +114,24 @@ export default defineComponent({
         },
         {data: 'scheduleStartDate', type: 'date'},
         {data: 'scheduleEndDate', type: 'date'},
-        {data: 'schedulePriority', type: 'numeric', validator: 'numeric'},
-        {data: 'scheduleProgress', type: 'numeric', format: 'd%'},
         {
+          data: 'schedulePriority',
+          type: 'numeric',
+          renderer: function(instance, td, row, col, prop, value) {
+            if (value === null || value === undefined || value === '') {
+              td.innerText = '-'; // 셀의 값이 비어있는 경우 '-'를 표시
+            } else {
+              td.innerText = value;
+            }
+          }
+        },
+        {
+          data: 'scheduleProgress',
+          type: 'numeric',
+          renderer: function(instance, td, row, col, prop, value) {
+            td.innerText = value + '%'; // 셀의 값 뒤에 '%'를 추가
+          }
+        },        {
           data: 'scheduleStatus',
           type: 'dropdown',
           source: ['준비', '진행', '완료'],
@@ -299,7 +314,8 @@ export default defineComponent({
     };
 
     const formatDate = (date) => {
-      return format(new Date(date[0], date[1] - 1, date[2]), 'dd/MM/yyyy');
+      // return format(new Date(date[0], date[1] - 1, date[2]), 'dd/MM/yyyy');
+      return format(new Date(date[0], date[1] - 1, date[2]), 'yyyy-MM-dd');
     };
 
     const formatChildrenAttributes = (children) => {
