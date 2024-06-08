@@ -897,6 +897,10 @@ export default {
           this.reason)) {
         this.toast.warning('* 표시된 항목을 채워주세요.')
       } else {
+        if ( this.schedule.startDate  > this.schedule.endDate){
+          this.toast.error('시작일이 종료일보다 늦습니다.');
+          return;
+        }
         try {
           const response = await defaultInstance.put(`/schedules/modify/${this.scheduleId}`, {
             scheduleId: this.scheduleId,

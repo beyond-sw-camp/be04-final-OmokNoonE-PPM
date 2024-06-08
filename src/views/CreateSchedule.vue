@@ -673,6 +673,10 @@ export default {
           || this.schedule.content.trim() === '') {
         this.toast.error('* 표시된 항목을 채워주세요.');
       } else {
+        if ( this.schedule.startDate  > this.schedule.endDate){
+          this.toast.error('시작일이 종료일보다 늦습니다.');
+          return;
+        }
         this.saveAll();
       }
     },
@@ -703,9 +707,10 @@ export default {
         await router.push({name: '일정'});
       // }
     },
-    openSearchScheduleModal(type) {
+    async openSearchScheduleModal(type) {
       this.isSearchModal = true;
       this.searchScheduleType = type;
+      await this.searchSchedule();
     },
 
     // 부모 일정 검색
