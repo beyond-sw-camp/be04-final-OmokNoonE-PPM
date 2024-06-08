@@ -42,7 +42,7 @@
     </div>
     <MaterialSchedule :isOpen="modalOpen" :modalUrl="modalUrl"
                       :requirementList="copyRequirementList" :projectMembers="copyProjectMembers"
-                      @close="modalOpen = false"></MaterialSchedule>
+                      @close="closeScheduleModal"></MaterialSchedule>
     <!--    <StakeholderModal-->
     <!--        :isOpen="stakeholderModalOpen"-->
     <!--        :selectedStakeholders="selectedStakeholders"-->
@@ -240,6 +240,11 @@ export default defineComponent({
     const openModal = (url) => {
       modalUrl.value = url;
       modalOpen.value = true;
+    };
+
+    const closeScheduleModal = async () => {
+      modalOpen.value = false;
+      location.reload();
     };
 
     // const openStakeholderModal = (rowIndex, value) => {
@@ -495,6 +500,7 @@ export default defineComponent({
       modalOpen,
       modalUrl,
       openModal,
+      closeScheduleModal,
       // editMode,
       // toggleEditMode,
       stakeholderModalOpen,
