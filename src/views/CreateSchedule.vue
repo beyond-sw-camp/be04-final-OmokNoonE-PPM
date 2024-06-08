@@ -323,7 +323,7 @@
                             <th>내용</th>
                           </tr>
                           </thead>
-                          <tbody>
+                          <tbody v-if="searchSchedules.length > 0">
                           <tr v-for="(schedule, id) in searchSchedules" :key="id">
                             <td>{{ schedule.id }}</td>
                             <td>{{ schedule.title }}</td>
@@ -332,6 +332,11 @@
                               <material-button variant="fill" color="info" @click="selectSchedule(schedule)">선택
                               </material-button>
                             </td>
+                          </tr>
+                          </tbody>
+                          <tbody v-else>
+                          <tr>
+                            <td colspan="3">검색 결과가 없습니다.</td>
                           </tr>
                           </tbody>
                         </table>
@@ -705,19 +710,33 @@ export default {
 
     // 부모 일정 검색
     async searchSchedule() {
-      try {
-        const response = await defaultInstance.get(`/schedules/search/${this.searchScheduleTitleValue}/${this.projectId}`);
-        const data = response.data.result.searchScheduleByTitle;
-        this.searchSchedules = data.map(schedule => ({
-          id: schedule.scheduleId,
-          title: schedule.scheduleTitle,
-          content: schedule.scheduleContent,
-          // type: this.searchScheduleType,
-        }));
-      } catch (error) {
-        console.log(error);
+      if (!this.searchScheduleTitleValue) {
+        try {
+          const response = await defaultInstance.get(`/schedules/list/${this.projectId}`);
+          const data = response.data.result.viewScheduleByProject;
+          this.searchSchedules = data.map(schedule => ({
+            id: schedule.scheduleId,
+            title: schedule.scheduleTitle,
+            content: schedule.scheduleContent,
+          }));
+        } catch (error) {
+          console.log(error);
+        }
+      } else {
+        try {
+          const response = await defaultInstance.get(`/schedules/search/${this.searchScheduleTitleValue}/${this.projectId}`);
+          const data = response.data.result.searchScheduleByTitle;
+          this.searchSchedules = data.map(schedule => ({
+            id: schedule.scheduleId,
+            title: schedule.scheduleTitle,
+            content: schedule.scheduleContent,
+          }));
+        } catch (error) {
+          console.log(error);
+        }
       }
     },
+
     selectSchedule(schedule) {
       if (this.searchScheduleType === 'parent') {         // 부모 일정 선택
         this.schedule.parentId = schedule.id;
