@@ -19,6 +19,11 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@fullcalendar/core": "^6.1.10",
+    "@fullcalendar/daygrid": "^6.1.10",
+    "@fullcalendar/interaction": "^6.1.10",
+    "@fullcalendar/timegrid": "^6.1.10",
+    "@fullcalendar/vue3": "^6.1.10",
     "@handsontable/vue": "^14.3.0",
     "@handsontable/vue3": "^14.3.0",
     "@popperjs/core": "2.11.8",

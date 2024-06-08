@@ -30,6 +30,15 @@
       <!--        <button @click="checkCopySchedules">CopySchedules 값 확인</button>-->
     </div>
 
+    <div v-if="projectId" class="edit-button-container2">
+      <!--        <button class="create-button" @click="goToCreateSchedulePage({{ store.getters['project/getProjectId'] }})">등록-->
+      <button class="create-button" @click="goToCalendarPage(projectId)">🗓️️ 달력으로 보기
+      </button>
+      <!--      일괄 편집 기능 추후 개발 예정-->
+      <!--        <button class="edit-button" @click="toggleEditMode">{{ editMode ? '수정 완료' : '수정' }}</button>-->
+      <!--        <button @click="checkCopySchedules">CopySchedules 값 확인</button>-->
+    </div>
+
     <div class="delete-reason" v-if="showDeleteModal">
       <div class="delete-reason-content">
         <h5>삭제 사유</h5>
@@ -358,6 +367,11 @@ export default defineComponent({
       router.push({name: 'CreateSchedule', params: {projectId: projectId}});
     }
 
+    const goToCalendarPage = (projectId) => {
+      // router를 활용하여 페이지 이동
+      router.push({name: 'Calendar', params: {projectId: projectId}});
+    }
+
     const getProjectSchedules = async () => {
       try {
         // const employeeId = store.getters['auth/getEmployeeId'];  // 로그인한 사용자의 ID, 향후 이 코드로 바꿔야함.
@@ -508,6 +522,7 @@ export default defineComponent({
       deleteSchedule,
       confirmDelete,
       goToCreateSchedulePage,
+      goToCalendarPage,
       showDeleteModal,
       deleteReason,
       deleteId,
@@ -600,6 +615,13 @@ table.htCore {
   position: fixed;
   bottom: 30px;
   right: 120px;
+}
+
+.edit-button-container2
+{
+  position: fixed;
+  bottom: 30px;
+  right: 220px;
 }
 
 .create-button {

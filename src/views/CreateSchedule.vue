@@ -371,7 +371,7 @@ export default {
       schedule: {
         title: '',
         content: '',
-        startDate: '',
+        startDate: this.$route.query.startDate,
         endDate: '',
         priority: null,
         manHours: null,
