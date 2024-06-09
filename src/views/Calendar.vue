@@ -1,3 +1,30 @@
+<template>
+  <div class='demo-app'>
+    <div class='demo-app-main'>
+      <FullCalendar
+          class='demo-app-calendar'
+          :options='calendarOptions'
+      >
+        <template v-slot:eventContent='arg'>
+          <b>{{ arg.timeText }}</b>
+          <i>{{ arg.event.title }}</i>
+        </template>
+      </FullCalendar>
+    </div>
+  </div>
+
+  <MaterialSchedule :isOpen="modalOpen" :modalUrl="modalUrl"
+                    :requirementList="copyRequirementList" :projectMembers="copyProjectMembers"
+                    @close="modalOpen = false"></MaterialSchedule>
+
+
+  <div v-if="projectId" class="edit-button-container">
+    <button class="create-button" @click="goToSheetSchedulePage(projectId)">📑 시트로 보기</button>
+  </div>
+
+</template>
+
+
 <script>
 import {defineComponent, onMounted, watch} from 'vue'
 import FullCalendar from '@fullcalendar/vue3'
@@ -137,7 +164,11 @@ const getSchedules = async () => {
       }
     };
 
-    return {schedules, openModal, modalOpen, modalUrl, copyRequirementList, copyProjectMembers};
+    const goToSheetSchedulePage = (projectId) => {
+      router.push({name: '일정', params: {projectId: projectId}});
+    }
+
+    return {projectId, employeeId, schedules, openModal, modalOpen, modalUrl, copyRequirementList, copyProjectMembers, goToSheetSchedulePage};
 
   },
   data() {
@@ -219,29 +250,15 @@ const getSchedules = async () => {
 
 </script>
 
-<template>
-  <div class='demo-app'>
-    <div class='demo-app-main'>
-      <FullCalendar
-          class='demo-app-calendar'
-          :options='calendarOptions'
-      >
-        <template v-slot:eventContent='arg'>
-          <b>{{ arg.timeText }}</b>
-          <i>{{ arg.event.title }}</i>
-        </template>
-      </FullCalendar>
-    </div>
-  </div>
 
-  <MaterialSchedule :isOpen="modalOpen" :modalUrl="modalUrl"
-                    :requirementList="copyRequirementList" :projectMembers="copyProjectMembers"
-                    @close="modalOpen = false"></MaterialSchedule>
-
-
-</template>
 
 <style lang='css'>
+
+.edit-button-container {
+  position: fixed;
+  bottom: 30px;
+  right: 120px;
+}
 
 h2 {
   margin: 0;
