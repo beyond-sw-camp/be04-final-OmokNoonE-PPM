@@ -251,8 +251,66 @@ function signUpPageLoad() {
   signUpButtonColor.value = "outline-info";
 }
 
+async function validateSignUp() {
+  if (!signUpEmployee.value.employeeId) {
+    toast.error('사원번호를 입력해주세요.');
+    return false;
+  }
+  if (!signUpEmployee.value.employeePassword) {
+    toast.error('비밀번호를 입력해주세요.');
+    return false;
+  }
+  if (!signUpEmployee.value.employeeName) {
+    toast.error('이름을 입력해주세요.');
+    return false;
+  }
+  if (!signUpEmployee.value.employeeEmail) {
+    toast.error('이메일을 입력해주세요.');
+    return false;
+  }
+
+  // 이메일 형식 검사
+  const emailPattern = /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/;
+  if (!emailPattern.test(signUpEmployee.value.employeeEmail)) {
+    toast.error('올바른 이메일 형식을 입력해주세요.');
+    return false;
+  }
+
+  if (!signUpEmployee.value.employeeContact[0] ||
+      !signUpEmployee.value.employeeContact[1] ||
+      !signUpEmployee.value.employeeContact[2]) {
+    toast.error('연락처를 입력해주세요.');
+    return false;
+  }
+
+  // 연락처 형식 검사
+  const contactPattern = /^\d{3}-\d{3,4}-\d{4}$/;
+  const contact = signUpEmployee.value.employeeContact.join('-');
+  if (!contactPattern.test(contact)) {
+    toast.error('올바른 연락처 형식을 입력해주세요. (예: 010-1234-5678)');
+    return false;
+  }
+
+  if (signUpEmployee.value.employeeIsExternalPartner &&
+      !signUpEmployee.value.employeeCompanyName) {
+    toast.error('회사명을 입력해주세요.');
+    return false;
+  }
+  if (!signUpEmployee.value.employeeDepartment) {
+    toast.error('부서를 입력해주세요.');
+    return false;
+  }
+
+  return true;
+}
+
 async function signUp() {
   try {
+    const validationError = validateSignUp();
+    if (validationError) {
+      return;
+    }
+
     const today = new Date().toISOString().split('T')[0];
 
     const requestBody = {
