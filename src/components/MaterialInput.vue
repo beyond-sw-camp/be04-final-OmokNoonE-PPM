@@ -14,6 +14,8 @@
       :placeholder="placeholder"
       :isRequired="isRequired"
       :disabled="disabled"
+      :min="min"
+      :max="max"
       @input="$emit('update:modelValue', $event.target.value)"
     />
   </div>
@@ -72,6 +74,14 @@ export default {
     isRequired: {
       type: Boolean,
       default: false,
+    },
+    min: {
+      type: String,
+      default: "",
+    },
+    max: {
+      type: String,
+      default: "",
     },
   },
   emits: ["update:modelValue"],

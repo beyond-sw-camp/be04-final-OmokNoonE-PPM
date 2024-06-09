@@ -77,7 +77,7 @@
             <div class="modal-info-item">
               <span class="modal-info-label">가중치:</span>
               <div v-if="isScheduleEditing">
-                <MaterialInput id="weight" type="number" label="가중치를 입력하세요."
+                <MaterialInput id="weight" type="number" min="1" max="100" label="가중치"
                                v-model="schedule.priority"></MaterialInput>
               </div>
               <span v-else class="modal-info-value">{{ schedule.priority }}</span>
