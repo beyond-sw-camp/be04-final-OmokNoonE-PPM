@@ -27,10 +27,11 @@
                   :color="signUpButtonColor"
                   class="register-btn"
                   style="margin: 0 0 1rem 1rem;"
-                  @click="getEmployeeList">
+                  @click="signUpPageLoad">
                 회원가입
               </material-button>
-              <table class="table align-items-center mb-0">
+              <!-- 회원 목록 테이블 -->
+              <table v-if="!signUpButtonColor" class="table align-items-center mb-0">
                 <thead>
                 <tr>
                   <th class="text-uppercase font-weight-bolder text-center">아이디</th>
@@ -66,18 +67,131 @@
                   <td class="text-center text-xs font-weight-bold mb-0">
                     <span v-if="employee.employeeIsExternalPartner">O</span>
                   </td>
-                  <td class="text-center text-xs font-weight-bold mb-0">{{ employee.employeeCreatedDate.split(' ')[0] }}</td>
+                  <td class="text-center text-xs font-weight-bold mb-0">{{
+                      employee.employeeCreatedDate.split(' ')[0]
+                    }}
+                  </td>
                   <td class="text-center text-xs font-weight-bold mb-0">{{ employee.employeeModifiedDate }}</td>
 
                   <!-- 직원이 탈퇴한 경우에만 탈퇴일을 표시합니다. -->
                   <td class="text-center text-xs font-weight-bold mb-0">
-                    <span v-if="!employee.employeeIsWithdrawn" class="text-xs font-weight-bold mb-0">{{ employee.employeeWithdrawalDate }}</span>
+                    <span v-if="!employee.employeeIsWithdrawn"
+                          class="text-xs font-weight-bold mb-0">{{ employee.employeeWithdrawalDate }}</span>
                   </td>
                   <td class="text-center text-xs font-weight-bold mb-0">{{ employee.lastLoginDate }}</td>
 
                 </tr>
                 </tbody>
               </table>
+
+              <!-- 회원가입 폼 -->
+              <div v-if="signUpButtonColor" class="card-body centered-content">
+                <form role="form" class="text-start mt-3 w-25">
+                  <div class="mb-3">
+                    <material-input
+                        v-model="signUpEmployee.employeeId"
+                        id="employeeId"
+                        type="text"
+                        label="사원번호"
+                        name="employeeId"
+                    />
+                  </div>
+                  <div class="mb-3">
+                    <material-input
+                        v-model="signUpEmployee.employeePassword"
+                        id="employeePassword"
+                        type="password"
+                        label="비밀번호"
+                        name="employeePassword"
+                    />
+                  </div>
+                  <div class="mb-3">
+                    <material-input
+                        v-model="signUpEmployee.employeeName"
+                        id="employeeName"
+                        type="text"
+                        label="이름"
+                        name="employeeName"
+                    />
+                  </div>
+                  <div class="mb-3">
+                    <material-input
+                        v-model="signUpEmployee.employeeEmail"
+                        id="employeeEmail"
+                        type="email"
+                        label="이메일"
+                        name="employeeEmail"
+                    />
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">연락처</label>
+                    <div class="contact-inputs">
+                      <material-input
+                          v-model="signUpEmployee.employeeContact[0]"
+                          id="employeeContact1"
+                          type="text"
+                          name="employeeContact1"
+                          class="w-25"
+                          maxlength="3"
+                      />-
+                      <material-input
+                          v-model="signUpEmployee.employeeContact[1]"
+                          id="employeeContact2"
+                          type="text"
+                          name="employeeContact2"
+                          class="w-25"
+                          maxlength="4"
+                      />-
+                      <material-input
+                          v-model="signUpEmployee.employeeContact[2]"
+                          id="employeeContact3"
+                          type="text"
+                          name="employeeContact3"
+                          class="w-25"
+                          maxlength="4"
+                      />
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">외부 관계자</label>
+                    <material-checkbox
+                        v-model="signUpEmployee.employeeIsExternalPartner"
+                        id="employeeIsExternalPartner"
+                        name="employeeIsExternalPartner"
+                        @change="signUpEmployee.employeeIsExternalPartner = !signUpEmployee.employeeIsExternalPartner"
+                    />
+                  </div>
+                  <div class="mb-3">
+                    <material-input
+                        v-model="signUpEmployee.employeeCompanyName"
+                        id="employeeCompanyName"
+                        type="text"
+                        label="회사명"
+                        name="employeeCompanyName"
+                        :disabled="!signUpEmployee.employeeIsExternalPartner"
+                    />
+                  </div>
+                  <div class="mb-3">
+                    <material-input
+                        v-model="signUpEmployee.employeeDepartment"
+                        id="employeeDepartment"
+                        type="text"
+                        label="부서"
+                        name="employeeDepartment"
+                    />
+                  </div>
+                  <div class="text-center">
+                    <material-button
+                        class="my-4 mb-2"
+                        variant="gradient"
+                        color="success"
+                        fullWidth
+                        @click="signUp"
+                    >회원가입
+                    </material-button>
+                  </div>
+                </form>
+              </div>
             </div>
           </div>
         </div>
@@ -91,12 +205,27 @@ import {ref, onMounted} from 'vue';
 import MaterialButton from "@/components/MaterialButton.vue";
 import {defaultInstance} from "@/axios/axios-instance";
 import {useToast} from 'vue-toastification';
+import MaterialInput from "@/components/MaterialInput.vue";
+import MaterialCheckbox from "@/components/MaterialCheckbox.vue";
 
 const toast = useToast();
 const employeeList = ref([]);
 
 const employeeListButtonColor = ref("outline-info");
 const signUpButtonColor = ref("");
+
+const signUpEmployee = ref({
+  employeeId: '',
+  employeePassword: '',
+  employeeName: '',
+  employeeEmail: '',
+  employeeJoinDate: null,
+  employeeEmploymentStatus: 10501,  // 기본값은 재직 상태입니다.
+  employeeDepartment: '',
+  employeeContact: ['', '', ''],
+  employeeCompanyName: '',
+  employeeIsExternalPartner: false,
+});
 
 // 컴포넌트가 마운트되면 직원 목록을 불러옵니다.
 onMounted(async () => {
@@ -114,6 +243,51 @@ async function getEmployeeList() {
   } catch (error) {
     console.error(error);
     toast.error('직원 목록을 불러오는데 실패했습니다.');
+  }
+}
+
+function signUpPageLoad() {
+  employeeListButtonColor.value = "";
+  signUpButtonColor.value = "outline-info";
+}
+
+async function signUp() {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+
+    const requestBody = {
+      employeeId: signUpEmployee.value.employeeId,
+      employeePassword: signUpEmployee.value.employeePassword,
+      employeeName: signUpEmployee.value.employeeName,
+      employeeEmail: signUpEmployee.value.employeeEmail,
+      employeeJoinDate: today,
+      employeeEmploymentStatus: signUpEmployee.value.employeeEmploymentStatus,
+      employeeDepartment: signUpEmployee.value.employeeDepartment,
+      employeeContact: signUpEmployee.value.employeeContact.join('-'),
+      employeeCompanyName: signUpEmployee.value.employeeIsExternalPartner ?
+          signUpEmployee.value.employeeCompanyName : '한화부트캠프',  // 외부관계자가 아닐경우 회사명은 한화부트캠프
+      employeeIsExternalPartner: signUpEmployee.value.employeeIsExternalPartner,
+    };
+    await defaultInstance.post('/employees/signup', requestBody);
+    toast.success('회원가입이 완료되었습니다.');
+    await getEmployeeList();
+
+    // signUpEmployee 객체를 초기화합니다.
+    signUpEmployee.value = {
+      employeeId: '',
+      employeePassword: '',
+      employeeName: '',
+      employeeEmail: '',
+      employeeJoinDate: null,
+      employeeEmploymentStatus: 10501,  // 기본값은 재직 상태입니다.
+      employeeDepartment: '',
+      employeeContact: ['', '', ''],
+      employeeCompanyName: '',
+      employeeIsExternalPartner: false,
+    };
+  } catch (error) {
+    console.error(error);
+    toast.error('회원가입에 실패했습니다.');
   }
 }
 </script>
@@ -151,28 +325,15 @@ async function getEmployeeList() {
   font-size: 1.2rem;
 }
 
-.status-circle {
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
+.centered-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
-.status-in-progress {
-  background-color: #f0ad4e; /* 진행중 상태의 색상 */
+.contact-inputs {
+  display: flex;
+  justify-content: space-between;
 }
-
-.status-completed {
-  background-color: #5cb85c; /* 완료 상태의 색상 */
-}
-
-.status-pending {
-  background-color: #d9534f; /* 보류중 상태의 색상 */
-}
-
-.status-description {
-  float: right;
-  margin-right: 30px;
-}
-
 </style>
