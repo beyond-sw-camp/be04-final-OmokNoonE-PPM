@@ -237,7 +237,7 @@ async function getEmployeeList() {
     employeeListButtonColor.value = "outline-info";
     signUpButtonColor.value = "";
 
-    const response = await defaultInstance.get('/employees/list');
+    const response = await defaultInstance.get('/employees/admin/list');
     employeeList.value = response.data.result.viewEmployeeList;
     console.log(employeeList.value)
   } catch (error) {
