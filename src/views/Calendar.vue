@@ -69,6 +69,45 @@ export default defineComponent({
       await getProjectMembers();
     });
 
+const flattenSchedules = (schedules) => {
+  return schedules.flatMap(schedule => {
+    let color;
+    switch (Number(schedule.scheduleStatus)) { // scheduleStatus를 숫자로 변환
+      case 10301:
+        color = '#ffba26';
+        break;
+      case 10302:
+        color = '#24a8ef';
+        break;
+      case 10303:
+        color = '#61cc39';
+        break;
+      default:
+        color = 'gray';
+    }
+
+    const startDate = new Date(schedule.scheduleStartDate[0], schedule.scheduleStartDate[1] - 1, schedule.scheduleStartDate[2] + 1);
+    const endDate = new Date(schedule.scheduleEndDate[0], schedule.scheduleEndDate[1] - 1, schedule.scheduleEndDate[2] + 2);
+
+    const scheduleData = {
+      id: schedule.scheduleId,
+      title: schedule.scheduleTitle,
+      start: startDate.toISOString().split('T')[0],
+      end: endDate.toISOString().split('T')[0],
+      backgroundColor: color,
+      textColor: 'black',
+      // 추가적인 사용자 정의 속성
+      scheduleId: schedule.scheduleId,
+    };
+
+    if (schedule.__children) {
+      return [scheduleData, ...flattenSchedules(schedule.__children)];
+    } else {
+      return [scheduleData];
+    }
+  });
+}
+
 const getSchedules = async () => {
   await defaultInstance.get(`schedules/sheet/${projectId}`, {
     headers: {
@@ -77,37 +116,8 @@ const getSchedules = async () => {
   })
   .then(response => {
     const schedulesData = response.data.result.SheetData;
-    schedules.value = schedulesData.map(schedule => {
-      let color;
-      switch (Number(schedule.scheduleStatus)) { // scheduleStatus를 숫자로 변환
-        case 10301:
-          color = '#ffba26';
-          break;
-        case 10302:
-          color = '#24a8ef';
-          break;
-        case 10303:
-          color = '#61cc39';
-          break;
-        default:
-          color = 'gray';
-      }
-
-      const startDate = new Date(schedule.scheduleStartDate[0], schedule.scheduleStartDate[1] - 1, schedule.scheduleStartDate[2] + 1);
-      const endDate = new Date(schedule.scheduleEndDate[0], schedule.scheduleEndDate[1] - 1, schedule.scheduleEndDate[2] + 2);
-
-      return {
-        id: schedule.scheduleId,
-        title: schedule.scheduleTitle,
-        start: startDate.toISOString().split('T')[0],
-        end: endDate.toISOString().split('T')[0],
-        backgroundColor: color,
-        textColor: 'black',
-        // 추가적인 사용자 정의 속성
-        scheduleId: schedule.scheduleId,
-      };
-    });
-
+    schedules.value = flattenSchedules(schedulesData);
+    console.log(`시트데이터 가져온값: `, schedules.value)
   })
   .catch(error => {
     console.error(error);
