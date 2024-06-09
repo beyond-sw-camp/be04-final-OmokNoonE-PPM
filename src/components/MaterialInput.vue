@@ -16,6 +16,7 @@
       :disabled="disabled"
       :min="min"
       :max="max"
+      :maxlength="maxlength"
       @input="$emit('update:modelValue', $event.target.value)"
     />
   </div>
@@ -82,6 +83,9 @@ export default {
     max: {
       type: String,
       default: "",
+    maxlength: {
+      type: Number,
+      default: 100,
     },
   },
   emits: ["update:modelValue"],

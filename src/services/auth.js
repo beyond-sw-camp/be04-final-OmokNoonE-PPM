@@ -16,6 +16,7 @@ export async function login(employeeId, password) {
         store.commit("needLogin", false);                                            // 로그인 필요 여부 변경
         store.commit('accessToken', headersData["accesstoken"]);                            // accessToken 저장
         store.commit("employeeId", headersData["employeeid"]);                              // 회원ID 저장
+        store.commit("employeeRole", headersData["employeerole"]);                          // 회원 권한 저장
         store.commit("projectId", headersData["projectid"]);                                // 프로젝트ID 저장
         store.commit("projectMemberId", headersData["projectmemberid"]);                    // 프로젝트 멤버ID 저장
         store.commit("roleId", headersData["roleid"]);                                      // 권한ID 저장
