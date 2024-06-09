@@ -110,6 +110,13 @@ function isTokenExpired(token) {
 }
 
 router.beforeEach(async (to, from, next) => {
+
+  // 어드민 페이지 접근 권한 확인
+  if(to.path.startsWith('/admin') && store.getters.employeeRole !== 'ADMIN') {
+      next('/');
+      return;
+  }
+
   if(to.path === '/sign-in') {
     next();
     return;
