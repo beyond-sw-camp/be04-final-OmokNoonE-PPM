@@ -91,7 +91,7 @@
               <p class="importance">{{ isScheduleEditing ? '*' : '' }}</p>
               <span class="modal-info-label">상태:</span>
               <div v-if="isScheduleEditing">
-                <select id="status" v-model="schedule.status">
+                <select id="status" v-model="schedule.status" @change="selectStatus(schedule.status)">
                   <option v-for="status in statusItems" :key="status" :value="status">
                     {{
                       status === 10303 ? '완료' :
@@ -1129,6 +1129,21 @@ export default {
           .catch(error => {
             console.error(error);
           });
+    },
+    selectStatus(status) {
+      switch (status) {
+        case 10301:
+          this.reason = '준비 상태로 변경';
+          break;
+        case 10302:
+          this.reason = '진행 상태로 변경';
+          break;
+        case 10303:
+          this.reason = '완료 상태로 변경';
+          break;
+        default:
+          this.reason = '';
+      }
     },
   },
 };
