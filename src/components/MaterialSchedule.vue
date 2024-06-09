@@ -101,6 +101,9 @@
                 </select>
               </div>
               <span v-else class="modal-info-value">
+                <span v-if="schedule.status === 10301" class="status-circle status-pending"></span>
+                <span v-else-if="schedule.status === 10302" class="status-circle status-in-progress"></span>
+                <span v-else-if="schedule.status === 10303" class="status-circle status-completed"></span>
                 {{
                   schedule.status === 10303 ? '완료' :
                       schedule.status === 10302 ? '진행' : '준비'
@@ -264,6 +267,11 @@
                 <MaterialButton style="width: 100px" class="delete-button" @click="deleteStakeholder(index)">삭제
                 </MaterialButton>
               </td>
+            </tr>
+            </tbody>
+            <tbody v-else>
+            <tr>
+              <td colspan="5">등록된 이해관계자가 존재하지 않습니다.</td>
             </tr>
             </tbody>
           </table>
@@ -490,7 +498,7 @@
               <th>내용</th>
             </tr>
             </thead>
-            <tbody>
+            <tbody v-if="searchSchedules.length > 0">
             <tr v-for="(schedule, id) in searchSchedules" :key="id">
               <td>{{ schedule.id }}</td>
               <td>{{ schedule.title }}</td>
@@ -499,6 +507,11 @@
                 <MaterialButton variant="fill" color="info" @click="selectSchedule(schedule)">선택
                 </MaterialButton>
               </td>
+            </tr>
+            </tbody>
+            <tbody v-else>
+            <tr>
+              <td colspan="3">검색 결과가 없습니다.</td>
             </tr>
             </tbody>
           </table>
@@ -526,30 +539,30 @@ export default {
   data() {
     return {
       schedule: {
-        id: null,
-        title: '',
-        content: '',
-        startDate: '',
-        endDate: '',
-        priority: null,
-        progress: null,
-        status: null,
-        manHours: null,
-        parentId: '',
-        parentTitle: '',
-        precedingId: '',
-        precedingTitle: '',
-        createdDate: '',
-        modifiedDate: '',
-        projectName: '',
+        // id: null,
+        // title: '',
+        // content: '',
+        // startDate: '',
+        // endDate: '',
+        // priority: null,
+        // progress: null,
+        // status: null,
+        // manHours: null,
+        // parentId: '',
+        // parentTitle: '',
+        // precedingId: '',
+        // precedingTitle: '',
+        // createdDate: '',
+        // modifiedDate: '',
+        // projectName: '',
       },
       searchSchedules: [
-        {
-          id: null,
-          title: '',
-          content: '',
-          type: '',
-        }
+        // {
+        //   id: null,
+        //   title: '',
+        //   content: '',
+        //   type: '',
+        // }
       ],
       tasks: [
         // {
@@ -572,20 +585,19 @@ export default {
       requirements: [],
       searchRequirements: [],
       projectMember: [],
+      searchProjectMemberResults: [],
+      reason: '',     // 수정 사유
       statusItems: [10301, 10302, 10303],
       isSearchModal: false,
       searchScheduleType: '',
       searchScheduleTitleValue: '',
-      selectedScheduleRequestBody: {
-
-      },
+      selectedScheduleRequestBody: {},
 
       // 수정 상태값
       isScheduleEditing: false,
       isTaskEditing: false,
       isStakeholdersEditing: false,
       isScheduleRequirementsEditing: false,
-      reason: '',     // 수정 사유
       newTaskTitle: '',
       newPermission: {name: '', id: '', role_name: ''},
       editingPermissionIndex: null,
@@ -598,7 +610,6 @@ export default {
       isRequirementSearchModal: false,
       searchQuery: '',
       searchProjectMemberState: false,
-      searchProjectMemberResults: [],
       loadingState: true,
       projectTitle: store.getters.projectTitle,
       projectMemberRoleId: store.getters.roleId,
@@ -608,6 +619,7 @@ export default {
   },
   watch: {
     async isOpen() {
+      await this.initDataBeforeGet();
       this.scheduleId = this.modalUrl.split('/').pop();
       await this.getScheduleData();
       this.setSelectedScheduleRequestBody();
@@ -644,6 +656,19 @@ export default {
     },
   },
   methods: {
+    initDataBeforeGet() {
+      this.schedule = {};
+      this.searchSchedules = [];
+      this.tasks = [];
+      this.stakeholders = [];
+      this.newStakeholders = [];
+      this.history = [];
+      this.requirements = [];
+      this.searchRequirements = [];
+      this.projectMember = [];
+      this.searchProjectMemberResults = [];
+      this.reason = '';
+    },
     initSettingValues() {
       this.loadingState = false;
       this.isScheduleEditing = false;
@@ -667,24 +692,39 @@ export default {
       return dayDiff >= 0 ? dayDiff : '유효하지 않은 날짜';
     },
 
-    openSearchScheduleModal(type) {
+    async openSearchScheduleModal(type) {
       this.isSearchModal = true;
       this.searchScheduleType = type;
+      await this.searchSchedule();
     },
     async searchSchedule() {
-      try {
-        const response = await defaultInstance.get(`/schedules/search/${this.searchScheduleTitleValue}/${this.projectId}`);
-        const data = response.data.result.searchScheduleByTitle;
-        this.searchSchedules = data.map(schedule => ({
-          id: schedule.scheduleId,
-          title: schedule.scheduleTitle,
-          content: schedule.scheduleContent,
-        }));
-      } catch (error) {
-        console.log(error);
+      if (!this.searchScheduleTitleValue) {
+        try {
+          const response = await defaultInstance.get(`/schedules/list/${this.projectId}`);
+          const data = response.data.result.viewScheduleByProject;
+          this.searchSchedules = data.map(schedule => ({
+            id: schedule.scheduleId,
+            title: schedule.scheduleTitle,
+            content: schedule.scheduleContent,
+          }));
+        } catch (error) {
+          console.log(error);
+        }
+      } else {
+        try {
+          const response = await defaultInstance.get(`/schedules/search/${this.searchScheduleTitleValue}/${this.projectId}`);
+          const data = response.data.result.searchScheduleByTitle;
+          this.searchSchedules = data.map(schedule => ({
+            id: schedule.scheduleId,
+            title: schedule.scheduleTitle,
+            content: schedule.scheduleContent,
+          }));
+        } catch (error) {
+          console.log(error);
+        }
       }
     },
-    setSelectedScheduleRequestBody(){
+    setSelectedScheduleRequestBody() {
       this.selectedScheduleRequestBody = {
         scheduleId: this.scheduleId,
         scheduleParentScheduleId: this.schedule.parentId,
@@ -732,18 +772,17 @@ export default {
         const requestBody = {
           stakeholdersType: 10402,
           stakeholdersScheduleId: this.scheduleId,
-          projectMemberId: member.projectMemberId,
+          stakeholdersProjectMemberId: member.projectMemberId,
         };
         console.log('requestBody :', requestBody)
-        const response = await defaultInstance.post('/stakeholders/create', {
-          data: requestBody,
-        });
+        const response = await defaultInstance.post('/stakeholders/create', requestBody);
+        console.log('response :', response);
         if (!(response.status >= 200 && response.status < 300)) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         this.stakeholders.push(
             {
-              id: response.data.result.createStakeholders.stakeholdersId,
+              id: response.data.result.createStakeholder.stakeholdersId,
               type: 10402,    // 모두 담당자로 추가
               roleId: member.roleId,
               name: member.name,
@@ -861,6 +900,10 @@ export default {
           this.reason)) {
         this.toast.warning('* 표시된 항목을 채워주세요.')
       } else {
+        if ( this.schedule.startDate  > this.schedule.endDate){
+          this.toast.error('시작일이 종료일보다 늦습니다.');
+          return;
+        }
         try {
           const response = await defaultInstance.put(`/schedules/modify/${this.scheduleId}`, {
             scheduleId: this.scheduleId,
@@ -962,12 +1005,12 @@ export default {
 
     async getScheduleTitle(scheduleId) {
       try {
-        const response = await defaultInstance.get('/schedules/get/title/'+scheduleId);
+        const response = await defaultInstance.get('/schedules/get/title/' + scheduleId);
         if (!(response.status >= 200 && response.status < 300)) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const title = response.data.result.scheduleTitle;
-        console.log('제목 조회 ', title ,'되었습니다.');
+        console.log('제목 조회 ', title, '되었습니다.');
         return title
       } catch (error) {
         console.error('error :', error);
@@ -1417,6 +1460,25 @@ export default {
   min-height: 100px;
   padding: 0.5rem;
   width: 100%;
+}
+
+.status-circle {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.status-in-progress {
+  background-color: #f0ad4e; /* 진행중 상태의 색상 */
+}
+
+.status-completed {
+  background-color: #5cb85c; /* 완료 상태의 색상 */
+}
+
+.status-pending {
+  background-color: #d9534f; /* 보류중 상태의 색상 */
 }
 
 @keyframes fadeOut {

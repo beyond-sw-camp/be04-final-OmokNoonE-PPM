@@ -23,7 +23,7 @@
     <!-- 클릭 안되는 이슈로 바깥으로 배치   -->
     <div v-if="projectId" class="edit-button-container">
       <!--        <button class="create-button" @click="goToCreateSchedulePage({{ store.getters['project/getProjectId'] }})">등록-->
-      <button class="create-button" @click="goToCreateSchedulePage(projectId)">등록
+      <button v-if="projectMembersRoleId == 10601 " class="create-button" @click="goToCreateSchedulePage(projectId)">등록
       </button>
       <!--      일괄 편집 기능 추후 개발 예정-->
       <!--        <button class="edit-button" @click="toggleEditMode">{{ editMode ? '수정 완료' : '수정' }}</button>-->
@@ -42,7 +42,7 @@
     </div>
     <MaterialSchedule :isOpen="modalOpen" :modalUrl="modalUrl"
                       :requirementList="copyRequirementList" :projectMembers="copyProjectMembers"
-                      @close="modalOpen = false"></MaterialSchedule>
+                      @close="closeScheduleModal"></MaterialSchedule>
     <!--    <StakeholderModal-->
     <!--        :isOpen="stakeholderModalOpen"-->
     <!--        :selectedStakeholders="selectedStakeholders"-->
@@ -79,6 +79,7 @@ export default defineComponent({
     const projectId = store.getters.projectId;
     const employeeId = store.getters.employeeId;
     const projectMemberId = store.getters.projectMemberId;
+    const projectMembersRoleId = ref(store.getters.roleId);
 
     const schedules = ref([]);
     const copySchedules = ref([]);
@@ -91,7 +92,6 @@ export default defineComponent({
 
     const loadingState = ref(true);
 
-    const projectMembersRoleId = ref(store.getters.roleId);
 
     onMounted(async () => {
       await getProjectSchedules();
@@ -114,9 +114,54 @@ export default defineComponent({
         },
         {data: 'scheduleStartDate', type: 'date'},
         {data: 'scheduleEndDate', type: 'date'},
-        {data: 'schedulePriority', type: 'numeric', validator: 'numeric'},
-        {data: 'scheduleProgress', type: 'numeric', format: 'd%'},
-        {data: 'scheduleStatus', type: 'dropdown', source: ['준비', '진행', '완료']},
+        {
+          data: 'schedulePriority',
+          type: 'numeric',
+          renderer: function(instance, td, row, col, prop, value) {
+            if (value === null || value === undefined || value === '') {
+              td.innerText = '-'; // 셀의 값이 비어있는 경우 '-'를 표시
+            } else {
+              td.innerText = value;
+            }
+          }
+        },
+        {
+          data: 'scheduleProgress',
+          type: 'numeric',
+          renderer: function(instance, td, row, col, prop, value) {
+            td.innerText = value + '%'; // 셀의 값 뒤에 '%'를 추가
+          }
+        },        {
+          data: 'scheduleStatus',
+          type: 'dropdown',
+          source: ['준비', '진행', '완료'],
+          renderer: function(instance, td, row, col, prop, value) {
+            // 원을 표시할 span 요소를 생성합니다.
+            var span = document.createElement('span');
+
+            // 셀의 값에 따라 원의 색상을 결정합니다.
+            switch (value) {
+              case '준비':
+                span.className = 'status-circle status-pending';
+                break;
+              case '진행':
+                span.className = 'status-circle status-in-progress';
+                break;
+              case '완료':
+                span.className = 'status-circle status-completed';
+                break;
+            }
+
+            // 셀의 내용을 완전히 비웁니다.
+            td.innerHTML = '';
+
+            // 원을 셀에 추가합니다.
+            td.appendChild(span);
+
+            // 셀의 값도 표시합니다.
+            td.appendChild(document.createTextNode(' ' + value));
+          }
+        },
         {data: 'scheduleManHours', type: 'numeric'},
         {
           data: 'scheduleEmployeeInfoList', type: 'text', renderer(instance, td, row, col, prop, value) {
@@ -242,6 +287,11 @@ export default defineComponent({
       modalOpen.value = true;
     };
 
+    const closeScheduleModal = () => {
+      modalOpen.value = false;
+      location.reload();
+    };
+
     // const openStakeholderModal = (rowIndex, value) => {
     //   if (editMode.value) {
     //     stakeholderModalOpen.value = true;
@@ -264,7 +314,8 @@ export default defineComponent({
     };
 
     const formatDate = (date) => {
-      return format(new Date(date[0], date[1] - 1, date[2]), 'dd/MM/yyyy');
+      // return format(new Date(date[0], date[1] - 1, date[2]), 'dd/MM/yyyy');
+      return format(new Date(date[0], date[1] - 1, date[2]), 'yyyy-MM-dd');
     };
 
     const formatChildrenAttributes = (children) => {
@@ -484,6 +535,7 @@ export default defineComponent({
       getProjectRequirements,
       projectId,
       employeeId,
+      projectMembersRoleId,
       schedules,
       copySchedules,
       requirementList,
@@ -494,6 +546,7 @@ export default defineComponent({
       modalOpen,
       modalUrl,
       openModal,
+      closeScheduleModal,
       // editMode,
       // toggleEditMode,
       stakeholderModalOpen,
@@ -642,5 +695,24 @@ table.htCore {
   color: #868e96;
   width: 90%;
   height: 80vh;
+}
+
+.status-circle {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.status-in-progress {
+  background-color: #f0ad4e; /* 진행중 상태의 색상 */
+}
+
+.status-completed {
+  background-color: #5cb85c; /* 완료 상태의 색상 */
+}
+
+.status-pending {
+  background-color: #d9534f; /* 보류중 상태의 색상 */
 }
 </style>
