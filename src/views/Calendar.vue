@@ -19,6 +19,8 @@ export default defineComponent({
   },
   setup() {
     const projectId = store.getters.projectId;
+    const employeeId = store.getters.employeeId;
+
     const schedules = ref([]);
     const requirementList = ref([]);
     const projectMembers = ref([]);
@@ -40,42 +42,50 @@ export default defineComponent({
       await getProjectMembers();
     });
 
-    const getSchedules = async () => {
-      await defaultInstance.get(`schedules/list/${projectId}`)
-          .then(response => {
-            const schedulesData = response.data.result.viewScheduleByProject;
-            schedules.value = schedulesData.map(schedule => {
-              let color;
-              switch (schedule.scheduleStatus) {
-                case '10301':
-                  color = '#ffba26';
-                  break;
-                case '10302':
-                  color = '#24a8ef';
-                  break;
-                case '10303':
-                  color = '#61cc39';
-                  break;
-                default:
-                  color = 'gray';
-              }
-              return {
-                id: schedule.scheduleId,
-                title: schedule.scheduleTitle,
-                start: new Date(...schedule.scheduleStartDate).toISOString().split('T')[0],
-                end: new Date(...schedule.scheduleEndDate).toISOString().split('T')[0],
-                backgroundColor: color,
-                textColor: 'black',
-                // 추가적인 사용자 정의 속성
-                scheduleId: schedule.scheduleId,
-              };
-            });
-            console.log(schedules.value);
-          })
-          .catch(error => {
-            console.error(error);
-          });
+const getSchedules = async () => {
+  await defaultInstance.get(`schedules/sheet/${projectId}`, {
+    headers: {
+      'employeeId': employeeId
     }
+  })
+  .then(response => {
+    const schedulesData = response.data.result.SheetData;
+    schedules.value = schedulesData.map(schedule => {
+      let color;
+      switch (Number(schedule.scheduleStatus)) { // scheduleStatus를 숫자로 변환
+        case 10301:
+          color = '#ffba26';
+          break;
+        case 10302:
+          color = '#24a8ef';
+          break;
+        case 10303:
+          color = '#61cc39';
+          break;
+        default:
+          color = 'gray';
+      }
+
+      const startDate = new Date(schedule.scheduleStartDate[0], schedule.scheduleStartDate[1] - 1, schedule.scheduleStartDate[2] + 1);
+      const endDate = new Date(schedule.scheduleEndDate[0], schedule.scheduleEndDate[1] - 1, schedule.scheduleEndDate[2] + 2);
+
+      return {
+        id: schedule.scheduleId,
+        title: schedule.scheduleTitle,
+        start: startDate.toISOString().split('T')[0],
+        end: endDate.toISOString().split('T')[0],
+        backgroundColor: color,
+        textColor: 'black',
+        // 추가적인 사용자 정의 속성
+        scheduleId: schedule.scheduleId,
+      };
+    });
+
+  })
+  .catch(error => {
+    console.error(error);
+  });
+}
 
     const getProjectRequirements = async () => {
       // 요구사항 목록 조회 로직 구현
