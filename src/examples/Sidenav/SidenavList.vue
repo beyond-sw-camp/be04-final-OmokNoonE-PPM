@@ -121,7 +121,7 @@
       </li>
 
       <!-- 관리자용 카테고리 -->
-      <div>
+      <div v-if="store.getters.employeeRole === 'ADMIN'">
         <li class="mt-3 nav-item">
           <h6 class="text-xs ps-4 text-uppercase font-weight-bolder text-white">
             ADMIN PAGES
