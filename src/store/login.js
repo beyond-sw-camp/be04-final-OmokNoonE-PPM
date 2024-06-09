@@ -2,11 +2,12 @@ const state = {
     needLogin: true,
     employeeId: "",
     employeeName: "",
+    employeeRole: "",       // 회원 권한
     accessToken: localStorage.getItem("accessToken") || null,
     projectId: "",
     projectTitle: "",
     projectMemberId: "",
-    roleId: ""
+    roleId: ""              // 프로젝트 권한
 };
 
 const mutations = {
@@ -18,6 +19,9 @@ const mutations = {
     },
     employeeName(state, data) {
         state.employeeName = data;
+    },
+    employeeRole(state, data) {
+        state.employeeRole = data;
     },
     accessToken(state, data) {
         state.accessToken = data;
@@ -42,6 +46,7 @@ const actions = {
         commit("needLogin", true);
         commit("employeeId", "");
         commit("employeeName", "");
+        commit("employeeRole", "");
         commit("accessToken", "");
         commit("projectId", "");
         commit("projectTitle", "");
@@ -59,6 +64,9 @@ const getters = {
     },
     employeeName(state) {
         return state.employeeName;
+    },
+    employeeRole(state) {
+        return state.employeeRole;
     },
     accessToken(state) {
         return state.accessToken;
