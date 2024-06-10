@@ -77,7 +77,7 @@
             <div class="modal-info-item">
               <span class="modal-info-label">가중치:</span>
               <div v-if="isScheduleEditing">
-                <MaterialInput id="weight" type="number" label="가중치를 입력하세요."
+                <MaterialInput id="weight" type="number" min="1" max="100" label="가중치"
                                v-model="schedule.priority"></MaterialInput>
               </div>
               <span v-else class="modal-info-value">{{ schedule.priority }}</span>
@@ -91,7 +91,7 @@
               <p class="importance">{{ isScheduleEditing ? '*' : '' }}</p>
               <span class="modal-info-label">상태:</span>
               <div v-if="isScheduleEditing">
-                <select id="status" v-model="schedule.status">
+                <select id="status" v-model="schedule.status" @change="selectStatus(schedule.status)">
                   <option v-for="status in statusItems" :key="status" :value="status">
                     {{
                       status === 10303 ? '완료' :
@@ -199,7 +199,16 @@
                 </MaterialButton>
               </td>
             </tr>
-            <tr v-if="checkRoleId">
+            </tbody>
+            <tbody v-else-if="!isTaskEditing&tasks.length > 0">
+            <tr v-for="task in tasks" :key="task.id">
+              <td class="task-title">{{ task.title }}</td>
+              <td class="task-isCompleted">
+                <input type="checkbox" :checked="task.isCompleted" disabled>
+                <label>{{ task.isCompleted ? '완료' : '미완료' }}</label>
+              </td>
+            </tr>
+<!--            <tr v-if="checkRoleId">
               <td class="task-title" style="width: 80%">
                 <MaterialInput type="text" label="새 업무명을 입력하세요." v-model="newTaskTitle"></MaterialInput>
               </td>
@@ -212,16 +221,7 @@
               <td>
                 <MaterialButton class="custom-button" style="width: 100px" @click="addTask">추가</MaterialButton>
               </td>
-            </tr>
-            </tbody>
-            <tbody v-else-if="!isTaskEditing&tasks.length > 0">
-            <tr v-for="task in tasks" :key="task.id">
-              <td class="task-title">{{ task.title }}</td>
-              <td class="task-isCompleted">
-                <input type="checkbox" :checked="task.isCompleted" disabled>
-                <label>{{ task.isCompleted ? '완료' : '미완료' }}</label>
-              </td>
-            </tr>
+            </tr>-->
             </tbody>
             <tbody v-else>
             <tr>
@@ -230,10 +230,17 @@
             </tbody>
           </table>
 
-
           <!-- 수정 -->
-          <div class="modal-actions">
-            <MaterialButton v-if="!isTaskEditing" class="modal-action-button" @click="isTaskEditing = true">수정
+          <div class="modal-actions-bottom">
+            <MaterialInput class="w-50" type="text" label="새 업무명을 입력하세요." v-model="newTaskTitle" id="taskTitle"></MaterialInput>
+            <div class="task-isCompleted" style="flex: 0 0 100px">
+              <input style="width: 13px" disabled="true" type="checkbox">
+              <label style="width: 42px">미완료</label>
+            </div>
+            <div class="task-add" style="flex: 0 0 100px">
+              <MaterialButton class="custom-button" @click="addTask">추가</MaterialButton>
+            </div>
+            <MaterialButton v-if="!isTaskEditing" class="modal-action-button" @click="isTaskEditing = true" style="left: 10%">수정
             </MaterialButton>
             <div v-else>
               <MaterialButton class="modal-action-button delete-button" @click="isTaskEditing = false">완료
@@ -1123,6 +1130,21 @@ export default {
             console.error(error);
           });
     },
+    selectStatus(status) {
+      switch (status) {
+        case 10301:
+          this.reason = '준비 상태로 변경';
+          break;
+        case 10302:
+          this.reason = '진행 상태로 변경';
+          break;
+        case 10303:
+          this.reason = '완료 상태로 변경';
+          break;
+        default:
+          this.reason = '';
+      }
+    },
   },
 };
 </script>
@@ -1479,6 +1501,14 @@ export default {
 
 .status-pending {
   background-color: #d9534f; /* 보류중 상태의 색상 */
+}
+
+.modal-actions-bottom {
+  bottom: 10px;
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+  right: 10px;
 }
 
 @keyframes fadeOut {

@@ -14,6 +14,8 @@
       :placeholder="placeholder"
       :isRequired="isRequired"
       :disabled="disabled"
+      :min="min"
+      :max="max"
       :maxlength="maxlength"
       @input="$emit('update:modelValue', $event.target.value)"
     />
@@ -74,6 +76,13 @@ export default {
       type: Boolean,
       default: false,
     },
+    min: {
+      type: String,
+      default: "",
+    },
+    max: {
+      type: String,
+      default: "",
     maxlength: {
       type: Number,
       default: 100,
