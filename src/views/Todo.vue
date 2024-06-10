@@ -31,9 +31,9 @@
                 차주 할 일
               </material-button>
               <div class="status-description">
+                <span class="status-circle status-pending"></span> 준비
                 <span class="status-circle status-in-progress"></span> 진행중&nbsp;&nbsp;
                 <span class="status-circle status-completed"></span> 완료 &nbsp;&nbsp;
-                <span class="status-circle status-pending"></span> 보류중
               </div>
               <table class="table align-items-center mb-0">
                 <thead>
@@ -222,16 +222,16 @@ onMounted(async () => {
   border-radius: 50%;
 }
 
+.status-pending {
+  background-color: #ffba26; /* 준비 상태의 색상 */
+}
+
 .status-in-progress {
-  background-color: #f0ad4e; /* 진행중 상태의 색상 */
+  background-color: #24a8ef; /* 진행중 상태의 색상 */
 }
 
 .status-completed {
-  background-color: #5cb85c; /* 완료 상태의 색상 */
-}
-
-.status-pending {
-  background-color: #d9534f; /* 보류중 상태의 색상 */
+  background-color: #61cc39; /* 완료 상태의 색상 */
 }
 
 .status-description {

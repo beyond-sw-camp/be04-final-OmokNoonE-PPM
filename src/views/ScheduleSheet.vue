@@ -25,19 +25,17 @@
       <!--        <button class="create-button" @click="goToCreateSchedulePage({{ store.getters['project/getProjectId'] }})">등록-->
       <button v-if="projectMembersRoleId == 10601 " class="create-button" @click="goToCreateSchedulePage(projectId)">등록
       </button>
-      <!--      일괄 편집 기능 추후 개발 예정-->
-      <!--        <button class="edit-button" @click="toggleEditMode">{{ editMode ? '수정 완료' : '수정' }}</button>-->
-      <!--        <button @click="checkCopySchedules">CopySchedules 값 확인</button>-->
-    </div>
-
-    <div v-if="projectId" class="edit-button-container2">
-      <!--        <button class="create-button" @click="goToCreateSchedulePage({{ store.getters['project/getProjectId'] }})">등록-->
       <button class="create-button" @click="goToCalendarPage(projectId)">🗓️️ 달력으로 보기
       </button>
       <!--      일괄 편집 기능 추후 개발 예정-->
       <!--        <button class="edit-button" @click="toggleEditMode">{{ editMode ? '수정 완료' : '수정' }}</button>-->
       <!--        <button @click="checkCopySchedules">CopySchedules 값 확인</button>-->
     </div>
+
+      <!--        <button class="create-button" @click="goToCreateSchedulePage({{ store.getters['project/getProjectId'] }})">등록-->
+      <!--      일괄 편집 기능 추후 개발 예정-->
+      <!--        <button class="edit-button" @click="toggleEditMode">{{ editMode ? '수정 완료' : '수정' }}</button>-->
+      <!--        <button @click="checkCopySchedules">CopySchedules 값 확인</button>-->
 
     <div class="delete-reason" v-if="showDeleteModal">
       <div class="delete-reason-content">
@@ -726,15 +724,19 @@ table.htCore {
   border-radius: 50%;
 }
 
+.status-pending {
+  background-color: #ffba26; /* 준비 상태의 색상 */
+}
+
 .status-in-progress {
-  background-color: #f0ad4e; /* 진행중 상태의 색상 */
+  background-color: #24a8ef; /* 진행중 상태의 색상 */
 }
 
 .status-completed {
-  background-color: #5cb85c; /* 완료 상태의 색상 */
+  background-color: #61cc39; /* 완료 상태의 색상 */
 }
 
-.status-pending {
-  background-color: #d9534f; /* 보류중 상태의 색상 */
+.create-button {
+  margin-right: 10px;
 }
 </style>
