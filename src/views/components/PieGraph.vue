@@ -1,5 +1,8 @@
 <template>
-  <div class="graph" ref="pieRef"></div>
+  <div class="card align-items-center text-center" style="padding-top: 20px; min-width: 500px;">
+    <h5>프로젝트 일정 진행 현황</h5>
+    <div class="graph" ref="pieRef"></div>
+  </div>
 </template>
 
 <script>
@@ -134,7 +137,7 @@ export default {
 };
 </script>
 <style>
-.graph .toastui-chart-tooltip-container{
+.graph .toastui-chart-tooltip-container {
   position: absolute;
 }
 </style>
