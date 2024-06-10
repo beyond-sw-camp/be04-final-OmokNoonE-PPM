@@ -116,6 +116,7 @@ export default defineComponent({
           data: 'scheduleTitle', type: 'text', renderer(instance, td, row, col, prop, value) {
             td.title = value;
             td.innerText = value;
+            td.style.textAlign = 'left';
             return td;
           }
         },
@@ -331,6 +332,13 @@ export default defineComponent({
         children[i].scheduleEndDate = formatDate(children[i].scheduleEndDate);
         children[i].scheduleStatus = children[i].scheduleStatus === 10303 ? '완료' : (children[i].scheduleStatus === 10302 ? '진행' : '준비');
 
+        for (let j = 1; j < children[i].scheduleDepth; j++) {
+          // Replace existing ' ↳ ' with '   ' for each depth level and then append ' ↳ ' at the beginning
+          children[i].scheduleTitle = children[i].scheduleTitle.trim();
+          children[i].scheduleTitle = children[i].scheduleTitle.replace('↳', '');
+
+          children[i].scheduleTitle = '   '.repeat(j - 1) + ' ↳ ' + children[i].scheduleTitle;
+        }
         if (children[i].__children) {
           formatChildrenAttributes(children[i].__children);
         }
@@ -738,5 +746,11 @@ table.htCore {
 
 .create-button {
   margin-right: 10px;
+}
+
+.handsontable th div.ht_nestingButton {
+  font-size: 2em;
+  font-weight: bold;
+  color: #5AB15E;
 }
 </style>
