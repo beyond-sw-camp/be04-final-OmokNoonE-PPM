@@ -1,9 +1,9 @@
 <template>
   <div class="grid-container" v-if="projectId">
-    <ColumnGraph/>
-    <PieGraph/>
     <LineGraph/>
     <GaugeGraph/>
+    <ColumnGraph/>
+    <PieGraph/>
   </div>
   <div v-else class="no-dashboard">
     <span>표시할 데이터가 없습니다.</span>
@@ -16,7 +16,7 @@ import PieGraph from "@/views/components/PieGraph.vue"
 import LineGraph from "@/views/components/LineGraph.vue";
 import GaugeGraph from "@/views/components/GaugeGraph.vue";
 import store from "@/store";
-import { useToast } from 'vue-toastification';
+import {useToast} from 'vue-toastification';
 import {defaultInstance} from "@/axios/axios-instance"; // vue-toastification 라이브러리에서 useToast 함수를 가져옵니다.
 
 export default {
@@ -53,6 +53,7 @@ export default {
   width: 70%;
   height: 70%;
 }
+
 .no-dashboard {
   background-color: white;
   display: flex;
