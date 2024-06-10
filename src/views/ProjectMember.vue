@@ -32,7 +32,7 @@
                   <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-center">이름</th>
                   <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-center">권한</th>
                   <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-center">연락처</th>
-                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-center">시작일</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-center">등록일</th>
                   <th class="text-secondary opacity-7"></th>
                 </tr>
                 </thead>
