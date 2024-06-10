@@ -1,6 +1,9 @@
 <template>
   <div class='demo-app'>
     <div class='demo-app-main'>
+      <div v-if="projectId" class="button-container position-relative">
+        <button class="create-button" @click="goToSheetSchedulePage(projectId)">📑 시트로 보기</button>
+      </div>
       <FullCalendar
           class='demo-app-calendar'
           :options='calendarOptions'
@@ -18,9 +21,6 @@
                     @close="modalOpen = false"></MaterialSchedule>
 
 
-  <div v-if="projectId" class="edit-button-container">
-    <button class="create-button" @click="goToSheetSchedulePage(projectId)">📑 시트로 보기</button>
-  </div>
 
 </template>
 
@@ -304,6 +304,13 @@ b { /* used for event dates/times */
 .fc { /* the calendar root */
   max-width: 1100px;
   margin: 0 auto;
+}
+
+.button-container{
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -70px;
+  margin-bottom: 20px;
 }
 
 </style>

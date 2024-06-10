@@ -1,5 +1,15 @@
 <template>
   <div id="example">
+    <div v-if="projectId" class="edit-button-container2">
+      <!--        <button class="create-button" @click="goToCreateSchedulePage({{ store.getters['project/getProjectId'] }})">등록-->
+      <button v-if="projectMembersRoleId == 10601 " class="create-button" @click="goToCreateSchedulePage(projectId)">등록
+      </button>
+      <button class="create-button" @click="goToCalendarPage(projectId)">🗓️️ 달력으로 보기
+      </button>
+      <!--      일괄 편집 기능 추후 개발 예정-->
+      <!--        <button class="edit-button" @click="toggleEditMode">{{ editMode ? '수정 완료' : '수정' }}</button>-->
+      <!--        <button @click="checkCopySchedules">CopySchedules 값 확인</button>-->
+    </div>
     <!-- 프로젝트가 선택된 경우 (ID 존재)  -->
     <div v-if="projectId">
       <div v-if="!loadingState">
@@ -20,17 +30,7 @@
       <span>선택된 프로젝트가 없습니다.</span>
     </div>
 
-    <!-- 클릭 안되는 이슈로 바깥으로 배치   -->
-    <div v-if="projectId" class="edit-button-container">
-      <!--        <button class="create-button" @click="goToCreateSchedulePage({{ store.getters['project/getProjectId'] }})">등록-->
-      <button v-if="projectMembersRoleId == 10601 " class="create-button" @click="goToCreateSchedulePage(projectId)">등록
-      </button>
-      <button class="create-button" @click="goToCalendarPage(projectId)">🗓️️ 달력으로 보기
-      </button>
-      <!--      일괄 편집 기능 추후 개발 예정-->
-      <!--        <button class="edit-button" @click="toggleEditMode">{{ editMode ? '수정 완료' : '수정' }}</button>-->
-      <!--        <button @click="checkCopySchedules">CopySchedules 값 확인</button>-->
-    </div>
+
 
       <!--        <button class="create-button" @click="goToCreateSchedulePage({{ store.getters['project/getProjectId'] }})">등록-->
       <!--      일괄 편집 기능 추후 개발 예정-->
@@ -678,9 +678,12 @@ table.htCore {
 
 .edit-button-container2
 {
-  position: fixed;
-  bottom: 30px;
-  right: 220px;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -28px;
+  margin-bottom: 20px;
+  margin-right: 46px;
+
 }
 
 .create-button {
@@ -746,6 +749,7 @@ table.htCore {
 
 .create-button {
   margin-right: 10px;
+  z-index: 999999;
 }
 
 .handsontable th div.ht_nestingButton {
