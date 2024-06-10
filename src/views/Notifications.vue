@@ -5,9 +5,7 @@
         <div class="card my-4">
           <!-- 카드 헤더 -->
           <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-            <div
-                class="bg-gradient-success shadow-success border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center"
-            >
+            <div :class="dynamicClass">
               <div class="d-flex align-items-center ps-3">
                 <i class="material-icons text-white me-2">notifications</i>
                 <h6 class="text-white text-capitalize mb-0">알림</h6>
@@ -29,13 +27,13 @@
                 :key="notification.notificationId"
                 class="clickable-alert"
             >
-              <material-alert class="font-weight-light" color="success">
+              <material-alert class="font-weight-bold" color="light">
                 <span
                     class="text-sm d-flex align-items-center justify-content-between w-100"
                 >
                   <a
                       href="#"
-                      class="d-flex align-items-center text-decoration-none text-white w-100"
+                      class="d-flex align-items-center text-decoration-none text-black w-100"
                       @click.prevent="handleContainerClick(notification)"
                   >
                     <button v-if="notification.markAsRead" class="mark-read-button">
@@ -209,6 +207,13 @@ onMounted(async () => {
 const notifications = computed(() => store.state.notifications.notifications || []);
 const errorMessage = computed(() => store.getters["notifications/errorMessage"] || "");
 const snackbarIcon = computed(() => snackbar.value ? {component: "notifications", color: "white"} : null);
+
+const color = computed(() => store.getters.getColor);
+const dynamicClass = computed(() => {
+  return {
+    [`bg-gradient-${color.value} shadow-${color.value} border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center`]: true
+  }
+});
 </script>
 
 <style scoped>
@@ -309,7 +314,7 @@ const snackbarIcon = computed(() => snackbar.value ? {component: "notifications"
 .time {
   margin-left: 10px;
   font-size: 0.875rem;
-  color: #fff; /* 알림 제목과 동일한 색상 */
+  font-weight: normal;
 }
 
 /* Add the same container style as in ProjectMember.vue */
