@@ -50,6 +50,9 @@ export default {
   methods: {
     getRoute() {
       const routeArr = this.$route.path.split("/");
+      if (routeArr.length > 2) {
+        return routeArr.slice(1).join('/');
+      }
       return routeArr[1];
     }
   },
