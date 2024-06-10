@@ -117,6 +117,7 @@ export default defineComponent({
             td.title = value;
             td.innerText = value;
             td.style.textAlign = 'left';
+            td.style.verticalAlign = 'middle';
             return td;
           }
         },
@@ -131,6 +132,7 @@ export default defineComponent({
             } else {
               td.innerText = value;
             }
+            td.style.verticalAlign = 'middle';
           }
         },
         {
@@ -138,6 +140,7 @@ export default defineComponent({
           type: 'numeric',
           renderer: function(instance, td, row, col, prop, value) {
             td.innerText = value + '%'; // 셀의 값 뒤에 '%'를 추가
+            td.style.verticalAlign = 'middle';
           }
         },        {
           data: 'scheduleStatus',
@@ -162,6 +165,9 @@ export default defineComponent({
 
             // 셀의 내용을 완전히 비웁니다.
             td.innerHTML = '';
+
+            // 가운데 정렬
+            td.style.verticalAlign = 'middle';
 
             // 원을 셀에 추가합니다.
             td.appendChild(span);
@@ -213,36 +219,41 @@ export default defineComponent({
               }
               td.innerText = value[0].employeeName + '(' + value[0].employeeId + ') 등 ' + (value.length) + '명';
             }
-
+            td.style.verticalAlign = 'middle';
             return td;
           }
         },
         {
           data: 'scheduleId', renderer(instance, td, row, col, prop, value) {
             const button = document.createElement('button');
-            button.innerText = 'link';
-            button.style.cssText = 'background-color: #4CAF50; color: white; border: none; padding: 8px 22px; cursor: pointer;';
+            button.innerText = '보기';
+            button.style.cssText = 'background-color: #4CAF50; color: #fff; font-weight:bold; border: none; cursor: pointer; ';
             button.addEventListener('click', () => openModal(`http://localhost:8887/schedule/details/${value}`));
             td.innerHTML = '';
             td.appendChild(button);
+            td.style.backgroundColor = '#4CAF50';
+            td.style.verticalAlign = 'middle';
             return td;
-          }
+          },
         },
         {
           data: 'scheduleId', renderer(instance, td, row, col, prop, value) {
             const button = document.createElement('button');
             button.innerText = 'X';
-            button.style.cssText = 'background-color: #e72222; color: white; border: none; padding: 8px 22px; cursor: pointer;';
+            button.style.cssText = 'background-color: #fff; color: red; font-weight:bold; border: none; cursor: pointer;';
             button.addEventListener('click', () => openDeleteModal(value));
             td.innerHTML = '';
             td.appendChild(button);
+            td.style.textAlign = 'center';
+            td.style.verticalAlign = 'middle';
             return td;
           }
         },
       ],
-      className: 'htCenter',
+      className: 'htCenter htMiddle',
       licenseKey: 'non-commercial-and-evaluation',
       rowHeaders: true,
+      rowHeights: 35,
       dropdownMenu: {
         items: {
           // 필터 메뉴에서 'readOnly' 항목 제거
@@ -270,7 +281,7 @@ export default defineComponent({
       search: true,
       multiColumnSorting: true,
       readOnly: true,
-      colWidths: [250, 100, 100, 70, 70, 70, 50, 175, 70, 50],
+      colWidths: [250, 100, 100, 70, 70, 70, 50, 175, 80, 50],
 
       // afterChange(changes) {
       //   console.log('afterChange');
@@ -593,7 +604,7 @@ export default defineComponent({
 
 </script>
 
-<style lang="scss">+
+<style lang="scss">
 .delete-reason {
   background: rgba(0, 0, 0, 0.5);
   display: flex;
@@ -749,7 +760,7 @@ table.htCore {
 
 .create-button {
   margin-right: 10px;
-  z-index: 999999;
+  z-index: 998;
 }
 
 .handsontable th div.ht_nestingButton {
