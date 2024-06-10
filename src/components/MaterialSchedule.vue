@@ -42,7 +42,7 @@
             </div>
           </div>
 
-          <!-- 시작일, 종료일, 공수 -->
+          <!-- 시작일, 종료일 -->
           <div class="modal-info">
             <div class="modal-info-item">
               <p class="importance">{{ isScheduleEditing ? '*' : '' }}</p>
@@ -60,28 +60,32 @@
               </div>
               <span v-else class="modal-info-value">{{ schedule.endDate }}</span>
             </div>
-            <div class="modal-info-item">
-              <div v-if="isScheduleEditing">
-                <span class="modal-info-label">총 소요일:</span>
-                <span class="modal-info-value">{{ calculateTotalDays(schedule.startDate, schedule.endDate) }}</span>
-              </div>
-              <div v-else>
-                <span class="modal-info-label">공수:</span>
-                <span class="modal-info-value">{{ schedule.manHours }}</span>
-              </div>
-            </div>
           </div>
 
-          <!-- 가중치, 진행률, 상태 -->
+          <!-- 가중치, 공수  -->
           <div class="modal-info">
             <div class="modal-info-item">
               <span class="modal-info-label">가중치:</span>
               <div v-if="isScheduleEditing">
                 <MaterialInput id="weight" type="number" min="1" max="100" label="가중치"
-                               v-model="schedule.priority"></MaterialInput>
+                               v-model="schedule.priority" @input="updatePriority($event.target.value)"></MaterialInput>
               </div>
-              <span v-else class="modal-info-value">{{ schedule.priority }}</span>
+              <span v-else class="modal-info-value">{{ schedule.priority != null ? schedule.priority : '-' }}</span>
             </div>
+            <div v-if="isScheduleEditing" class="modal-info-item">
+              <span class="modal-info-label">총 소요일:</span>
+              <span class="modal-info-value">{{ calculateTotalDays(schedule.startDate, schedule.endDate) }}</span>
+            </div>
+            <div v-else class="modal-info-item">
+              <span class="modal-info-label">공수:</span>
+              <span class="modal-info-value">{{ schedule.manHours }}</span>
+
+            </div>
+
+          </div>
+
+          <!-- 진행률, 상태 -->
+          <div class="modal-info">
             <div class="modal-info-item">
               <span class="modal-info-label">진행률:</span>
               <span v-if="isScheduleEditing">진행률은 완료된 업무 수에 따라 표기됩니다.</span>
@@ -121,7 +125,8 @@
                 }})</span>
               <span v-else class="modal-info-value">해당 사항 없음</span>
               <div v-if="isScheduleEditing">
-                <MaterialButton @click="openSearchScheduleModal('parent')">검색</MaterialButton>
+                <MaterialButton class="modal-action-button" @click="openSearchScheduleModal('parent')">검색
+                </MaterialButton>
               </div>
             </div>
             <div class="modal-info-item">
@@ -131,31 +136,35 @@
                 }}({{ schedule.precedingId }})</span>
               <span v-else class="modal-info-value">해당 사항 없음</span>
               <div v-if="isScheduleEditing">
-                <MaterialButton @click="openSearchScheduleModal('preceding')">검색</MaterialButton>
+                <MaterialButton class="modal-action-button" @click="openSearchScheduleModal('preceding')">검색
+                </MaterialButton>
               </div>
             </div>
           </div>
 
-          <!-- 내용 -->
-          <div class="modal-info-item">
-            <h5 v-if="isScheduleEditing" class="importance">*</h5>
-            <h5>일정 내용</h5>
-          </div>
           <hr class="modal-divider">
-          <div class="modal-description-container">
-            <div class="modal-description">
+
+          <!-- 내용 -->
+          <div class="modal-info">
+            <div class="modal-info-item">
+              <h5 v-if="isScheduleEditing" class="importance">*</h5>
+              <h5>일정 내용</h5>
+            </div>
+            <div class="modal-description-container">
+              <div class="modal-description">
               <textarea v-if="!isScheduleEditing" class="textarea-description" v-model="schedule.content"
                         disabled="{{ !isScheduleEditing }}"
                         rows="8"></textarea>
-              <textarea v-if="isScheduleEditing" class="textarea-description" v-model="schedule.content"
-                        rows="8"></textarea>
+                <textarea v-if="isScheduleEditing" class="textarea-description" v-model="schedule.content"
+                          rows="8"></textarea>
+              </div>
             </div>
           </div>
 
           <!-- 수정 사유 -->
-          <div class="modal-info" v-if="isScheduleEditing">
+          <div class="modal-info" v-if="isScheduleEditing || isScheduleDeleting">
             <div class="modal-info-item">
-              <p class="importance">{{ isScheduleEditing ? '*' : '' }}</p>
+              <p class="importance">{{ isScheduleEditing || isScheduleDeleting ? '*' : '' }}</p>
               <p class="modal-info-label">수정 사유:</p>
               <MaterialInput type="text" label="수정 사유를 입력하세요." v-model="reason"></MaterialInput>
             </div>
@@ -168,12 +177,22 @@
             <div v-else>
               <MaterialButton class="modal-action-button" @click="saveScheduleChanges">저장</MaterialButton>
             </div>
+            <MaterialButton v-if="!isScheduleDeleting" class="modal-action-button-delete"
+                            @click="isScheduleDeleting = true">삭제
+            </MaterialButton>
+            <div v-else>
+              <MaterialButton class="modal-action-button-delete" @click="deleteSchedule">삭제</MaterialButton>
+            </div>
           </div>
         </div>
 
         <div v-show="currentTab === 'task'">
           <!-- 업무 -->
-          <h3 class="modal-sheet-title">업무 목록</h3>
+          <div class="modal-info">
+            <div class="modal-info-item">
+              <h5 class="modal-sheet-title">업무 목록</h5>
+            </div>
+          </div>
           <table class="modal-sheet">
             <thead>
             <tr>
@@ -194,8 +213,8 @@
                   <label style="width: 42px">{{ task.isCompleted ? '완료' : '미완료' }}</label>
                 </div>
               </td>
-              <td v-if="tasks.length > 0 && checkRoleId">
-                <MaterialButton style="width: 100px" class="delete-button" @click="deleteTask(index)">삭제
+              <td v-if="tasks.length > 0 && checkRoleId" class="task-add" style="flex: 0 0 100px">
+                <MaterialButton class="delete-button" @click="deleteTask(index)">삭제
                 </MaterialButton>
               </td>
             </tr>
@@ -208,50 +227,63 @@
                 <label>{{ task.isCompleted ? '완료' : '미완료' }}</label>
               </td>
             </tr>
-<!--            <tr v-if="checkRoleId">
-              <td class="task-title" style="width: 80%">
-                <MaterialInput type="text" label="새 업무명을 입력하세요." v-model="newTaskTitle"></MaterialInput>
-              </td>
-              <td class="task-isCompleted">
-                <div style="width: 100px">
-                  <input style="width: 13px" disabled="true" type="checkbox">
-                  <label style="width: 42px">미완료</label>
-                </div>
-              </td>
-              <td>
-                <MaterialButton class="custom-button" style="width: 100px" @click="addTask">추가</MaterialButton>
-              </td>
-            </tr>-->
+            <!--            <tr v-if="checkRoleId">
+                          <td class="task-title" style="width: 80%">
+                            <MaterialInput type="text" label="새 업무명을 입력하세요." v-model="newTaskTitle"></MaterialInput>
+                          </td>
+                          <td class="task-isCompleted">
+                            <div style="width: 100px">
+                              <input style="width: 13px" disabled="true" type="checkbox">
+                              <label style="width: 42px">미완료</label>
+                            </div>
+                          </td>
+                          <td>
+                            <MaterialButton class="custom-button" style="width: 100px" @click="addTask">추가</MaterialButton>
+                          </td>
+                        </tr>-->
             </tbody>
             <tbody v-else>
             <tr>
               <td colspan="2">등록된 업무가 없습니다.</td>
             </tr>
             </tbody>
+            <tbody>
+            <tr>
+              <td class="task-title" style="width: 80%">
+                <MaterialInput type="text" label="새 업무명을 입력하세요." v-model="newTaskTitle"
+                               id="taskTitle"></MaterialInput>
+              </td>
+              <td class="task-isCompleted" style="width: 100px">
+                <input type="checkbox" disabled="true">
+                <label>미완료</label>
+              </td>
+              <td>
+                <div class="task-add" style="flex: 0 0 100px">
+                  <MaterialButton class="custom-button" @click="addTask">추가</MaterialButton>
+                </div>
+              </td>
+            </tr>
+            </tbody>
+
+
           </table>
 
           <!-- 수정 -->
-          <div class="modal-actions-bottom">
-            <MaterialInput class="w-50" type="text" label="새 업무명을 입력하세요." v-model="newTaskTitle" id="taskTitle"></MaterialInput>
-            <div class="task-isCompleted" style="flex: 0 0 100px">
-              <input style="width: 13px" disabled="true" type="checkbox">
-              <label style="width: 42px">미완료</label>
-            </div>
-            <div class="task-add" style="flex: 0 0 100px">
-              <MaterialButton class="custom-button" @click="addTask">추가</MaterialButton>
-            </div>
-            <MaterialButton v-if="!isTaskEditing" class="modal-action-button" @click="isTaskEditing = true" style="left: 10%">수정
+          <div class="modal-actions">
+            <MaterialButton v-if="!isTaskEditing" class="modal-action-button" @click="isTaskEditing = true">수정
             </MaterialButton>
-            <div v-else>
-              <MaterialButton class="modal-action-button delete-button" @click="isTaskEditing = false">완료
-              </MaterialButton>
-            </div>
+            <MaterialButton v-else class="modal-action-button delete-button" @click="isTaskEditing = false">완료
+            </MaterialButton>
           </div>
         </div>
 
         <div v-show="currentTab === 'stakeholders'">
           <!-- 이해관계자 -->
-          <h3 class="modal-sheet-title">이해관계자 목록</h3>
+          <div class="modal-info">
+            <div class="modal-info-item">
+              <h5 class="modal-sheet-title">이해관계자 목록</h5>
+            </div>
+          </div>
           <table class="modal-sheet">
             <thead>
             <tr>
@@ -270,8 +302,8 @@
                 }}
               </td>
               <td style="width: 20%">{{ stakeholder.type === 10401 ? '작성자' : '담당자' }}</td>
-              <td v-if="isStakeholdersEditing&&(stakeholder !== 10401)">
-                <MaterialButton style="width: 100px" class="delete-button" @click="deleteStakeholder(index)">삭제
+              <td v-if="isStakeholdersEditing&&(stakeholder !== 10401)" class="task-add" style="flex: 0 0 100px">
+                <MaterialButton class="delete-button" @click="deleteStakeholder(index)">삭제
                 </MaterialButton>
               </td>
             </tr>
@@ -288,15 +320,18 @@
             <MaterialButton v-if="!isStakeholdersEditing" class="modal-action-button"
                             @click="isStakeholdersEditing = true">수정
             </MaterialButton>
-            <div v-else>
-              <MaterialButton class="modal-action-button delete-button" @click="isStakeholdersEditing = false">완료
-              </MaterialButton>
-            </div>
+            <MaterialButton v-else class="modal-action-button delete-button" @click="isStakeholdersEditing = false">완료
+            </MaterialButton>
           </div>
 
           <div v-if="isStakeholdersEditing">
+
             <br>
-            <h5>구성원 검색</h5>
+            <div class="modal-info">
+              <div class="modal-info-item">
+                <h5>구성원 검색</h5>
+              </div>
+            </div>
             <div style="display: flex; align-items: flex-start;">
               <MaterialInput label="이름을 입력하세요." type="text" v-model="searchQuery"
                              @keyup.enter="searchMembers"/>
@@ -339,7 +374,11 @@
         <div v-show="currentTab === 'requirement'">
 
           <!-- 요구사항 탭 내용 -->
-          <h3>요구사항</h3>
+          <div class="modal-info">
+            <div class="modal-info-item">
+              <h5>요구사항</h5>
+            </div>
+          </div>
           <table class="modal-sheet">
             <thead>
             <tr>
@@ -380,16 +419,19 @@
             <MaterialButton v-if="!isScheduleRequirementsEditing" class="modal-action-button"
                             @click="isScheduleRequirementsEditing = true">수정
             </MaterialButton>
-            <div v-else>
-              <MaterialButton class="modal-action-button delete-button" @click="isScheduleRequirementsEditing = false">
-                완료
-              </MaterialButton>
-            </div>
+            <MaterialButton v-else class="modal-action-button delete-button"
+                            @click="isScheduleRequirementsEditing = false">
+              완료
+            </MaterialButton>
           </div>
 
           <div v-if="isScheduleRequirementsEditing">
             <br>
-            <h5>요구사항 검색</h5>
+            <div class="modal-info">
+              <div class="modal-info-item">
+                <h5>요구사항 검색</h5>
+              </div>
+            </div>
             <div style="display: flex; align-items: flex-start;">
               <MaterialInput label="요구사항명을 입력하세요." type="text" v-model="requirementSearchValue"
                              @keyup.enter="searchRequirement"/>
@@ -451,7 +493,11 @@
 
         <div v-show="currentTab === 'history'">
           <!-- 수정 내역 탭 내용 -->
-          <h3>수정 내역</h3>
+          <div class="modal-info">
+            <div class="modal-info-item">
+              <h5>수정 내역</h5>
+            </div>
+          </div>
           <table class="modal-sheet">
             <thead>
             <tr>
@@ -476,8 +522,8 @@
             </tbody>
           </table>
         </div>
-
       </div>
+
     </div>
 
     <!--  부모, 선행 일정 검색 모달  -->
@@ -485,19 +531,22 @@
       <!-- 검색 모달 창 -->
       <div id="searchScheduleModal" class="modal fade show" style="display: block;" tabindex="-1" role="dialog">
         <div class="modal-content" style="z-index: 1200">
-          <div class="modal-header">
-            <h5 class="modal-title">일정 검색</h5>
+          <div class="modal-info">
+            <div class="modal-info-item">
+              <h5 class="modal-title">일정 검색</h5>
+            </div>
           </div>
-          <div class="modal-actions">
+          <div class="modal-actions" style="margin-bottom: 10px; ">
             <MaterialInput
                 label="일정 제목을 입력하세요."
                 v-model="searchScheduleTitleValue"
                 @keyup.enter="searchSchedule"
+                style="margin-right: 10px;"
             >
             </MaterialInput>
-            <MaterialButton @click="searchSchedule">검색</MaterialButton>
+            <MaterialButton class="modal-action-button" @click="searchSchedule">검색</MaterialButton>
           </div>
-          <table>
+          <table class="modal-sheet">
             <thead>
             <tr>
               <th>ID</th>
@@ -602,6 +651,7 @@ export default {
 
       // 수정 상태값
       isScheduleEditing: false,
+      isScheduleDeleting: false,
       isTaskEditing: false,
       isStakeholdersEditing: false,
       isScheduleRequirementsEditing: false,
@@ -620,6 +670,7 @@ export default {
       loadingState: true,
       projectTitle: store.getters.projectTitle,
       projectMemberRoleId: store.getters.roleId,
+      projectMemberId: store.getters.projectMemberId,
       checkRoleId: false,
       toast: useToast(),
     };
@@ -645,6 +696,7 @@ export default {
       this.checkRoleId = false;
       this.projectId = store.getters.projectId;
       this.projectMemberRoleId = store.getters.roleId;
+      this.projectMemberId = store.getters.projectMemberId;
       this.checkRoleId = this.projectMemberRoleId == 10601;
     },
     tasks: {
@@ -679,6 +731,7 @@ export default {
     initSettingValues() {
       this.loadingState = false;
       this.isScheduleEditing = false;
+      this.isScheduleDeleting = false;
       this.isTaskEditing = false;
       this.isStakeholdersEditing = false;
       this.isScheduleRequirementsEditing = false;
@@ -697,6 +750,16 @@ export default {
       const timeDiff = end - start;
       const dayDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
       return dayDiff >= 0 ? dayDiff : '유효하지 않은 날짜';
+    },
+    updatePriority(value) {
+      let num = Number(value);
+      if (num < 1) {
+        this.schedule.priority = 1;
+      } else if (num > 100) {
+        this.schedule.priority = 100;
+      } else {
+        this.schedule.priority = num;
+      }
     },
 
     async openSearchScheduleModal(type) {
@@ -897,6 +960,34 @@ export default {
         console.error('error :', error);
       }
     },
+    async deleteSchedule() {
+      if (this.reason === '') {
+        this.toast.warning('삭제 사유를 입력하세요.');
+      } else {
+        try {
+          const requestBody = {
+            scheduleId: this.scheduleId,
+            scheduleTitle: null,
+            scheduleContent: null,
+            scheduleStartDate: null,
+            scheduleEndDate: null,
+            schedulePriority: null,
+            scheduleStatus: null,
+            scheduleHistoryReason: this.reason,
+            scheduleHistoryProjectMemberId: this.projectMemberId,
+          }
+          await defaultInstance.delete(`schedules/remove/${this.scheduleId}`, {
+            data: requestBody
+          });
+          this.reason = '';
+          this.toast.success('일정이 정상적으로 삭제되었습니다.');
+          this.$emit('close');
+        } catch (error) {
+          console.error(error);
+        }
+      }
+    },
+
     async saveScheduleChanges() {
       if (!(
           this.schedule.title &&
@@ -907,7 +998,7 @@ export default {
           this.reason)) {
         this.toast.warning('* 표시된 항목을 채워주세요.')
       } else {
-        if ( this.schedule.startDate  > this.schedule.endDate){
+        if (this.schedule.startDate > this.schedule.endDate) {
           this.toast.error('시작일이 종료일보다 늦습니다.');
           return;
         }
@@ -1156,8 +1247,8 @@ export default {
   font-size: 28px;
   font-weight: bold;
   position: absolute;
-  right: 10px;
-  top: 10px;
+  right: 40px;
+  top: 30px;
 }
 
 .custom-button {
@@ -1198,7 +1289,7 @@ export default {
   color: #e72222;
 }
 
-@media (max-width: 576px) {
+@media (max-width: 800px) {
   .modal-body {
     height: 80%;
     overflow-y: auto;
@@ -1230,6 +1321,8 @@ export default {
   top: 0;
   width: 100%;
   z-index: 1010;
+  backdrop-filter: blur(5px);
+
 }
 
 .modal-action-button {
@@ -1252,6 +1345,39 @@ export default {
   background-color: #45a049;
 }
 
+.modal-action-button-delete:focus {
+  background-color: #45a049;
+}
+
+
+.modal-action-button-delete {
+  background-color: #e74c3c;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  cursor: pointer;
+  display: inline-block;
+  font-size: 16px;
+  margin-bottom: 10px;
+  margin-right: 10px;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+}
+
+.modal-action-button-delete:hover {
+  background-color: #e70a0a;
+}
+
+.modal-action-button-delete:active {
+  background-color: #e74c3c;
+}
+
+.modal-action-button-delete:focus {
+  background-color: #e74c3c;
+}
+
 .modal-actions {
   bottom: 10px;
   display: flex;
@@ -1269,15 +1395,15 @@ export default {
   background-color: #fefefe;
   border-radius: 10px;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-  height: 80%;
+  height: 95%;
   left: 50%;
   max-height: 90vh;
   overflow-y: auto;
-  padding: 20px;
+  padding: 8%;
   position: absolute;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 80%;
+  width: 95%;
   z-index: 1100;
 }
 
@@ -1322,22 +1448,21 @@ export default {
 }
 
 .modal-divider {
-  margin-bottom: 20px;
-  margin-top: 20px;
+  margin-bottom: 1rem;
 }
 
 .modal-info {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
-  margin-bottom: 1rem;
+  margin-bottom: 0.3rem;
 }
 
 .modal-info-item {
   align-items: center;
   display: flex;
   flex: 1 1 30%;
-  margin-bottom: 1rem;
+  margin-bottom: 0.3rem;
   padding-left: 10px;
   padding-right: 10px;
 }
@@ -1450,9 +1575,6 @@ export default {
   padding: 20px;
 }
 
-.modal {
-  backdrop-filter: blur(5px);
-}
 
 #searchScheduleModal {
   z-index: 1100;
@@ -1492,15 +1614,15 @@ export default {
 }
 
 .status-in-progress {
-  background-color: #f0ad4e; /* 진행중 상태의 색상 */
+  background-color: #24a8ef; /* 진행중 상태의 색상 */
 }
 
 .status-completed {
-  background-color: #5cb85c; /* 완료 상태의 색상 */
+  background-color: #61cc39; /* 완료 상태의 색상 */
 }
 
 .status-pending {
-  background-color: #d9534f; /* 보류중 상태의 색상 */
+  background-color: #ffba26; /* 보류중 상태의 색상 */
 }
 
 .modal-actions-bottom {
