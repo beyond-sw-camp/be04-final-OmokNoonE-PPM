@@ -4,7 +4,8 @@
       <div class="col-12">
         <div class="card my-4">
           <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-            <div class="bg-gradient-success shadow-success border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
+            <div :class = "dynamicClass">
+<!--            <div class="bg-gradient-success shadow-success border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">-->
               <h6 class="text-white text-capitalize ps-3">요구사항</h6>
               <button v-if="projectMemberRoleId == 10601" @click="goRegisterRequirement" class="btn btn-info register-btn">요구사항 등록</button>
             </div>
@@ -57,7 +58,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import {ref, onMounted, computed} from 'vue';
 import RegisterRequirement from '@/views/RegisterRequirement.vue';
 import ModifyRequirement from '@/views/components/ModifyRequirement.vue';
 import {defaultInstance} from "@/axios/axios-instance";
@@ -133,6 +134,12 @@ const confirmDelete = (requirement) => {
     deleteRequirement(requirement);
   }
 };
+
+const dynamicClass = computed(() => {
+  return {
+    [`bg-gradient-${store.getters.getColor} shadow-${store.getters.getColor} border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center`]: true
+  }
+});
 
 onMounted(() => {
   fetchRequirements();

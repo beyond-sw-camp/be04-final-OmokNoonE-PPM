@@ -69,6 +69,14 @@
           </template>
         </sidenav-collapse>
       </li>
+
+      <li class="mt-3 nav-item">
+        <h6
+            class="text-xs ps-4 text-uppercase font-weight-bolder text-white"
+        >
+          ACCOUNT PAGES
+        </h6>
+      </li>
       <li class="nav-item">
         <sidenav-collapse
             url="#"
@@ -81,14 +89,6 @@
             <i class="material-icons-round opacity-10 fs-5">notifications</i>
           </template>
         </sidenav-collapse>
-      </li>
-      <li class="mt-3 nav-item">
-        <h6
-            class="text-xs ps-4 text-uppercase font-weight-bolder text-white"
-            :class="$store.state.isRTL ? 'me-4' : 'ms-2'"
-        >
-          ACCOUNT PAGES
-        </h6>
       </li>
 
       <!-- 로그인 상태에 따라 Sign-In과 Logout이 보인다. -->
@@ -127,28 +127,32 @@
             ADMIN PAGES
           </h6>
         </li>
-        <sidenav-collapse
-            url="#"
-            :aria-controls="''"
-            v-bind:collapse="false"
-            collapseRef="admin/employee"
-            navText="회원 관리"
-        >
-          <template v-slot:icon>
-            <i class="material-icons-round opacity-10 fs-5">face</i>
-          </template>
-        </sidenav-collapse>
-        <sidenav-collapse
-            url="#"
-            :aria-controls="''"
-            v-bind:collapse="false"
-            collapseRef="admin/project"
-            navText="프로젝트 관리"
-        >
-          <template v-slot:icon>
-            <i class="material-icons-round opacity-10 fs-5">settings</i>
-          </template>
-        </sidenav-collapse>
+        <li class="nav-item">
+          <sidenav-collapse
+              url="#"
+              :aria-controls="''"
+              v-bind:collapse="false"
+              collapseRef="admin/employee"
+              navText="회원 관리"
+          >
+            <template v-slot:icon>
+              <i class="material-icons-round opacity-10 fs-5">face</i>
+            </template>
+          </sidenav-collapse>
+        </li>
+        <li class="nav-item">
+          <sidenav-collapse
+              url="#"
+              :aria-controls="''"
+              v-bind:collapse="false"
+              collapseRef="admin/project"
+              navText="프로젝트 관리"
+          >
+            <template v-slot:icon>
+              <i class="material-icons-round opacity-10 fs-5">settings</i>
+            </template>
+          </sidenav-collapse>
+        </li>
       </div>
     </ul>
     <div class="sidenav-footer position-absolute w-100 bottom-0">
@@ -202,3 +206,9 @@ export default {
   },
 };
 </script>
+<style>
+.nav-item {
+  margin-top: 0rem;
+  margin-bottom: 0rem;
+}
+</style>

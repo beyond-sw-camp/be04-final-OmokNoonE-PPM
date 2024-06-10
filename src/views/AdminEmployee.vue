@@ -5,8 +5,9 @@
         <div class="card my-4">
           <!-- 카드 헤더 -->
           <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-            <div
-                class="bg-gradient-success shadow-success border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
+            <div :class="dynamicClass">
+<!--            <div
+                class="bg-gradient-success shadow-success border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">-->
               <div class="d-flex align-items-center ps-3">
                 <i class="material-icons text-white me-2">face</i>
                 <h6 class="text-white text-capitalize mb-0">회원 관리</h6>
@@ -201,12 +202,13 @@
 </template>
 
 <script setup>
-import {ref, onMounted} from 'vue';
+import {ref, onMounted, computed} from 'vue';
 import MaterialButton from "@/components/MaterialButton.vue";
 import {defaultInstance} from "@/axios/axios-instance";
 import {useToast} from 'vue-toastification';
 import MaterialInput from "@/components/MaterialInput.vue";
 import MaterialCheckbox from "@/components/MaterialCheckbox.vue";
+import store from "@/store";
 
 const toast = useToast();
 const employeeList = ref([]);
@@ -225,6 +227,12 @@ const signUpEmployee = ref({
   employeeContact: ['', '', ''],
   employeeCompanyName: '',
   employeeIsExternalPartner: false,
+});
+
+const dynamicClass = computed(() => {
+  return {
+    [`bg-gradient-${store.getters.getColor} shadow-${store.getters.getColor} border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center`]: true
+  }
 });
 
 // 컴포넌트가 마운트되면 직원 목록을 불러옵니다.
