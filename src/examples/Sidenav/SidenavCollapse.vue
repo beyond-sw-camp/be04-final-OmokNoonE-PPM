@@ -5,7 +5,7 @@
     :aria-controls="collapseRef"
     :aria-expanded="isExpanded"
     class="nav-link"
-    :class="getRoute() === collapseRef ? `active bg-gradient-${color}` : ''"
+    :class="getRoute().includes(collapseRef) ? `active bg-gradient-${color} active text-white` : ''"
     v-bind="$attrs"
     @click="isExpanded = !isExpanded"
   >
