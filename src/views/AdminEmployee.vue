@@ -314,8 +314,8 @@ async function validateSignUp() {
 
 async function signUp() {
   try {
-    const validationError = validateSignUp();
-    if (validationError) {
+    const validationError = await validateSignUp();
+    if (!validationError) {
       return;
     }
 
