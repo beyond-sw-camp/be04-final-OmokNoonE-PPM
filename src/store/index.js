@@ -68,7 +68,10 @@ export default createStore({
         },
         disableConfigurator(state) {
             state.showConfig = false;
-        }
+        },
+        sidebarType(state, payload) {
+            state.sidebarType = payload;
+        },
     },
     actions: {
         setColor({commit}, payload) {
@@ -76,7 +79,10 @@ export default createStore({
         },
         openProjectModal({commit}){
             commit("setIsProjectModalOpen", true)
-        }
+        },
+        setSidebarType({commit}, payload) {
+            commit("sidebarType", payload);
+        },
     },
     getters: {
         getIsProjectModalOpen(state) {
@@ -87,6 +93,6 @@ export default createStore({
         },
     },
     plugins: [createPersistedState({
-        paths: ["login"],
+        paths: ["color", "isDarkMode", "sidebarType","login"],
     })],
 });
