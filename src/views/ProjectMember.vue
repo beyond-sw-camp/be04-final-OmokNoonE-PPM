@@ -5,8 +5,8 @@
         <div class="card my-4">
           <!-- 카드 헤더 -->
           <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-            <div
-                class="bg-gradient-success shadow-success border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
+            <div :class = "dynamicClass">
+<!--            <div class="bg-gradient-success shadow-success border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">-->
               <div class="d-flex align-items-center ps-3">
                 <i class="material-icons text-white me-2">groups</i>
                 <h6 class="text-white text-capitalize mb-0">프로젝트 구성원</h6>
@@ -32,7 +32,7 @@
                   <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-center">이름</th>
                   <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-center">권한</th>
                   <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-center">연락처</th>
-                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-center">시작일</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-center">등록일</th>
                   <th class="text-secondary opacity-7"></th>
                 </tr>
                 </thead>
@@ -105,6 +105,12 @@ import store from '@/store';
 const toast = useToast();
 const isAddModalVisible = ref(false); // 구성원 추가 모달 표시 상태
 const isModifyModalVisible = ref(false); // 직책 변경 모달 표시 상태
+
+const dynamicClass = computed(() => {
+  return {
+    [`bg-gradient-${store.getters.getColor} shadow-${store.getters.getColor} border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center`]: true
+  }
+});
 
 // 프로젝트 구성원 데이터를 가져오는 함수
 const fetchProjectMembers = async () => {

@@ -4,7 +4,8 @@
       <div class="col-12">
         <div class="card my-4">
           <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-            <div class="bg-gradient-success shadow-success border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
+            <div :class = "dynamicClass">
+              <!--            <div class="bg-gradient-success shadow-success border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">-->
               <h6 class="text-white text-capitalize ps-3">요구사항</h6>
               <button v-if="projectMemberRoleId == 10601" @click="goRegisterRequirement" class="btn btn-info register-btn">요구사항 등록</button>
             </div>
@@ -21,7 +22,7 @@
                 <th class="text-secondary opacity-7"></th>
               </tr>
               </thead>
-              <tbody>
+              <tbody v-if="requirements.length > 0">
               <tr v-for="requirement in requirements" :key="requirement.requirementsId">
                 <td>
                   <div class="d-flex px-2 py-1">
@@ -45,6 +46,11 @@
                 </td>
               </tr>
               </tbody>
+              <tbody v-else>
+              <tr>
+                <td colspan="6">등록된 요구사항이 없습니다.</td>
+              </tr>
+              </tbody>
             </table>
           </div>
         </div>
@@ -57,7 +63,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import {ref, onMounted, computed} from 'vue';
 import RegisterRequirement from '@/views/RegisterRequirement.vue';
 import ModifyRequirement from '@/views/components/ModifyRequirement.vue';
 import {defaultInstance} from "@/axios/axios-instance";
@@ -134,6 +140,12 @@ const confirmDelete = (requirement) => {
   }
 };
 
+const dynamicClass = computed(() => {
+  return {
+    [`bg-gradient-${store.getters.getColor} shadow-${store.getters.getColor} border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center`]: true
+  }
+});
+
 onMounted(() => {
   fetchRequirements();
 });
@@ -148,22 +160,22 @@ const goRegisterRequirement = () => {
 .sticky-header {
   position: sticky;
   top: 0;
-  background-color: white;  /* 배경색을 추가하여 아래의 행이 헤더를 가리지 않도록 합니다. */
-  z-index: 10;  /* z-index를 추가하여 헤더가 다른 요소 위에 나타나도록 합니다. */
+  background-color: white; /* 배경색을 추가하여 아래의 행이 헤더를 가리지 않도록 합니다. */
+  z-index: 10; /* z-index를 추가하여 헤더가 다른 요소 위에 나타나도록 합니다. */
   transform: translateY(-20px);
 }
 
 .text-cate {
-  font-size: 17px !important;  /* 원하는 크기로 조정합니다. */
+  font-size: 17px !important; /* 원하는 크기로 조정합니다. */
 }
 
-.card{
+.card {
   width: 93%;
   height: 74vh;
   overfolow: auto;
 }
 
-.card-body{
+.card-body {
   overflow: auto;
   height: calc(80vh - 100px);
 }
@@ -180,7 +192,7 @@ const goRegisterRequirement = () => {
 
 .register-btn {
   margin-right: 20px;
-  padding: 5px 20px !important;  /* 위아래 패딩을 5픽셀로 줄입니다. */
+  padding: 5px 20px !important; /* 위아래 패딩을 5픽셀로 줄입니다. */
   font-size: 16px;
   height: 40px;
 }

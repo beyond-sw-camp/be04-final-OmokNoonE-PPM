@@ -1,20 +1,23 @@
 <template>
   <div
-    class="input-group"
-    :class="`input-group-${variant} ${getStatus(error, success)}`"
+      class="input-group"
+      :class="`input-group-${variant} ${getStatus(error, success)}`"
   >
     <label :class="variant === 'static' ? '' : 'form-label'">{{ label }}</label>
     <input
-      :id="id"
-      :type="type"
-      class="form-control"
-      :class="getClasses(size)"
-      :name="name"
-      :value="modelValue"
-      :placeholder="placeholder"
-      :isRequired="isRequired"
-      :disabled="disabled"
-      @input="$emit('update:modelValue', $event.target.value)"
+        :id="id"
+        :type="type"
+        class="form-control"
+        :class="getClasses(size)"
+        :name="name"
+        :value="modelValue"
+        :placeholder="placeholder"
+        :isRequired="isRequired"
+        :disabled="disabled"
+        :min="min"
+        :max="max"
+        :maxlength="maxlength"
+        @input="$emit('update:modelValue', $event.target.value)"
     />
   </div>
 </template>
@@ -72,6 +75,18 @@ export default {
     isRequired: {
       type: Boolean,
       default: false,
+    },
+    min: {
+      type: String,
+      default: "",
+    },
+    max: {
+      type: String,
+      default: "",
+    },
+    maxlength: {
+      type: Number,
+      default: 100,
     },
   },
   emits: ["update:modelValue"],

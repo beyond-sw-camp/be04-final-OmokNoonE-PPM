@@ -82,6 +82,9 @@ export default createStore({
         getIsProjectModalOpen(state) {
             return state.isProjectModalOpen;
         },
+        getColor(state) {
+            return state.color;
+        },
     },
     plugins: [createPersistedState({
         paths: ["login"],

@@ -1,13 +1,16 @@
 <template>
-  <div class="graph" ref="columnRef"></div>
+  <div class="card align-items-center text-center" style="padding-top: 20px; min-width: 650px;">
+    <h5>PA별 일정 진행 현황</h5>
+    <div class="graph" ref="columnRef"></div>
+  </div>
 </template>
 
 <script>
 import Chart from '@toast-ui/chart';
-import { ref, onMounted } from 'vue';
+import {ref, onMounted} from 'vue';
 import {defaultInstance} from "@/axios/axios-instance";
 import store from "@/store";
-import { useToast } from 'vue-toastification';
+import {useToast} from 'vue-toastification';
 
 const toast = useToast();
 
@@ -51,7 +54,7 @@ export default {
           duration: 10000
         }
       },
-      exportMenu :{
+      exportMenu: {
         visible: false
       },
       theme: {
@@ -129,7 +132,7 @@ export default {
 };
 </script>
 <style>
-.graph .toastui-chart-tooltip-container{
+.graph .toastui-chart-tooltip-container {
   position: absolute;
 }
 </style>

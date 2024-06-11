@@ -53,9 +53,11 @@
               <!--   가중치  -->
               <div class="modal-info">
                 <div class="modal-info-item">
-                  <span class="modal-info-label">가중치</span>
-                  <MaterialInput id="weight" type="number" label="가중치를 입력하세요.(1 ~ 100)"
-                                 v-model="schedule.priority"></MaterialInput>
+                  <span class="modal-info-label">가중치
+                    <p class="font-weight-light text-xs">(1~100)</p>
+                  </span>
+                  <MaterialInput class="w-15" id="weight" type="number" min="1" max="100"
+                                label="가중치" v-model="schedule.priority"></MaterialInput>
                 </div>
               </div>
 
@@ -323,7 +325,7 @@
                             <th>내용</th>
                           </tr>
                           </thead>
-                          <tbody>
+                          <tbody v-if="searchSchedules.length > 0">
                           <tr v-for="(schedule, id) in searchSchedules" :key="id">
                             <td>{{ schedule.id }}</td>
                             <td>{{ schedule.title }}</td>
@@ -332,6 +334,11 @@
                               <material-button variant="fill" color="info" @click="selectSchedule(schedule)">선택
                               </material-button>
                             </td>
+                          </tr>
+                          </tbody>
+                          <tbody v-else>
+                          <tr>
+                            <td colspan="3">검색 결과가 없습니다.</td>
                           </tr>
                           </tbody>
                         </table>
@@ -371,7 +378,7 @@ export default {
       schedule: {
         title: '',
         content: '',
-        startDate: '',
+        startDate: this.$route.query.startDate,
         endDate: '',
         priority: null,
         manHours: null,
@@ -668,6 +675,10 @@ export default {
           || this.schedule.content.trim() === '') {
         this.toast.error('* 표시된 항목을 채워주세요.');
       } else {
+        if ( this.schedule.startDate  > this.schedule.endDate){
+          this.toast.error('시작일이 종료일보다 늦습니다.');
+          return;
+        }
         this.saveAll();
       }
     },
@@ -698,26 +709,41 @@ export default {
         await router.push({name: '일정'});
       // }
     },
-    openSearchScheduleModal(type) {
+    async openSearchScheduleModal(type) {
       this.isSearchModal = true;
       this.searchScheduleType = type;
+      await this.searchSchedule();
     },
 
     // 부모 일정 검색
     async searchSchedule() {
-      try {
-        const response = await defaultInstance.get(`/schedules/search/${this.searchScheduleTitleValue}/${this.projectId}`);
-        const data = response.data.result.searchScheduleByTitle;
-        this.searchSchedules = data.map(schedule => ({
-          id: schedule.scheduleId,
-          title: schedule.scheduleTitle,
-          content: schedule.scheduleContent,
-          // type: this.searchScheduleType,
-        }));
-      } catch (error) {
-        console.log(error);
+      if (!this.searchScheduleTitleValue) {
+        try {
+          const response = await defaultInstance.get(`/schedules/list/${this.projectId}`);
+          const data = response.data.result.viewScheduleByProject;
+          this.searchSchedules = data.map(schedule => ({
+            id: schedule.scheduleId,
+            title: schedule.scheduleTitle,
+            content: schedule.scheduleContent,
+          }));
+        } catch (error) {
+          console.log(error);
+        }
+      } else {
+        try {
+          const response = await defaultInstance.get(`/schedules/search/${this.searchScheduleTitleValue}/${this.projectId}`);
+          const data = response.data.result.searchScheduleByTitle;
+          this.searchSchedules = data.map(schedule => ({
+            id: schedule.scheduleId,
+            title: schedule.scheduleTitle,
+            content: schedule.scheduleContent,
+          }));
+        } catch (error) {
+          console.log(error);
+        }
       }
     },
+
     selectSchedule(schedule) {
       if (this.searchScheduleType === 'parent') {         // 부모 일정 선택
         this.schedule.parentId = schedule.id;
