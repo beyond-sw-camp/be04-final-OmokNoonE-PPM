@@ -1,5 +1,8 @@
 <template>
+  <div class="card align-items-center text-center" style="padding-top: 20px; min-width: 650px;">
+    <h5>프로젝트 진행도</h5>
   <div class="graph" ref="lineRef"></div>
+  </div>
 </template>
 
 <script>

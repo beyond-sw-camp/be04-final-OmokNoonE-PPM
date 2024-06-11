@@ -18,7 +18,7 @@
 
   <MaterialSchedule :isOpen="modalOpen" :modalUrl="modalUrl"
                     :requirementList="copyRequirementList" :projectMembers="copyProjectMembers"
-                    @close="modalOpen = false"></MaterialSchedule>
+                    @close="closeScheduleModal"></MaterialSchedule>
 
 
 
@@ -63,66 +63,71 @@ export default defineComponent({
       modalOpen.value = true;
     };
 
+    const closeScheduleModal = () => {
+      modalOpen.value = false;
+      location.reload();
+    };
+
     onMounted(async () => {
       await getSchedules();
       await getProjectRequirements();
       await getProjectMembers();
     });
 
-const flattenSchedules = (schedules) => {
-  return schedules.flatMap(schedule => {
-    let color;
-    switch (Number(schedule.scheduleStatus)) { // scheduleStatus를 숫자로 변환
-      case 10301:
-        color = '#ffba26';
-        break;
-      case 10302:
-        color = '#24a8ef';
-        break;
-      case 10303:
-        color = '#61cc39';
-        break;
-      default:
-        color = 'gray';
+    const flattenSchedules = (schedules) => {
+      return schedules.flatMap(schedule => {
+        let color;
+        switch (Number(schedule.scheduleStatus)) { // scheduleStatus를 숫자로 변환
+          case 10301:
+            color = '#ffba26';
+            break;
+          case 10302:
+            color = '#24a8ef';
+            break;
+          case 10303:
+            color = '#61cc39';
+            break;
+          default:
+            color = 'gray';
+        }
+
+        const startDate = new Date(schedule.scheduleStartDate[0], schedule.scheduleStartDate[1] - 1, schedule.scheduleStartDate[2] + 1);
+        const endDate = new Date(schedule.scheduleEndDate[0], schedule.scheduleEndDate[1] - 1, schedule.scheduleEndDate[2] + 2);
+
+        const scheduleData = {
+          id: schedule.scheduleId,
+          title: schedule.scheduleTitle,
+          start: startDate.toISOString().split('T')[0],
+          end: endDate.toISOString().split('T')[0],
+          backgroundColor: color,
+          textColor: 'black',
+          // 추가적인 사용자 정의 속성
+          scheduleId: schedule.scheduleId,
+        };
+
+        if (schedule.__children) {
+          return [scheduleData, ...flattenSchedules(schedule.__children)];
+        } else {
+          return [scheduleData];
+        }
+      });
     }
 
-    const startDate = new Date(schedule.scheduleStartDate[0], schedule.scheduleStartDate[1] - 1, schedule.scheduleStartDate[2] + 1);
-    const endDate = new Date(schedule.scheduleEndDate[0], schedule.scheduleEndDate[1] - 1, schedule.scheduleEndDate[2] + 2);
-
-    const scheduleData = {
-      id: schedule.scheduleId,
-      title: schedule.scheduleTitle,
-      start: startDate.toISOString().split('T')[0],
-      end: endDate.toISOString().split('T')[0],
-      backgroundColor: color,
-      textColor: 'black',
-      // 추가적인 사용자 정의 속성
-      scheduleId: schedule.scheduleId,
-    };
-
-    if (schedule.__children) {
-      return [scheduleData, ...flattenSchedules(schedule.__children)];
-    } else {
-      return [scheduleData];
+    const getSchedules = async () => {
+      await defaultInstance.get(`schedules/sheet/${projectId}`, {
+        headers: {
+          'employeeId': employeeId
+        }
+      })
+          .then(response => {
+            const schedulesData = response.data.result.SheetData;
+            schedules.value = flattenSchedules(schedulesData);
+            console.log(`시트데이터 가져온값: `, schedules.value)
+          })
+          .catch(error => {
+            console.error(error);
+          });
     }
-  });
-}
-
-const getSchedules = async () => {
-  await defaultInstance.get(`schedules/sheet/${projectId}`, {
-    headers: {
-      'employeeId': employeeId
-    }
-  })
-  .then(response => {
-    const schedulesData = response.data.result.SheetData;
-    schedules.value = flattenSchedules(schedulesData);
-    console.log(`시트데이터 가져온값: `, schedules.value)
-  })
-  .catch(error => {
-    console.error(error);
-  });
-}
 
     const getProjectRequirements = async () => {
       // 요구사항 목록 조회 로직 구현
@@ -178,7 +183,18 @@ const getSchedules = async () => {
       router.push({name: '일정', params: {projectId: projectId}});
     }
 
-    return {projectId, employeeId, schedules, openModal, modalOpen, modalUrl, copyRequirementList, copyProjectMembers, goToSheetSchedulePage};
+    return {
+      projectId,
+      employeeId,
+      schedules,
+      openModal,
+      closeScheduleModal,
+      modalOpen,
+      modalUrl,
+      copyRequirementList,
+      copyProjectMembers,
+      goToSheetSchedulePage
+    };
 
   },
   data() {
@@ -255,11 +271,11 @@ const getSchedules = async () => {
     handleEvents(events) {
       this.currentEvents = events
     },
+
   }
 })
 
 </script>
-
 
 
 <style lang='css'>
