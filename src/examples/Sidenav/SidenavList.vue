@@ -52,7 +52,7 @@
             navText="일정"
         >
           <template v-slot:icon>
-            <i class="material-icons-round opacity-10 fs-5">table_view</i>
+            <i class="material-icons-round opacity-10 fs-5">calendar_today</i>
           </template>
         </sidenav-collapse>
       </li>

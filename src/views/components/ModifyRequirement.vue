@@ -9,15 +9,22 @@
         <form @submit.prevent="updateRequirement" class="text-start mt-3">
           <div class="mb-3">
             <label for="requirementsName">요구사항명</label>
-            <input id="requirementsName" type="text" v-model="requirementsName" class="form-control"/>
+            <MaterialInput
+                type="text"
+                v-model="requirementsName">
+            </MaterialInput>
+<!--            <input id="requirementsName" type="text" v-model="requirementsName" class="form-control"/>-->
           </div>
           <div class="mb-3">
             <label for="requirementsContent">요구사항 내용</label>
-            <input id="requirementsContent" type="text" v-model="requirementsContent" class="form-control"/>
+            <MaterialInput type="text" v-model="requirementsContent"></MaterialInput>
+<!--            <input id="requirementsContent" type="text" v-model="requirementsContent" class="form-control"/>-->
           </div>
           <div class="mb-3">
             <label for="reason">수정 사유</label>
-            <input id="reason" type="text" v-model="requirementHistoryReason" class="form-control"/>
+            <MaterialInput label="수정 사유를 입력하세요"
+                type="text" v-model="requirementHistoryReason"></MaterialInput>
+<!--            <input id="reason" type="text" v-model="requirementHistoryReason" class="form-control"/>-->
           </div>
           <!--          <div class="mb-3">-->
           <!--            <label for="projectMemberId">프로젝트 멤버 아이디</label>-->
@@ -37,6 +44,7 @@ import {ref, defineProps, defineEmits, watch} from 'vue';
 import {defaultInstance} from "@/axios/axios-instance";
 import store from "@/store";
 import {useToast} from "vue-toastification";
+import MaterialInput from "@/components/MaterialInput.vue";
 
 const props = defineProps({
   isVisible: Boolean,

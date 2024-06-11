@@ -10,21 +10,18 @@
         <form @submit.prevent="registerRequirement" class="text-start mt-3">
           <div class="mb-3">
             <label for="requirementsName">요구사항명</label>
-            <input
-                id="requirementsName"
+            <MaterialInput
                 type="text"
-                v-model="requirementsName"
-                class="form-control"
-            />
+                label="요구사항명을 입력하세요"
+                v-model="requirementsName">
+            </MaterialInput>
           </div>
           <div class="mb-3">
             <label for="requirementsContent">요구사항 내용</label>
-            <input
-                id="requirementsContent"
-                type="text"
-                v-model="requirementsContent"
-                class="form-control"
-            />
+            <MaterialInput type="text"
+                           label="요구사항 내용을 입력하세요"
+                           v-model="requirementsContent">
+            </MaterialInput>
           </div>
           <div class="text-center">
             <button type="submit" class="btn btn-success my-4 mb-2">등록</button>
@@ -36,10 +33,11 @@
 </template>
 
 <script setup>
-import { ref, defineEmits, defineProps} from 'vue';
+import {ref, defineEmits, defineProps} from 'vue';
 import {defaultInstance} from "@/axios/axios-instance";
 import store from "@/store";
 import {useToast} from "vue-toastification";
+import MaterialInput from "@/components/MaterialInput.vue";
 
 const props = defineProps({
   isVisible: {
