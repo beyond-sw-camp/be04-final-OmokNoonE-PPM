@@ -66,7 +66,7 @@
     </div>
 
     <!-- Snackbar Display -->
-    <div v-if="snackbar" class="snackbar-overlay" @click.stop>
+    <div v-if="snackbar" class="snackbar-overlay" @click.self="closeNotification">
       <material-snackbar
           v-if="snackbar"
           :title="snackbar.notificationTitle"
@@ -105,15 +105,21 @@ const closeSnackbar = () => {
   snackbar.value = null;
 };
 
-const markAsRead = async (id) => {
-  const notification = notifications.value.find((n) => n.notificationId === id);
-  if (notification) {
-    notification.markAsRead = true;
-  }
+const markAsRead = async (notificationId) => {
   try {
-    await store.dispatch("markAsRead", {notificationId: id, employeeId: employeeId.value});
+    const response = await defaultInstance.put(`/notifications/read/${notificationId}`);
+
+    console.log('응답 상태 코드:', response.status);
+
+    if (response.status === 204 || response.status === 200) {
+      await fetchNotifications();
+      notifications.value = notifications.value.filter(notification => notification.notificationId !== notificationId);
+    } else {
+      alert('알림 읽음 표시 중 오류가 발생했습니다.');
+    }
   } catch (error) {
-    toast.error(`알림을 읽음으로 표시하는 중 오류 발생: ${error.message}`);
+    console.error('알림 읽음 표시 중 오류 발생:', error);
+    alert('알림 읽음 표시 중 오류가 발생했습니다.');
   }
 };
 
@@ -124,9 +130,8 @@ const removeNotification = async (notificationId) => {
     if (response.status === 204) {
       await fetchNotifications();
       notifications.value = notifications.value.filter(notification => notification.notificationId !== notificationId);
-      alert('알림이 성공적으로 삭제되었습니다.');
     } else {
-      alert('알림 삭제 중 오류가 발생했습니다.');
+      toast.error('알림 삭제 중 오류가 발생했습니다.');
     }
   } catch (error) {
     console.error('알림 삭제 중 오류 발생:', error);
@@ -214,6 +219,10 @@ const dynamicClass = computed(() => {
     [`bg-gradient-${color.value} shadow-${color.value} border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center`]: true
   }
 });
+
+function closeNotification() {
+  snackbar.value = null;
+};
 </script>
 
 <style scoped>

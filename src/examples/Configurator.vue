@@ -109,16 +109,16 @@ export default {
   props: ["toggle"],
   methods: {
     ...mapMutations(["navbarMinimize", "navbarFixed"]),
-    ...mapActions(["setColor"]),
+    ...mapActions(["setColor", "setSidebarType"]),
 
     sidebarColor(color = "success") {
-      // TODO. 헤더 색상을 사이드바와 같은 색상으로 변경
       // document.querySelector("#sidenav-main").setAttribute("data-color", color);
       this.setColor(color);
     },
 
     sidebar(type) {
       this.$store.state.sidebarType = type;
+      this.setSidebarType(type);
     },
 
     setNavbarFixed() {
