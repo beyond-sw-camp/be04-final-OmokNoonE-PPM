@@ -66,7 +66,7 @@
     </div>
 
     <!-- Snackbar Display -->
-    <div v-if="snackbar" class="snackbar-overlay" @click.stop>
+    <div v-if="snackbar" class="snackbar-overlay" @click.self="closeNotification">
       <material-snackbar
           v-if="snackbar"
           :title="snackbar.notificationTitle"
@@ -130,9 +130,8 @@ const removeNotification = async (notificationId) => {
     if (response.status === 204) {
       await fetchNotifications();
       notifications.value = notifications.value.filter(notification => notification.notificationId !== notificationId);
-      alert('알림이 성공적으로 삭제되었습니다.');
     } else {
-      alert('알림 삭제 중 오류가 발생했습니다.');
+      toast.error('알림 삭제 중 오류가 발생했습니다.');
     }
   } catch (error) {
     console.error('알림 삭제 중 오류 발생:', error);
@@ -220,6 +219,10 @@ const dynamicClass = computed(() => {
     [`bg-gradient-${color.value} shadow-${color.value} border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center`]: true
   }
 });
+
+function closeNotification() {
+  snackbar.value = null;
+};
 </script>
 
 <style scoped>
