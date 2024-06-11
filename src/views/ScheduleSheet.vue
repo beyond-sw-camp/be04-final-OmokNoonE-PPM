@@ -121,8 +121,8 @@ export default defineComponent({
             return td;
           }
         },
-        {data: 'scheduleStartDate', type: 'date'},
-        {data: 'scheduleEndDate', type: 'date'},
+        {data: 'scheduleStartDate', type: 'text'},
+        {data: 'scheduleEndDate', type: 'text'},
         {
           data: 'schedulePriority',
           type: 'numeric',
