@@ -66,7 +66,7 @@
     </div>
 
     <!-- Snackbar Display -->
-    <div v-if="snackbar" class="snackbar-overlay" @click.stop>
+    <div v-if="snackbar" class="snackbar-overlay" @click.self="closeNotification">
       <material-snackbar
           v-if="snackbar"
           :title="snackbar.notificationTitle"
@@ -213,6 +213,10 @@ const dynamicClass = computed(() => {
     [`bg-gradient-${color.value} shadow-${color.value} border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center`]: true
   }
 });
+
+function closeNotification() {
+  snackbar.value = null;
+};
 </script>
 
 <style scoped>
