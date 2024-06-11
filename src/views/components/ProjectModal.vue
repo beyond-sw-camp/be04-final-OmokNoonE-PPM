@@ -173,6 +173,7 @@ import {defaultInstance} from "@/axios/axios-instance";
 import MaterialButton from "@/components/MaterialButton.vue";
 import MaterialInput from "@/components/MaterialInput.vue";
 import store from "@/store";
+import {useToast} from "vue-toastification";
 
 export default {
   components: {MaterialButton, MaterialInput},
@@ -236,6 +237,11 @@ export default {
     },
     async saveNewProject() {
       try {
+        const isPossible = await this.checkDate(new Date(this.projects[0].projectStartDate), new Date(this.projects[0].projectEndDate));
+        if (!isPossible) {
+          return;
+        }
+
         this.loading = true;
         const requestBody = {
           projectTitle: this.projects[0].projectTitle,
@@ -366,6 +372,22 @@ export default {
         console.error('Error fetching projects:', error);
       }
     },
+    async checkDate(startDate, endDate) {
+      const toast = useToast()
+      if (startDate > endDate) {
+        toast.error('시작일이 종료일보다 늦을 수 없습니다.');
+        return false;
+      }
+      const diffTime = Math.abs(endDate - startDate);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      // 근무일 기준 10일 이상
+      if (diffDays <= 12) {
+        toast.error('프로젝트는 근무일 기준 10일 이상이어야 합니다.');
+        return false;
+      }
+      return true;
+    }
   },
 };
 </script>
