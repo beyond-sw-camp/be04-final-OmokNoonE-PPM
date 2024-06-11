@@ -105,15 +105,21 @@ const closeSnackbar = () => {
   snackbar.value = null;
 };
 
-const markAsRead = async (id) => {
-  const notification = notifications.value.find((n) => n.notificationId === id);
-  if (notification) {
-    notification.markAsRead = true;
-  }
+const markAsRead = async (notificationId) => {
   try {
-    await store.dispatch("markAsRead", {notificationId: id, employeeId: employeeId.value});
+    const response = await defaultInstance.put(`/notifications/read/${notificationId}`);
+
+    console.log('응답 상태 코드:', response.status);
+
+    if (response.status === 204 || response.status === 200) {
+      await fetchNotifications();
+      notifications.value = notifications.value.filter(notification => notification.notificationId !== notificationId);
+    } else {
+      alert('알림 읽음 표시 중 오류가 발생했습니다.');
+    }
   } catch (error) {
-    toast.error(`알림을 읽음으로 표시하는 중 오류 발생: ${error.message}`);
+    console.error('알림 읽음 표시 중 오류 발생:', error);
+    alert('알림 읽음 표시 중 오류가 발생했습니다.');
   }
 };
 
