@@ -95,7 +95,14 @@
         </table>
       </div>
       <div class="mx-3">
-        <div v-if="isEditing">
+        <div v-if="loading" class="text-center modal-overlay-loading loading-container">
+<!--          <div class="spinner-border text-info" role="status"> 빙글빙글 오목눈이.ver-->
+          <div class="text-info" role="status">
+            <img src="../../assets/img/omoknoone.gif" alt="Loading..." class="loading-image"/>
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        </div>
+        <div v-else-if="isEditing">
           <material-button
               class="mt-4 w-25"
               @click="editMode === 'add' ? saveNewProject() : saveModifiedProject()"
@@ -184,7 +191,8 @@ export default {
         '착수': 10202,
         '종료': 10203,
         '중단': 10204
-      }
+      },
+      loading: false,         // 로딩 상태
     };
   },
   mounted() {
@@ -228,6 +236,7 @@ export default {
     },
     async saveNewProject() {
       try {
+        this.loading = true;
         const requestBody = {
           projectTitle: this.projects[0].projectTitle,
           projectStartDate: this.projects[0].projectStartDate,
@@ -244,9 +253,11 @@ export default {
 
         this.projects[0].isNew = false;
         this.isEditing = false;
+        this.loading = false;
         await this.open();
       } catch (error) {
         console.error('Error creating projects:', error);
+        this.loading = false;
       }
     },
     async modifyProject(project) {
@@ -443,5 +454,27 @@ td {
   top: 0;
   width: 100%;
   z-index: 999;
+}
+
+.modal-overlay-loading {
+  background-color: rgba(0, 0, 0, 0.2);
+  height: 100%;
+  left: 0;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 999;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.loading-image{
+  width: 50%;
+  height: auto;
 }
 </style>
