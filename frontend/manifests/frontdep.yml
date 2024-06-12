@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ppm-front
+spec:
+  selector:
+    matchLabels:
+      app: ppm-front
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: ppm-front
+    spec:
+      containers:
+      - name: ppm-front
+        image: orlzll/ppm-front
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
