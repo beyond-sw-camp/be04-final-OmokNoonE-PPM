@@ -107,6 +107,10 @@
 ![WBS](https://github.com/OmokNoonE/PPM-backend/assets/80697609/8e3add54-16a2-47be-a4c5-24d4331fb454)
 </details>
 
+<details>
+  <summary>개발 일정</summary>
+  <a href="https://github.com/orgs/OmokNoonE/projects/8/views/4">github Project</a>
+</details>
 
 <details>
   <summary>ERD</summary>
