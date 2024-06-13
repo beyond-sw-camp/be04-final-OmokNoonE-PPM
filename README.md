@@ -1,6 +1,6 @@
 # 소규모 일정 관리 시스템 PPM : Pro Project Manager
 
-![리드미로고](https://github.com/OmokNoonE/PPM-backend/assets/80697609/b7cc9413-2391-4541-95dd-afa0319485c3)
+![리드미로고](https://github.com/beyond-sw-camp/be04-final-OmokNoonE-PPM/assets/118791747/73fc2228-35fc-4ca2-9e4b-7494af55a4a4)
 
 
 >   프로젝트 일정 관리를 위한 툴은 스타트업과 중소기업 모두에게 필수적이지만, 비용 부담과 높은 학습 곡선으로 인해 도입이 어려운 경우가 많습니다. 이러한 기업들에게 쉽고 빠르게 사용할 수 있는 소규모 프로젝트 일정 관리를 위한 ERP 솔루션을 제공하여 원활한 사용 경험을 제공하고자 합니다.<br>
@@ -12,11 +12,10 @@
 
 ## 👋 커뮤니티 관리자를 소개합니다
 
-| <img src="https://github.com/beyond-sw-camp/be04-4th-OmokNoonE-OnionHotSayYo/blob/main/README_IMAGE/contributors/%EC%9D%B4%EC%9E%AC%EC%9B%90.png?raw=true" height=150/> | <img src="https://github.com/beyond-sw-camp/be04-4th-OmokNoonE-OnionHotSayYo/blob/main/README_IMAGE/contributors/%EC%9E%A5%EB%AF%BC%EC%84%9D.jpg?raw=true" height=150/> | <img src="https://github.com/beyond-sw-camp/be04-4th-OmokNoonE-OnionHotSayYo/blob/81830b8db14f32ec42ad51ad036851940f4d07b2/README_IMAGE/contributors/128px-Lolly_DnMe%2B_Model.png" height=150/> | <img src="https://github.com/beyond-sw-camp/be04-4th-OmokNoonE-OnionHotSayYo/blob/main/README_IMAGE/contributors/%EC%A7%80%ED%98%84%EA%B7%BC.png?raw=true" height=150/> | <img src="https://github.com/beyond-sw-camp/be04-4th-OmokNoonE-OnionHotSayYo/assets/118791747/2422d185-a933-4468-a67f-aade75ec8c7f" height=150/> |
+| <img src="https://github.com/beyond-sw-camp/be04-final-OmokNoonE-PPM/blob/main/docs/img/contributors/%EC%9D%B4%EC%9E%AC%EC%9B%90.png?raw=true" height=150/> | <img src="https://github.com/beyond-sw-camp/be04-final-OmokNoonE-PPM/blob/main/docs/img/contributors/%EC%9E%A5%EB%AF%BC%EC%84%9D.jpg?raw=true" height=150/> | <img src="https://github.com/beyond-sw-camp/be04-final-OmokNoonE-PPM/blob/main/docs/img/contributors/%EC%A1%B0%EC%98%88%EB%A6%B0.png?raw=true" height=150/> | <img src="https://github.com/beyond-sw-camp/be04-final-OmokNoonE-PPM/blob/main/docs/img/contributors/%EC%A7%80%ED%98%84%EA%B7%BC.png?raw=true" height=150/> | <img src="https://github.com/beyond-sw-camp/be04-final-OmokNoonE-PPM/blob/main/docs/img/contributors/%EC%B5%9C%EC%A2%85%EC%B0%AC.png?raw=true" height=150/> |
 | :----------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
 |                            이재원                            |                            장민석                            |                            조예린                            |                            지현근                            |                            최종찬                            |
 | [<img src="https://img.shields.io/badge/Github-Link-181717?logo=Github">](https://github.com/jlee38266) | [<img src="https://img.shields.io/badge/Github-Link-181717?logo=Github">](https://github.com/ms1011) | [<img src="https://img.shields.io/badge/Github-Link-181717?logo=Github">](https://github.com/orlzlL) | [<img src="https://img.shields.io/badge/Github-Link-181717?logo=Github">](https://github.com/jihyeongeun) | [<img src="https://img.shields.io/badge/Github-Link-181717?logo=Github">](https://github.com/CJC0512) |
-
 
 
 
@@ -75,13 +74,17 @@
 ## 📃 문서
 <details>
   <summary>프로젝트 기획서</summary>
-  <img width="491" alt="image" src="https://github.com/OmokNoonE/PPM-backend/assets/80697609/39b61cc9-92c5-407e-ade9-cead81260b08">
+ 
+  <img width="491" alt="image" src="https://github.com/beyond-sw-camp/be04-final-OmokNoonE-PPM/blob/main/docs/img/%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8%20%EA%B8%B0%ED%9A%8D%EC%84%9C.png?raw=true">
+  
 </details>
 
 
 <details>
   <summary>요구사항 정의서</summary>
-<img width="991" alt="image" src="https://github.com/OmokNoonE/PPM-backend/assets/80697609/276211f3-5437-4c5b-8d92-49ebfbc422ed">
+ 
+<img width="991" alt="image" src="https://github.com/beyond-sw-camp/be04-final-OmokNoonE-PPM/blob/main/docs/img/%EC%9A%94%EA%B5%AC%EC%82%AC%ED%95%AD%20%EC%A0%95%EC%9D%98%EC%84%9C.png?raw=true">
+
 </details>
 
 
@@ -89,14 +92,16 @@
 <details>
   <summary>API 명세서</summary>
  
-![API명세서](https://github.com/OmokNoonE/PPM-backend/assets/80697609/ce90abd6-efaf-4662-a665-4a459b1b2653)
+![API명세서](https://github.com/beyond-sw-camp/be04-final-OmokNoonE-PPM/blob/main/docs/img/API%20%EB%AA%85%EC%84%B8%EC%84%9C.png?raw=true)
+
 </details>
 
 
 <details>
   <summary>시스템 아키텍처</summary>
  
-![image](https://github.com/OmokNoonE/PPM-backend/assets/80697609/614f2c7d-8aa7-4ae2-9775-e61502318f15)
+![시스템 아키텍처](https://github.com/beyond-sw-camp/be04-final-OmokNoonE-PPM/blob/main/docs/img/%EC%8B%9C%EC%8A%A4%ED%85%9C%20%EC%95%84%ED%82%A4%ED%85%8D%EC%B2%98.png?raw=true)
+
 </details>
 
 
@@ -104,18 +109,22 @@
 <details>
   <summary>WBS</summary>
  
-![WBS](https://github.com/OmokNoonE/PPM-backend/assets/80697609/8e3add54-16a2-47be-a4c5-24d4331fb454)
+![WBS](https://github.com/beyond-sw-camp/be04-final-OmokNoonE-PPM/blob/main/docs/img/WBS.png?raw=true)
+
 </details>
 
 <details>
   <summary>개발 일정</summary>
-  <a href="https://github.com/orgs/OmokNoonE/projects/8/views/4">github Project</a>
+ 
+  ✈ <a href="https://github.com/orgs/OmokNoonE/projects/8/views/4">github Project</a>
+  
 </details>
 
 <details>
   <summary>ERD</summary>
  
-![image](https://github.com/OmokNoonE/PPM-backend/assets/80697609/2e407ef1-5c34-408a-952b-89b64e9599bd)
+![ERD](https://github.com/beyond-sw-camp/be04-final-OmokNoonE-PPM/blob/main/docs/img/ERD.png?raw=true)
+
 </details>
 
 
@@ -124,7 +133,8 @@
 <details>
   <summary>화면 설계서</summary>
  
-<img width="1050" alt="image" src="https://github.com/OmokNoonE/PPM-backend/assets/80697609/8ea4356e-d7ac-43ad-a8e3-574e6b84b59e">
+<img width="1050" alt="image" src="https://github.com/beyond-sw-camp/be04-final-OmokNoonE-PPM/blob/main/docs/img/%ED%99%94%EB%A9%B4%20%EC%84%A4%EA%B3%84%EC%84%9C.png?raw=true">
+
 </details>
 
 
@@ -133,20 +143,23 @@
 <details>
   <summary>단위 테스트 결과서</summary>
  
-<img width="1152" alt="image" src="https://github.com/OmokNoonE/PPM-backend/assets/80697609/46680b51-b401-4813-ab44-4f1208759e23">
+<img width="1152" alt="image" src="https://github.com/beyond-sw-camp/be04-final-OmokNoonE-PPM/blob/main/docs/img/%EB%8B%A8%EC%9C%84%20%ED%85%8C%EC%8A%A4%ED%8A%B8%20%EA%B2%B0%EA%B3%BC%EC%84%9C.png?raw=true">
+
 </details>
 
 <details>
   <summary>UI/UX 단위 테스트</summary>
  
-![UI:UX](https://github.com/OmokNoonE/PPM-backend/assets/80697609/d3fa85c0-452f-4f84-9db1-c05f33fec868)
+![UI:UX](https://github.com/beyond-sw-camp/be04-final-OmokNoonE-PPM/blob/main/docs/img/UIUX%20%EB%8B%A8%EC%9C%84%20%ED%85%8C%EC%8A%A4%ED%8A%B8.png?raw=true)
+
 </details>
 
 
 <details>
   <summary>통합 테스트 결과서</summary>
  
-![통합](https://github.com/OmokNoonE/PPM-backend/assets/80697609/5b887978-a506-470c-947f-685ee87ef1d5)
+![통합](https://github.com/beyond-sw-camp/be04-final-OmokNoonE-PPM/blob/main/docs/img/%ED%86%B5%ED%95%A9%20%ED%85%8C%EC%8A%A4%ED%8A%B8%20%EA%B2%B0%EA%B3%BC%EC%84%9C.png?raw=true)
+
 </details>
 
 
